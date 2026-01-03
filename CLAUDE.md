@@ -6,6 +6,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Grow Out Loud** - A Flutter mobile application with an execution system focus. The app features a clean, modern design with both light and dark mode support.
 
+## Implementation Plan
+
+Before building any feature, ALWAYS read: `IMPLEMENTATION_PLAN.md`
+
+This is the single source of truth for:
+- What to build (screens, features)
+- How to build it (edge cases, validation rules)
+- What's already built (checkboxes)
+- What NOT to do (BAD examples)
+
+**DO NOT** create separate planning documents.
+**DO NOT** build screens without wireframes.
+
+### Key Reference Files:
+| File | Purpose |
+|------|---------|
+| `IMPLEMENTATION_PLAN.md` | What to build, progress tracking |
+| `performance-section-wireframe.md` | Screen designs & layouts (in parent dir) |
+| `performance-architech.md` | Navigation flows & user journeys (in parent dir) |
+| `CLAUDE.md` | Development guidelines & rules |
+
 ## ⚠️ CRITICAL: Design System First Approach
 
 **ALWAYS use the Grow Out Loud (GOL) design system** when building any UI component or feature:

@@ -1,0 +1,293 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
+
+import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/signup_screen.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
+import '../providers/auth_provider.dart';
+import 'routes.dart';
+
+// Placeholder screens - will be replaced with actual implementations
+class _PlaceholderScreen extends StatelessWidget {
+  final String title;
+  const _PlaceholderScreen(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Text('$title - Coming Soon')),
+    );
+  }
+}
+
+/// Provider for the app router.
+///
+/// Usage:
+/// ```dart
+/// MaterialApp.router(
+///   routerConfig: ref.watch(routerProvider),
+/// )
+/// ```
+final routerProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authProvider);
+
+  return GoRouter(
+    initialLocation: Routes.dashboard,
+    debugLogDiagnostics: true,
+
+    // Redirect based on auth state
+    redirect: (context, state) {
+      final isLoading = authState is AuthLoading;
+      final isAuthenticated = authState is AuthAuthenticated;
+      final isAuthRoute = state.matchedLocation == Routes.login ||
+          state.matchedLocation == Routes.signUp ||
+          state.matchedLocation == Routes.forgotPassword;
+
+      // Still loading - don't redirect
+      if (isLoading) return null;
+
+      // Not authenticated and not on auth route - go to login
+      if (!isAuthenticated && !isAuthRoute) {
+        return Routes.login;
+      }
+
+      // Authenticated and on auth route - go to dashboard
+      if (isAuthenticated && isAuthRoute) {
+        return Routes.dashboard;
+      }
+
+      return null;
+    },
+
+    routes: [
+      // Auth routes
+      GoRoute(
+        path: Routes.login,
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.signUp,
+        name: 'signup',
+        builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: Routes.forgotPassword,
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+
+      // Main app shell with bottom navigation
+      ShellRoute(
+        builder: (context, state, child) {
+          return _MainShell(child: child);
+        },
+        routes: [
+          // Dashboard
+          GoRoute(
+            path: Routes.dashboard,
+            name: 'dashboard',
+            builder: (context, state) => const _PlaceholderScreen('Dashboard'),
+          ),
+
+          // Trackers list
+          GoRoute(
+            path: Routes.trackers,
+            name: 'trackers',
+            builder: (context, state) => const _PlaceholderScreen('Trackers'),
+            routes: [
+              // Create tracker
+              GoRoute(
+                path: 'create',
+                name: 'create-tracker',
+                builder: (context, state) => const _PlaceholderScreen('Create Tracker'),
+              ),
+            ],
+          ),
+
+          // Settings
+          GoRoute(
+            path: Routes.settings,
+            name: 'settings',
+            builder: (context, state) => const _PlaceholderScreen('Settings'),
+            routes: [
+              GoRoute(
+                path: 'platforms',
+                name: 'platform-management',
+                builder: (context, state) => const _PlaceholderScreen('Platform Management'),
+              ),
+            ],
+          ),
+        ],
+      ),
+
+      // Tracker hub (full screen, not in shell)
+      GoRoute(
+        path: '/trackers/:id',
+        name: 'tracker-hub',
+        builder: (context, state) {
+          final trackerId = state.pathParameters['id']!;
+          return _PlaceholderScreen('Tracker Hub: $trackerId');
+        },
+        routes: [
+          // Edit tracker
+          GoRoute(
+            path: 'edit',
+            name: 'edit-tracker',
+            builder: (context, state) {
+              final trackerId = state.pathParameters['id']!;
+              return _PlaceholderScreen('Edit Tracker: $trackerId');
+            },
+          ),
+
+          // Entry routes
+          GoRoute(
+            path: 'entries/log',
+            name: 'log-entry',
+            builder: (context, state) {
+              final trackerId = state.pathParameters['id']!;
+              return _PlaceholderScreen('Log Entry: $trackerId');
+            },
+          ),
+          GoRoute(
+            path: 'entries/history',
+            name: 'entry-history',
+            builder: (context, state) {
+              final trackerId = state.pathParameters['id']!;
+              return _PlaceholderScreen('Entry History: $trackerId');
+            },
+          ),
+          GoRoute(
+            path: 'entries/bulk',
+            name: 'bulk-edit',
+            builder: (context, state) {
+              final trackerId = state.pathParameters['id']!;
+              return _PlaceholderScreen('Bulk Edit: $trackerId');
+            },
+          ),
+          GoRoute(
+            path: 'entries/:entryId',
+            name: 'entry-detail',
+            builder: (context, state) {
+              final trackerId = state.pathParameters['id']!;
+              final entryId = state.pathParameters['entryId']!;
+              return _PlaceholderScreen('Entry: $entryId (Tracker: $trackerId)');
+            },
+            routes: [
+              GoRoute(
+                path: 'edit',
+                name: 'edit-entry',
+                builder: (context, state) {
+                  final trackerId = state.pathParameters['id']!;
+                  final entryId = state.pathParameters['entryId']!;
+                  return _PlaceholderScreen('Edit Entry: $entryId (Tracker: $trackerId)');
+                },
+              ),
+            ],
+          ),
+
+          // Post routes
+          GoRoute(
+            path: 'posts',
+            name: 'posts',
+            builder: (context, state) {
+              final trackerId = state.pathParameters['id']!;
+              return _PlaceholderScreen('Posts: $trackerId');
+            },
+            routes: [
+              GoRoute(
+                path: 'add',
+                name: 'add-post',
+                builder: (context, state) {
+                  final trackerId = state.pathParameters['id']!;
+                  return _PlaceholderScreen('Add Post: $trackerId');
+                },
+              ),
+              GoRoute(
+                path: ':postId/edit',
+                name: 'edit-post',
+                builder: (context, state) {
+                  final trackerId = state.pathParameters['id']!;
+                  final postId = state.pathParameters['postId']!;
+                  return _PlaceholderScreen('Edit Post: $postId (Tracker: $trackerId)');
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+
+      // Archive (full screen)
+      GoRoute(
+        path: Routes.archive,
+        name: 'archive',
+        builder: (context, state) => const _PlaceholderScreen('Archive'),
+      ),
+    ],
+
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(
+        child: Text('Page not found: ${state.matchedLocation}'),
+      ),
+    ),
+  );
+});
+
+/// Main shell with bottom navigation.
+class _MainShell extends StatelessWidget {
+  final Widget child;
+  const _MainShell({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: child,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _calculateSelectedIndex(context),
+        onTap: (index) => _onItemTapped(index, context),
+        enableFeedback: false, // No fancy animations per design system
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Iconsax.category),
+            activeIcon: Icon(Iconsax.category5),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Iconsax.chart),
+            activeIcon: Icon(Iconsax.chart5),
+            label: 'Trackers',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Iconsax.setting_2),
+            activeIcon: Icon(Iconsax.setting_25),
+            label: 'Settings',
+          ),
+        ],
+      ),
+    );
+  }
+
+  int _calculateSelectedIndex(BuildContext context) {
+    final location = GoRouterState.of(context).matchedLocation;
+    if (location.startsWith(Routes.trackers)) return 1;
+    if (location.startsWith(Routes.settings)) return 2;
+    return 0;
+  }
+
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        context.go(Routes.dashboard);
+        break;
+      case 1:
+        context.go(Routes.trackers);
+        break;
+      case 2:
+        context.go(Routes.settings);
+        break;
+    }
+  }
+}

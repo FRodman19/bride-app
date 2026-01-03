@@ -1,16 +1,47 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/config/app_config.dart';
+import 'core/config/supabase_config.dart';
+import 'grow_out_loud/foundation/gol_theme.dart';
+import 'routing/app_router.dart';
 import 'screens/design_system_home.dart';
 import 'screens/grow_out_loud_gallery_screen.dart';
-import 'grow_out_loud/foundation/gol_theme.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await AppConfig.init();
+
+  // Initialize Supabase
+  await SupabaseConfig.init();
+
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
+      title: 'Performance Tracker',
+      debugShowCheckedModeBanner: false,
+      routerConfig: router,
+      theme: GOLThemeData.light(),
+      darkTheme: GOLThemeData.dark(),
+      themeMode: ThemeMode.system,
+    );
+  }
+}
+
+/// Standalone design system gallery app for development
+class DesignSystemApp extends StatelessWidget {
+  const DesignSystemApp({super.key});
 
   @override
   Widget build(BuildContext context) {
