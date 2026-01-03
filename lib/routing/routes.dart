@@ -14,6 +14,9 @@ class Routes {
   static const String trackers = '/trackers';
   static const String settings = '/settings';
 
+  // Dev/Debug routes (temporary, remove in production)
+  static const String designSystemGallery = '/design-system-v3';
+
   // Tracker routes
   static const String createTracker = '/trackers/create';
   static const String trackerHub = '/trackers/:id';

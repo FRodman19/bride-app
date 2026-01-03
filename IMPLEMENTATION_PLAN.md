@@ -99,9 +99,9 @@ All screen designs are in: `performance-section-wireframe.md`
 ### Phase 2: Core Flow
 - [x] Screen 1: Performance Dashboard (2026-01-02)
 - [x] Screen 2: Create Tracker (manual) (2026-01-02)
-- [ ] Screen 3: Tracker Hub - Overview Tab
+- [x] Screen 3: Tracker Hub - Overview Tab (2026-01-03)
 - [x] Screen 21: Dashboard Empty State (2026-01-02)
-- [ ] Screen 29: Success Toast
+- [x] Screen 29: Success Toast (2026-01-03)
 - [x] Screen 35: Trackers List View (2026-01-02)
 - [x] Bottom navigation working (2026-01-02)
 - [x] Tracker CRUD operations (2026-01-02)

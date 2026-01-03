@@ -66,9 +66,10 @@ class GOLCard extends StatelessWidget {
           boxShadow: isDark ? GOLShadows.smDark : GOLShadows.sm,
         );
       case GOLCardVariant.interactive:
+        // Transparent background with outline only - matches input field styling
         return BoxDecoration(
-          color: colors.surfaceDefault,
-          border: Border.all(color: colors.borderDefault),
+          color: Colors.transparent,
+          border: Border.all(color: colors.borderDefault, width: 1.5),
           borderRadius: BorderRadius.circular(GOLRadius.cardStandard),
         );
     }

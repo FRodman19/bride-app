@@ -85,17 +85,121 @@ Future<void> showGOLBottomSheet(BuildContext context) {
   );
 }
 
-void showGOLToast(BuildContext context, String message) {
+/// Toast variants for different feedback types.
+enum GOLToastVariant {
+  /// Default info toast (blue/neutral)
+  info,
+
+  /// Success toast (green) - Screen 29
+  success,
+
+  /// Warning toast (amber/yellow)
+  warning,
+
+  /// Error toast (red)
+  error,
+}
+
+/// Shows a toast/snackbar message.
+///
+/// Screen 29: Success Toast
+/// - Auto-dismiss after 2-3 seconds
+/// - Tap to dismiss early
+/// - Overlays on current screen
+///
+/// Usage:
+/// ```dart
+/// showGOLToast(context, 'Project created successfully', variant: GOLToastVariant.success);
+/// showGOLToast(context, 'Something went wrong', variant: GOLToastVariant.error);
+/// ```
+void showGOLToast(
+  BuildContext context,
+  String message, {
+  GOLToastVariant variant = GOLToastVariant.info,
+  Duration duration = const Duration(seconds: 3),
+  VoidCallback? onTap,
+}) {
   final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+
+  // Get icon and background color based on variant
+  final IconData icon;
+  final Color backgroundColor;
+  final Color iconColor;
+
+  switch (variant) {
+    case GOLToastVariant.success:
+      icon = Iconsax.tick_circle;
+      backgroundColor = colors.stateSuccess;
+      iconColor = Colors.white;
+    case GOLToastVariant.warning:
+      icon = Iconsax.warning_2;
+      backgroundColor = colors.stateWarning;
+      iconColor = Colors.white;
+    case GOLToastVariant.error:
+      icon = Iconsax.close_circle;
+      backgroundColor = colors.stateError;
+      iconColor = Colors.white;
+    case GOLToastVariant.info:
+      icon = Iconsax.info_circle;
+      backgroundColor = colors.surfaceRaised;
+      iconColor = colors.interactivePrimary;
+  }
+
+  ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-        content: Row(
+      content: GestureDetector(
+        onTap: () {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          onTap?.call();
+        },
+        child: Row(
           children: [
-            Icon(Iconsax.info_circle, color: colors.textInverse, size: 20),
+            Icon(icon, color: iconColor, size: 20),
             const SizedBox(width: GOLSpacing.space3),
-            Expanded(child: Text(message)),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(
+                  color: variant == GOLToastVariant.info
+                      ? colors.textPrimary
+                      : Colors.white,
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+      backgroundColor: backgroundColor,
+      duration: duration,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: const EdgeInsets.symmetric(
+        horizontal: GOLSpacing.screenPaddingHorizontal,
+        vertical: GOLSpacing.space4,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: GOLSpacing.space4,
+        vertical: GOLSpacing.space3,
+      ),
+      dismissDirection: DismissDirection.horizontal,
     ),
   );
+}
+
+/// Shows a success toast - convenience wrapper.
+void showSuccessToast(BuildContext context, String message) {
+  showGOLToast(context, message, variant: GOLToastVariant.success);
+}
+
+/// Shows an error toast - convenience wrapper.
+void showErrorToast(BuildContext context, String message) {
+  showGOLToast(context, message, variant: GOLToastVariant.error);
+}
+
+/// Shows a warning toast - convenience wrapper.
+void showWarningToast(BuildContext context, String message) {
+  showGOLToast(context, message, variant: GOLToastVariant.warning);
 }

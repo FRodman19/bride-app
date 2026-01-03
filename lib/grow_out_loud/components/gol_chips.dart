@@ -98,3 +98,132 @@ class _ChipScheme {
     required this.textColor,
   });
 }
+
+/// A selectable chip for multi-select scenarios (platforms, goals, tags).
+///
+/// When selected:
+/// - Background: accent color with transparency
+/// - Border: accent/gold color (2px)
+/// - Text: accent/gold color with bold weight
+///
+/// When unselected:
+/// - Background: surfaceRaised
+/// - Border: borderDefault (1px)
+/// - Text: textPrimary with normal weight
+///
+/// Usage:
+/// ```dart
+/// GOLSelectableChip(
+///   label: 'Facebook',
+///   selected: _selectedPlatforms.contains('Facebook'),
+///   onTap: () => _togglePlatform('Facebook'),
+/// )
+/// ```
+class GOLSelectableChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback? onTap;
+  final IconData? icon;
+
+  const GOLSelectableChip({
+    super.key,
+    required this.label,
+    this.selected = false,
+    this.onTap,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(
+          horizontal: GOLSpacing.space3,
+          vertical: GOLSpacing.space2,
+        ),
+        decoration: BoxDecoration(
+          color: selected
+              ? colors.interactivePrimary.withValues(alpha: 0.15)
+              : colors.surfaceRaised,
+          borderRadius: BorderRadius.circular(GOLRadius.full),
+          border: Border.all(
+            color: selected ? colors.interactivePrimary : colors.borderDefault,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 16,
+                color: selected ? colors.interactivePrimary : colors.textSecondary,
+              ),
+              const SizedBox(width: GOLSpacing.space1),
+            ],
+            Text(
+              label,
+              style: textTheme.labelMedium?.copyWith(
+                color: selected ? colors.interactivePrimary : colors.textPrimary,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A group of selectable chips for easy multi-select.
+///
+/// Usage:
+/// ```dart
+/// GOLSelectableChipGroup(
+///   items: ['Facebook', 'TikTok', 'Instagram'],
+///   selectedItems: _selectedPlatforms,
+///   onChanged: (selected) => setState(() => _selectedPlatforms = selected),
+/// )
+/// ```
+class GOLSelectableChipGroup extends StatelessWidget {
+  final List<String> items;
+  final Set<String> selectedItems;
+  final ValueChanged<Set<String>> onChanged;
+
+  const GOLSelectableChipGroup({
+    super.key,
+    required this.items,
+    required this.selectedItems,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: GOLSpacing.space2,
+      runSpacing: GOLSpacing.space2,
+      children: items.map((item) {
+        final isSelected = selectedItems.contains(item);
+        return GOLSelectableChip(
+          label: item,
+          selected: isSelected,
+          onTap: () {
+            final newSelection = Set<String>.from(selectedItems);
+            if (isSelected) {
+              newSelection.remove(item);
+            } else {
+              newSelection.add(item);
+            }
+            onChanged(newSelection);
+          },
+        );
+      }).toList(),
+    );
+  }
+}

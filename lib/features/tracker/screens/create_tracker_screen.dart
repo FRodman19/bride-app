@@ -9,7 +9,10 @@ import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_buttons.dart';
 import '../../../grow_out_loud/components/gol_inputs.dart';
 import '../../../grow_out_loud/components/gol_cards.dart';
+import '../../../grow_out_loud/components/gol_chips.dart';
 import '../../../grow_out_loud/components/gol_overlays.dart';
+import '../../../grow_out_loud/components/gol_select_field.dart';
+import '../../../grow_out_loud/components/gol_dividers.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/constants/currency_constants.dart';
@@ -33,7 +36,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
   final _notesController = TextEditingController();
 
   DateTime _startDate = DateTime.now();
-  String _currency = 'XOF';
+  String _currency = 'XAF'; // Default to Franc CFA (BEAC)
   final Set<String> _selectedPlatforms = {'Facebook', 'TikTok'};
   final Set<String> _selectedGoals = {};
 
@@ -48,6 +51,9 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
     'Sales',
     'Engagement',
   ];
+
+  /// Get the current currency info
+  CurrencyInfo get _currencyInfo => CurrencyConstants.getCurrency(_currency);
 
   @override
   void dispose() {
@@ -111,10 +117,18 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
       setState(() => _isLoading = false);
 
       if (result.success) {
-        showGOLToast(context, 'Project created successfully');
+        showGOLToast(
+          context,
+          'Project created successfully',
+          variant: GOLToastVariant.success,
+        );
         context.pop();
       } else if (result.error != null) {
-        showGOLToast(context, result.error!);
+        showGOLToast(
+          context,
+          result.error!,
+          variant: GOLToastVariant.error,
+        );
       }
     }
   }
@@ -133,9 +147,9 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
         ),
         title: Text(
           'New Project',
-          style: textTheme.titleMedium?.copyWith(
+          style: textTheme.headlineSmall?.copyWith(
             color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: Colors.transparent,
@@ -188,10 +202,10 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
-                  // Currency selector
+                  // Currency dropdown
                   _buildLabel('Currency'),
                   const SizedBox(height: GOLSpacing.inputLabelGap),
-                  _CurrencySelector(
+                  _CurrencyDropdown(
                     value: _currency,
                     onChanged: (value) => setState(() => _currency = value),
                   ),
@@ -201,39 +215,25 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                   // Platforms
                   _buildLabel('Platforms'),
                   const SizedBox(height: GOLSpacing.inputLabelGap),
-                  Wrap(
-                    spacing: GOLSpacing.space2,
-                    runSpacing: GOLSpacing.space2,
-                    children: _availablePlatforms.map((platform) {
-                      final isSelected = _selectedPlatforms.contains(platform);
-                      return FilterChip(
-                        label: Text(platform),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedPlatforms.add(platform);
-                            } else {
-                              _selectedPlatforms.remove(platform);
-                            }
-                          });
-                        },
-                        backgroundColor: colors.surfaceDefault,
-                        selectedColor: colors.accentSubtle,
-                        checkmarkColor: colors.interactivePrimary,
-                      );
-                    }).toList(),
+                  GOLSelectableChipGroup(
+                    items: _availablePlatforms,
+                    selectedItems: _selectedPlatforms,
+                    onChanged: (selected) => setState(() {
+                      _selectedPlatforms.clear();
+                      _selectedPlatforms.addAll(selected);
+                    }),
                   ),
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
-                  // Revenue target (optional)
+                  // Revenue target (optional) - with currency suffix
                   GOLTextField(
                     label: 'Revenue Target (Optional)',
                     hintText: 'e.g., 500000',
                     controller: _revenueTargetController,
                     keyboardType: TextInputType.number,
                     prefixIcon: Icon(Iconsax.money, color: colors.textTertiary),
+                    trailingSuffix: GOLBadge(text: _currencyInfo.code),
                   ),
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
@@ -249,24 +249,28 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
-                  // Setup cost
+                  // Setup cost - with currency suffix
                   GOLTextField(
                     label: 'Setup Cost',
                     hintText: '0',
                     controller: _setupCostController,
                     keyboardType: TextInputType.number,
                     prefixIcon: Icon(Iconsax.wallet_minus, color: colors.textTertiary),
+                    trailingSuffix: GOLBadge(text: _currencyInfo.code),
+                    helperText: 'One-time cost to set up this project (ads, tools, etc.)',
                   ),
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
-                  // Monthly growth cost
+                  // Monthly growth cost - with currency suffix
                   GOLTextField(
                     label: 'Monthly Growth Cost',
                     hintText: '0',
                     controller: _growthCostController,
                     keyboardType: TextInputType.number,
                     prefixIcon: Icon(Iconsax.chart_1, color: colors.textTertiary),
+                    trailingSuffix: GOLBadge(text: _currencyInfo.code),
+                    helperText: 'Recurring monthly expenses (subscriptions, ads budget, etc.)',
                   ),
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
@@ -274,28 +278,13 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                   // Goals (optional)
                   _buildLabel('Goals (Optional)'),
                   const SizedBox(height: GOLSpacing.inputLabelGap),
-                  Wrap(
-                    spacing: GOLSpacing.space2,
-                    runSpacing: GOLSpacing.space2,
-                    children: _availableGoals.map((goal) {
-                      final isSelected = _selectedGoals.contains(goal);
-                      return FilterChip(
-                        label: Text(goal),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedGoals.add(goal);
-                            } else {
-                              _selectedGoals.remove(goal);
-                            }
-                          });
-                        },
-                        backgroundColor: colors.surfaceDefault,
-                        selectedColor: colors.accentSubtle,
-                        checkmarkColor: colors.interactivePrimary,
-                      );
-                    }).toList(),
+                  GOLSelectableChipGroup(
+                    items: _availableGoals,
+                    selectedItems: _selectedGoals,
+                    onChanged: (selected) => setState(() {
+                      _selectedGoals.clear();
+                      _selectedGoals.addAll(selected);
+                    }),
                   ),
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
@@ -337,11 +326,12 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
   }
 }
 
-class _CurrencySelector extends StatelessWidget {
+/// Currency dropdown with name on left and code on right
+class _CurrencyDropdown extends StatelessWidget {
   final String value;
   final ValueChanged<String> onChanged;
 
-  const _CurrencySelector({
+  const _CurrencyDropdown({
     required this.value,
     required this.onChanged,
   });
@@ -349,21 +339,181 @@ class _CurrencySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+    final selectedCurrency = CurrencyConstants.getCurrency(value);
+
+    return GOLCard(
+      variant: GOLCardVariant.interactive,
+      onTap: () => _showCurrencyPicker(context),
+      padding: const EdgeInsets.symmetric(
+        horizontal: GOLSpacing.inputPaddingHorizontal,
+        vertical: GOLSpacing.inputPaddingVertical,
+      ),
+      child: Row(
+        children: [
+          Icon(Iconsax.dollar_circle, color: colors.textTertiary),
+          const SizedBox(width: GOLSpacing.space3),
+          Expanded(
+            child: Text(
+              selectedCurrency.name,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.textPrimary,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: GOLSpacing.space2,
+              vertical: GOLSpacing.space1,
+            ),
+            decoration: BoxDecoration(
+              color: colors.interactivePrimary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              selectedCurrency.code,
+              style: textTheme.labelMedium?.copyWith(
+                color: colors.interactivePrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(width: GOLSpacing.space2),
+          Icon(Iconsax.arrow_down_1, size: 16, color: colors.textTertiary),
+        ],
+      ),
+    );
+  }
+
+  void _showCurrencyPicker(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
     final currencies = CurrencyConstants.supportedCurrencies;
 
-    return Wrap(
-      spacing: GOLSpacing.space2,
-      runSpacing: GOLSpacing.space2,
-      children: currencies.map((currency) {
-        final isSelected = currency.code == value;
-        return ChoiceChip(
-          label: Text('${currency.symbol} ${currency.code}'),
-          selected: isSelected,
-          onSelected: (_) => onChanged(currency.code),
-          backgroundColor: colors.surfaceDefault,
-          selectedColor: colors.accentSubtle,
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.surfaceDefault,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              Padding(
+                padding: const EdgeInsets.only(top: GOLSpacing.space3),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colors.borderDefault,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+
+              // Title
+              Padding(
+                padding: const EdgeInsets.all(GOLSpacing.space4),
+                child: Text(
+                  'Select Currency',
+                  style: textTheme.titleMedium?.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const GOLDivider(),
+
+              // Currency list
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: currencies.length,
+                  itemBuilder: (context, index) {
+                    final currency = currencies[index];
+                    final isSelected = currency.code == value;
+
+                    return ListTile(
+                      onTap: () {
+                        onChanged(currency.code);
+                        Navigator.pop(context);
+                      },
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? colors.interactivePrimary.withValues(alpha: 0.15)
+                              : colors.surfaceRaised,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            currency.symbol,
+                            style: textTheme.titleSmall?.copyWith(
+                              color: isSelected
+                                  ? colors.interactivePrimary
+                                  : colors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        currency.name,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: GOLSpacing.space2,
+                              vertical: GOLSpacing.space1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? colors.interactivePrimary.withValues(alpha: 0.15)
+                                  : colors.surfaceRaised,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              currency.code,
+                              style: textTheme.labelMedium?.copyWith(
+                                color: isSelected
+                                    ? colors.interactivePrimary
+                                    : colors.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          if (isSelected) ...[
+                            const SizedBox(width: GOLSpacing.space2),
+                            Icon(
+                              Iconsax.tick_circle5,
+                              color: colors.interactivePrimary,
+                              size: 20,
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: GOLSpacing.space4),
+            ],
+          ),
         );
-      }).toList(),
+      },
     );
   }
 }

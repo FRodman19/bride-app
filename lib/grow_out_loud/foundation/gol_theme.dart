@@ -35,6 +35,7 @@ class GOLThemeData {
             onError: colors.textInverse,
             surface: colors.surfaceDefault,
             onSurface: colors.textPrimary,
+            surfaceTint: Colors.transparent, // No tint on surfaces
             background: colors.backgroundPrimary,
             onBackground: colors.textPrimary,
             outline: colors.borderDefault,
@@ -48,6 +49,7 @@ class GOLThemeData {
             onError: colors.textInverse,
             surface: colors.surfaceDefault,
             onSurface: colors.textPrimary,
+            surfaceTint: Colors.transparent, // No tint on surfaces
             background: colors.backgroundPrimary,
             onBackground: colors.textPrimary,
             outline: colors.borderDefault,
@@ -61,14 +63,20 @@ class GOLThemeData {
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
         elevation: 0,
+        scrolledUnderElevation: 0, // No elevation when scrolled
         backgroundColor: colors.backgroundPrimary,
+        surfaceTintColor: Colors.transparent, // Remove orange/yellow tint
         foregroundColor: colors.textPrimary,
         titleTextStyle: textTheme.headlineSmall,
       ),
       dividerColor: colors.borderDefault,
+      dividerTheme: DividerThemeData(
+        color: colors.borderDefault,
+        thickness: 0.5, // Thin divider
+        space: 0, // No extra space
+      ),
       inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: colors.backgroundPrimary,
+        filled: false, // No fill color - outline only
         contentPadding: const EdgeInsets.symmetric(
           horizontal: GOLSpacing.inputPaddingHorizontal,
           vertical: GOLSpacing.inputPaddingVertical,
@@ -127,6 +135,15 @@ class GOLThemeData {
             top: Radius.circular(GOLRadius.modal),
           ),
         ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        dividerColor: Colors.transparent, // Remove the line below tabs
+        labelColor: colors.interactivePrimary,
+        unselectedLabelColor: colors.textSecondary,
+        indicatorColor: colors.interactivePrimary,
+        indicatorSize: TabBarIndicatorSize.tab,
+        labelStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+        unselectedLabelStyle: textTheme.labelLarge,
       ),
       extensions: [colors],
     );

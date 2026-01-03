@@ -15,6 +15,11 @@ class GOLTextField extends StatelessWidget {
   final bool readOnly;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
+
+  /// Always-visible trailing widget with flexible sizing (like badges).
+  /// Unlike suffixIcon, this has no size constraints and is always visible.
+  /// Unlike suffix, this doesn't disappear when the field loses focus.
+  final Widget? trailingSuffix;
   final TextInputType? keyboardType;
   final int? maxLength;
 
@@ -29,6 +34,7 @@ class GOLTextField extends StatelessWidget {
     this.readOnly = false,
     this.prefixIcon,
     this.suffixIcon,
+    this.trailingSuffix,
     this.keyboardType,
     this.maxLength,
   });
@@ -36,6 +42,20 @@ class GOLTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+
+    // Determine the effective suffix icon
+    // trailingSuffix takes precedence and removes size constraints
+    Widget? effectiveSuffixIcon = suffixIcon;
+    BoxConstraints? suffixConstraints;
+
+    if (trailingSuffix != null) {
+      effectiveSuffixIcon = Padding(
+        padding: const EdgeInsets.only(right: GOLSpacing.space3),
+        child: trailingSuffix,
+      );
+      // Remove default 48x48 constraints for flexible sizing
+      suffixConstraints = const BoxConstraints(minHeight: 0, minWidth: 0);
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +79,8 @@ class GOLTextField extends StatelessWidget {
             errorText: errorText,
             helperText: helperText,
             prefixIcon: prefixIcon,
-            suffixIcon: suffixIcon,
+            suffixIcon: effectiveSuffixIcon,
+            suffixIconConstraints: suffixConstraints,
           ),
         ),
       ],

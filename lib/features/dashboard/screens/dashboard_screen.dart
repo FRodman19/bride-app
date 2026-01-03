@@ -120,19 +120,38 @@ class _DashboardContent extends StatelessWidget {
           children: [
             const SizedBox(height: GOLSpacing.space4),
 
-            // Header
-            Text(
-              'Dashboard',
-              style: textTheme.displaySmall?.copyWith(
-                color: colors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              '${activeTrackers.length} active project${activeTrackers.length == 1 ? '' : 's'}',
-              style: textTheme.bodyMedium?.copyWith(
-                color: colors.textSecondary,
-              ),
+            // Header with design system button (dev only)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Dashboard',
+                        style: textTheme.displaySmall?.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${activeTrackers.length} active project${activeTrackers.length == 1 ? '' : 's'}',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Dev only - Design System Gallery button
+                IconButton(
+                  onPressed: () => context.push(Routes.designSystemGallery),
+                  icon: Icon(Iconsax.color_swatch, color: colors.textSecondary),
+                  tooltip: 'Design System Gallery',
+                ),
+              ],
             ),
 
             const SizedBox(height: GOLSpacing.space6),
@@ -223,19 +242,38 @@ class _DashboardEmptyState extends StatelessWidget {
         children: [
           const SizedBox(height: GOLSpacing.space4),
 
-          // Header - consistent with non-empty state
-          Text(
-            'Dashboard',
-            style: textTheme.displaySmall?.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            'Track your project performance',
-            style: textTheme.bodyMedium?.copyWith(
-              color: colors.textSecondary,
-            ),
+          // Header with design system button (dev only)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Dashboard',
+                      style: textTheme.displaySmall?.copyWith(
+                        color: colors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Track your project performance',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Dev only - Design System Gallery button
+              IconButton(
+                onPressed: () => context.push(Routes.designSystemGallery),
+                icon: Icon(Iconsax.color_swatch, color: colors.textSecondary),
+                tooltip: 'Design System Gallery',
+              ),
+            ],
           ),
 
           const SizedBox(height: GOLSpacing.space6),

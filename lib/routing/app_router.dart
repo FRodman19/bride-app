@@ -9,6 +9,8 @@ import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/tracker/screens/trackers_list_screen.dart';
 import '../features/tracker/screens/create_tracker_screen.dart';
+import '../features/tracker/screens/tracker_hub_screen.dart';
+import '../screens/grow_out_loud_gallery_screen.dart';
 import '../providers/auth_provider.dart';
 import 'routes.dart';
 
@@ -101,14 +103,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: Routes.trackers,
             name: 'trackers',
             builder: (context, state) => const TrackersListScreen(),
-            routes: [
-              // Create tracker
-              GoRoute(
-                path: 'create',
-                name: 'create-tracker',
-                builder: (context, state) => const CreateTrackerScreen(),
-              ),
-            ],
           ),
 
           // Settings
@@ -127,13 +121,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
+      // Create tracker (full screen, not in shell - no bottom nav)
+      GoRoute(
+        path: Routes.createTracker,
+        name: 'create-tracker',
+        builder: (context, state) => const CreateTrackerScreen(),
+      ),
+
       // Tracker hub (full screen, not in shell)
       GoRoute(
         path: '/trackers/:id',
         name: 'tracker-hub',
         builder: (context, state) {
           final trackerId = state.pathParameters['id']!;
-          return _PlaceholderScreen('Tracker Hub: $trackerId');
+          return TrackerHubScreen(trackerId: trackerId);
         },
         routes: [
           // Edit tracker
@@ -228,6 +229,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.archive,
         name: 'archive',
         builder: (context, state) => const _PlaceholderScreen('Archive'),
+      ),
+
+      // Design System Gallery (dev/debug only - remove in production)
+      GoRoute(
+        path: Routes.designSystemGallery,
+        name: 'design-system-gallery',
+        builder: (context, state) => const GrowOutLoudGalleryScreen(),
       ),
     ],
 

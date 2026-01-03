@@ -81,11 +81,11 @@ class GOLTabBarPreview extends StatelessWidget {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final tabs = ['Colors', 'Type', 'Components'];
 
+    // No bottom border - clean transition to content
     return Container(
       height: 48,
       decoration: BoxDecoration(
         color: colors.backgroundPrimary,
-        border: Border(bottom: BorderSide(color: colors.borderDefault)),
       ),
       child: Row(
         children: List.generate(
