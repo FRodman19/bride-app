@@ -6,6 +6,9 @@ import 'package:iconsax/iconsax.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
+import '../features/dashboard/screens/dashboard_screen.dart';
+import '../features/tracker/screens/trackers_list_screen.dart';
+import '../features/tracker/screens/create_tracker_screen.dart';
 import '../providers/auth_provider.dart';
 import 'routes.dart';
 
@@ -90,20 +93,20 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.dashboard,
             name: 'dashboard',
-            builder: (context, state) => const _PlaceholderScreen('Dashboard'),
+            builder: (context, state) => const DashboardScreen(),
           ),
 
           // Trackers list
           GoRoute(
             path: Routes.trackers,
             name: 'trackers',
-            builder: (context, state) => const _PlaceholderScreen('Trackers'),
+            builder: (context, state) => const TrackersListScreen(),
             routes: [
               // Create tracker
               GoRoute(
                 path: 'create',
                 name: 'create-tracker',
-                builder: (context, state) => const _PlaceholderScreen('Create Tracker'),
+                builder: (context, state) => const CreateTrackerScreen(),
               ),
             ],
           ),

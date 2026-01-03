@@ -49,6 +49,7 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
+/// Opens a native SQLite database connection for mobile platforms.
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
