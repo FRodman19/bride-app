@@ -54,7 +54,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
           TrackersLoaded(:final trackers) when trackers.isEmpty =>
             _DashboardEmptyState(
-              onCreateTracker: () => context.push(Routes.createTracker),
+              onCreateProject: () => context.push(Routes.createTracker),
             ),
           TrackersLoaded(:final trackers) => _DashboardContent(
               trackers: trackers,
@@ -129,7 +129,7 @@ class _DashboardContent extends StatelessWidget {
               ),
             ),
             Text(
-              '${activeTrackers.length} active tracker${activeTrackers.length == 1 ? '' : 's'}',
+              '${activeTrackers.length} active project${activeTrackers.length == 1 ? '' : 's'}',
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -207,9 +207,9 @@ class _DashboardContent extends StatelessWidget {
 }
 
 class _DashboardEmptyState extends StatelessWidget {
-  final VoidCallback onCreateTracker;
+  final VoidCallback onCreateProject;
 
-  const _DashboardEmptyState({required this.onCreateTracker});
+  const _DashboardEmptyState({required this.onCreateProject});
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +232,7 @@ class _DashboardEmptyState extends StatelessWidget {
             ),
           ),
           Text(
-            'Track your campaign performance',
+            'Track your project performance',
             style: textTheme.bodyMedium?.copyWith(
               color: colors.textSecondary,
             ),
@@ -240,8 +240,8 @@ class _DashboardEmptyState extends StatelessWidget {
 
           const SizedBox(height: GOLSpacing.space6),
 
-          // Empty state card
-          EmptyState.dashboard(onCreateTracker: onCreateTracker),
+          // Empty state card with feature bullets
+          EmptyState.dashboard(onCreateProject: onCreateProject),
         ],
       ),
     );

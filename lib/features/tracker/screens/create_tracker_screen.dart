@@ -14,9 +14,9 @@ import '../../../providers/tracker_provider.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/constants/currency_constants.dart';
 
-/// Screen 2: Create Tracker
+/// Screen 2: Create Project
 ///
-/// Manual tracker creation form.
+/// Manual project creation form.
 class CreateTrackerScreen extends ConsumerStatefulWidget {
   const CreateTrackerScreen({super.key});
 
@@ -111,7 +111,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
       setState(() => _isLoading = false);
 
       if (result.success) {
-        showGOLToast(context, 'Tracker created successfully');
+        showGOLToast(context, 'Project created successfully');
         context.pop();
       } else if (result.error != null) {
         showGOLToast(context, result.error!);
@@ -132,7 +132,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Create Tracker',
+          'New Project',
           style: textTheme.titleMedium?.copyWith(
             color: colors.textPrimary,
             fontWeight: FontWeight.w600,
@@ -150,7 +150,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                 children: [
                   // Name field
                   GOLTextField(
-                    label: 'Tracker Name',
+                    label: 'Project Name',
                     hintText: 'e.g., Summer Campaign 2024',
                     controller: _nameController,
                     errorText: _nameError,
@@ -303,7 +303,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                   // Notes (optional)
                   GOLTextField(
                     label: 'Notes (Optional)',
-                    hintText: 'Add any notes about this tracker...',
+                    hintText: 'Add any notes about this project...',
                     controller: _notesController,
                     maxLength: 500,
                   ),
@@ -312,7 +312,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
                   // Create button
                   GOLButton(
-                    label: 'Create Tracker',
+                    label: 'Create Project',
                     onPressed: _isLoading ? null : _handleCreate,
                     isLoading: _isLoading,
                     fullWidth: true,
@@ -395,7 +395,7 @@ class _LimitReachedState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space6),
             Text(
-              'Tracker Limit Reached',
+              'Project Limit Reached',
               style: textTheme.titleLarge?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -404,7 +404,7 @@ class _LimitReachedState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space2),
             Text(
-              'You have 20 active trackers. Archive some trackers to create new ones.',
+              'You have 20 active projects. Archive some to create new ones.',
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),

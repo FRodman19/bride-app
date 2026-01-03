@@ -6,6 +6,14 @@ import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_buttons.dart';
 import '../../../grow_out_loud/components/gol_cards.dart';
 
+/// Feature item for empty state bullet list.
+class EmptyStateFeature {
+  final IconData icon;
+  final String text;
+
+  const EmptyStateFeature({required this.icon, required this.text});
+}
+
 /// A reusable empty state widget.
 /// Used for Screens 21-25 (Dashboard, Entries, Posts, Archive, Entry History).
 class EmptyState extends StatelessWidget {
@@ -15,6 +23,7 @@ class EmptyState extends StatelessWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
   final bool useCard;
+  final List<EmptyStateFeature>? features;
 
   const EmptyState({
     super.key,
@@ -24,21 +33,28 @@ class EmptyState extends StatelessWidget {
     this.actionLabel,
     this.onAction,
     this.useCard = false,
+    this.features,
   });
 
-  /// Dashboard empty state - no trackers yet.
-  factory EmptyState.dashboard({required VoidCallback onCreateTracker}) {
+  /// Dashboard/Projects empty state - no projects yet.
+  factory EmptyState.dashboard({required VoidCallback onCreateProject}) {
     return EmptyState(
-      icon: Iconsax.chart_2,
+      icon: Iconsax.folder_add,
       title: 'Nothing yet',
-      subtitle: 'Create your first tracker to start monitoring your campaign performance',
-      actionLabel: 'Create Tracker',
-      onAction: onCreateTracker,
+      subtitle: 'Start your first project and track your progress',
+      actionLabel: 'Start New Project',
+      onAction: onCreateProject,
       useCard: true,
+      features: const [
+        EmptyStateFeature(icon: Iconsax.money_recive, text: 'Track revenue & spending'),
+        EmptyStateFeature(icon: Iconsax.chart_success, text: 'Monitor growth metrics'),
+        EmptyStateFeature(icon: Iconsax.document_text, text: 'Log posts & content'),
+        EmptyStateFeature(icon: Iconsax.status_up, text: 'See performance trends'),
+      ],
     );
   }
 
-  /// Entries empty state - no entries for this tracker.
+  /// Entries empty state - no entries for this project.
   factory EmptyState.entries({required VoidCallback onLogEntry}) {
     return EmptyState(
       icon: Iconsax.calendar_tick,
@@ -49,7 +65,7 @@ class EmptyState extends StatelessWidget {
     );
   }
 
-  /// Posts empty state - no posts for this tracker.
+  /// Posts empty state - no posts for this project.
   factory EmptyState.posts({required VoidCallback onAddPost}) {
     return EmptyState(
       icon: Iconsax.document_text,
@@ -60,12 +76,12 @@ class EmptyState extends StatelessWidget {
     );
   }
 
-  /// Archive empty state - no archived trackers.
+  /// Archive empty state - no archived projects.
   factory EmptyState.archive() {
     return const EmptyState(
       icon: Iconsax.archive_1,
-      title: 'No archived trackers',
-      subtitle: 'Trackers you archive will appear here',
+      title: 'No archived projects',
+      subtitle: 'Projects you archive will appear here',
     );
   }
 
@@ -89,20 +105,20 @@ class EmptyState extends StatelessWidget {
       children: [
         // Icon
         Container(
-          width: 80,
-          height: 80,
+          width: 72,
+          height: 72,
           decoration: BoxDecoration(
             color: useCard ? colors.surfaceDefault : colors.surfaceRaised,
             shape: BoxShape.circle,
           ),
           child: Icon(
             icon,
-            size: 36,
+            size: 32,
             color: colors.textTertiary,
           ),
         ),
 
-        const SizedBox(height: GOLSpacing.space6),
+        const SizedBox(height: GOLSpacing.space4),
 
         // Title
         Text(
@@ -126,7 +142,7 @@ class EmptyState extends StatelessWidget {
         ),
 
         if (actionLabel != null && onAction != null) ...[
-          const SizedBox(height: GOLSpacing.space6),
+          const SizedBox(height: GOLSpacing.space5),
 
           // Action button
           GOLButton(
@@ -139,16 +155,30 @@ class EmptyState extends StatelessWidget {
     );
 
     if (useCard) {
-      return Padding(
-        padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
-        child: GOLCard(
-          variant: GOLCardVariant.elevated,
-          padding: const EdgeInsets.symmetric(
-            horizontal: GOLSpacing.space6,
-            vertical: GOLSpacing.space8,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Centered card
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 340),
+              child: GOLCard(
+                variant: GOLCardVariant.elevated,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: GOLSpacing.space5,
+                  vertical: GOLSpacing.space6,
+                ),
+                child: content,
+              ),
+            ),
           ),
-          child: content,
-        ),
+
+          // Feature bullets below the card
+          if (features != null && features!.isNotEmpty) ...[
+            const SizedBox(height: GOLSpacing.space6),
+            _FeatureList(features: features!, colors: colors, textTheme: textTheme),
+          ],
+        ],
       );
     }
 
@@ -159,6 +189,57 @@ class EmptyState extends StatelessWidget {
         ),
         child: content,
       ),
+    );
+  }
+}
+
+class _FeatureList extends StatelessWidget {
+  final List<EmptyStateFeature> features;
+  final GOLSemanticColors colors;
+  final TextTheme textTheme;
+
+  const _FeatureList({
+    required this.features,
+    required this.colors,
+    required this.textTheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: GOLSpacing.space2),
+          child: Text(
+            'What you can track:',
+            style: textTheme.labelMedium?.copyWith(
+              color: colors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        const SizedBox(height: GOLSpacing.space3),
+        ...features.map((feature) => Padding(
+              padding: const EdgeInsets.only(bottom: GOLSpacing.space2),
+              child: Row(
+                children: [
+                  Icon(
+                    feature.icon,
+                    size: 18,
+                    color: colors.interactivePrimary,
+                  ),
+                  const SizedBox(width: GOLSpacing.space3),
+                  Text(
+                    feature.text,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            )),
+      ],
     );
   }
 }

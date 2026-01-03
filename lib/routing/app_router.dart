@@ -259,9 +259,9 @@ class _MainShell extends StatelessWidget {
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Iconsax.chart),
-            activeIcon: Icon(Iconsax.chart5),
-            label: 'Trackers',
+            icon: Icon(Iconsax.folder_2),
+            activeIcon: Icon(Iconsax.folder_25),
+            label: 'Projects',
           ),
           BottomNavigationBarItem(
             icon: Icon(Iconsax.setting_2),
