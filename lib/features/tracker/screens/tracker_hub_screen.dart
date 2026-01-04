@@ -2290,7 +2290,7 @@ class _TotalProfitCard extends StatelessWidget {
               profitResult.formatted,
               style: textTheme.displaySmall?.copyWith(
                 color: profitResult.isProfit
-                    ? colors.stateSuccess
+                    ? colors.textPrimary
                     : colors.stateError,
                 fontWeight: FontWeight.bold,
               ),
@@ -2336,7 +2336,7 @@ class _TotalProfitCard extends StatelessWidget {
               label: 'Final Profit',
               value: profitResult.formatted,
               valueColor: profitResult.isProfit
-                  ? colors.stateSuccess
+                  ? colors.textPrimary
                   : colors.stateError,
               isBold: true,
             ),
@@ -2473,7 +2473,7 @@ class _RevenueSpendBreakdownCard extends StatelessWidget {
                           'Profit: ${CurrencyFormatter.formatProfit(week.profit, currencyCode: currency).formatted}',
                           style: textTheme.bodySmall?.copyWith(
                             color: week.profit >= 0
-                                ? colors.stateSuccess
+                                ? colors.textPrimary
                                 : colors.stateError,
                             fontWeight: FontWeight.w500,
                           ),
@@ -2564,7 +2564,7 @@ class _WorstPerformingDaysCard extends StatelessWidget {
                           profitResult.formatted,
                           style: textTheme.bodyMedium?.copyWith(
                             color: profitResult.isProfit
-                                ? colors.stateSuccess
+                                ? colors.textPrimary
                                 : colors.stateError,
                             fontWeight: FontWeight.w600,
                           ),
@@ -2716,7 +2716,7 @@ class _BurnRateCard extends StatelessWidget {
                       : 'N/A',
                   style: textTheme.titleMedium?.copyWith(
                     color: reportsData.roi >= 0
-                        ? colors.stateSuccess
+                        ? colors.textPrimary
                         : colors.stateError,
                     fontWeight: FontWeight.bold,
                   ),
@@ -2806,7 +2806,7 @@ class _CumulativeProfitCard extends StatelessWidget {
                       profitResult.formatted,
                       style: textTheme.bodyMedium?.copyWith(
                         color: profitResult.isProfit
-                            ? colors.stateSuccess
+                            ? colors.textPrimary
                             : colors.stateError,
                         fontWeight: FontWeight.w500,
                       ),
@@ -2826,14 +2826,14 @@ class _CumulativeProfitCard extends StatelessWidget {
                   Icon(
                     Iconsax.tick_circle,
                     size: 16,
-                    color: colors.stateSuccess,
+                    color: colors.interactivePrimary,
                   ),
                   const SizedBox(width: GOLSpacing.space2),
                   Expanded(
                     child: Text(
                       'Break-even: ${DateFormat('MMM d').format(reportsData.breakEvenDate!)} (day ${reportsData.breakEvenDays})',
                       style: textTheme.bodyMedium?.copyWith(
-                        color: colors.stateSuccess,
+                        color: colors.textPrimary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
