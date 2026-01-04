@@ -14,6 +14,7 @@ import '../features/tracker/screens/log_entry_screen.dart';
 import '../features/tracker/screens/entry_detail_screen.dart';
 import '../features/tracker/screens/edit_entry_screen.dart';
 import '../features/tracker/screens/entry_history_screen.dart';
+import '../features/tracker/screens/archive_screen.dart';
 import '../screens/grow_out_loud_gallery_screen.dart';
 import '../providers/auth_provider.dart';
 import 'routes.dart';
@@ -232,7 +233,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.archive,
         name: 'archive',
-        builder: (context, state) => const _PlaceholderScreen('Archive'),
+        builder: (context, state) => const ArchiveScreen(),
       ),
 
       // Design System Gallery (dev/debug only - remove in production)

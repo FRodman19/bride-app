@@ -15,6 +15,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/platform_icons.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../providers/entry_provider.dart';
+import '../../../providers/post_provider.dart';
 import '../../../providers/reports_provider.dart';
 import '../../../routing/routes.dart';
 import '../../../services/export_service.dart';
@@ -220,9 +221,9 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                       color: colors.textPrimary,
                     ),
                   ),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
-                    // TODO: Implement archive/restore
+                    await _handleArchiveRestore(tracker);
                   },
                 ),
                 ListTile(
@@ -235,7 +236,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                   ),
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Implement export
+                    _tabController.animateTo(2); // Switch to Reports tab for export
                   },
                 ),
                 const Divider(),
@@ -249,7 +250,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                   ),
                   onTap: () {
                     Navigator.pop(context);
-                    // TODO: Show delete confirmation
+                    _showDeleteConfirmation(tracker);
                   },
                 ),
               ],
@@ -257,6 +258,146 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
           ),
         );
       },
+    );
+  }
+
+  Future<void> _handleArchiveRestore(Tracker tracker) async {
+    final notifier = ref.read(trackersProvider.notifier);
+
+    if (tracker.isArchived) {
+      // Restore
+      final result = await notifier.restoreTracker(tracker.id);
+      if (!mounted) return;
+
+      if (result.success) {
+        showGOLToast(
+          context,
+          '${tracker.name} restored',
+          variant: GOLToastVariant.success,
+        );
+      } else {
+        showGOLToast(
+          context,
+          result.error ?? 'Failed to restore',
+          variant: GOLToastVariant.error,
+        );
+      }
+    } else {
+      // Archive
+      final result = await notifier.archiveTracker(tracker.id);
+      if (!mounted) return;
+
+      if (result.success) {
+        showGOLToast(
+          context,
+          '${tracker.name} archived',
+          variant: GOLToastVariant.success,
+        );
+        context.go(Routes.dashboard);
+      } else {
+        showGOLToast(
+          context,
+          result.error ?? 'Failed to archive',
+          variant: GOLToastVariant.error,
+        );
+      }
+    }
+  }
+
+  void _showDeleteConfirmation(Tracker tracker) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Project?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '"${tracker.name}"',
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: GOLSpacing.space3),
+            Text(
+              'This will permanently delete the project and all associated data including:',
+              style: textTheme.bodySmall?.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: GOLSpacing.space2),
+            _buildDeleteInfoItem('All daily entries', colors, textTheme),
+            _buildDeleteInfoItem('All posts', colors, textTheme),
+            _buildDeleteInfoItem('All reports data', colors, textTheme),
+            const SizedBox(height: GOLSpacing.space3),
+            Text(
+              'This action cannot be undone.',
+              style: textTheme.bodySmall?.copyWith(
+                color: colors.stateError,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          GOLButton(
+            label: 'Cancel',
+            variant: GOLButtonVariant.tertiary,
+            onPressed: () => Navigator.pop(dialogContext),
+          ),
+          GOLButton(
+            label: 'Delete',
+            variant: GOLButtonVariant.destructive,
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+
+              final result = await ref.read(trackersProvider.notifier).deleteTracker(tracker.id);
+
+              if (!mounted) return;
+
+              if (result.success) {
+                showGOLToast(
+                  context,
+                  '${tracker.name} deleted',
+                  variant: GOLToastVariant.success,
+                );
+                context.go(Routes.dashboard);
+              } else {
+                showGOLToast(
+                  context,
+                  result.error ?? 'Failed to delete',
+                  variant: GOLToastVariant.error,
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeleteInfoItem(String text, GOLSemanticColors colors, TextTheme textTheme) {
+    return Padding(
+      padding: const EdgeInsets.only(top: GOLSpacing.space1),
+      child: Row(
+        children: [
+          Icon(
+            Iconsax.minus,
+            size: 14,
+            color: colors.stateError,
+          ),
+          const SizedBox(width: GOLSpacing.space2),
+          Text(
+            text,
+            style: textTheme.bodySmall?.copyWith(
+              color: colors.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -559,7 +700,11 @@ class _OverviewTab extends ConsumerWidget {
                 ),
               ),
             ),
+            const SizedBox(height: GOLSpacing.space5),
           ],
+
+          // Posts section (Optional)
+          _PostsSection(tracker: tracker),
 
           // Bottom padding for FAB
           const SizedBox(height: GOLSpacing.space11),
@@ -2921,5 +3066,1056 @@ class _ExportButtonState extends ConsumerState<_ExportButton> {
         setState(() => _isExporting = false);
       }
     }
+  }
+}
+
+/// Posts Section - Optional content references
+class _PostsSection extends ConsumerWidget {
+  final Tracker tracker;
+
+  const _PostsSection({required this.tracker});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+    final postsState = ref.watch(postsProvider(tracker.id));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(
+          title: 'Posts (Optional)',
+          trailing: TextButton.icon(
+            onPressed: () => _showAddPostModal(context, ref),
+            icon: Icon(
+              Iconsax.add,
+              size: 16,
+              color: colors.interactivePrimary,
+            ),
+            label: Text(
+              'Add',
+              style: textTheme.labelMedium?.copyWith(
+                color: colors.interactivePrimary,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: GOLSpacing.space3),
+
+        if (postsState is PostsLoading)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(GOLSpacing.space4),
+              child: CircularProgressIndicator(),
+            ),
+          )
+        else if (postsState is PostsLoaded && postsState.posts.isEmpty)
+          _PostsEmptyState(onAddPost: () => _showAddPostModal(context, ref))
+        else if (postsState is PostsLoaded)
+          Column(
+            children: postsState.posts.take(5).map((post) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: GOLSpacing.space2),
+                child: _PostCard(
+                  post: post,
+                  tracker: tracker,
+                ),
+              );
+            }).toList(),
+          )
+        else if (postsState is PostsError)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(GOLSpacing.space4),
+              child: Text(
+                postsState.message,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colors.stateError,
+                ),
+              ),
+            ),
+          ),
+
+        if (postsState is PostsLoaded && postsState.count > 5) ...[
+          const SizedBox(height: GOLSpacing.space2),
+          Center(
+            child: TextButton(
+              onPressed: () {
+                // Navigate to full posts list (could be a separate screen)
+              },
+              child: Text(
+                'View all ${postsState.count} posts',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colors.interactivePrimary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _showAddPostModal(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _AddPostModal(trackerId: tracker.id),
+    );
+  }
+}
+
+/// Empty state for posts section (Screen 23)
+class _PostsEmptyState extends StatelessWidget {
+  final VoidCallback onAddPost;
+
+  const _PostsEmptyState({required this.onAddPost});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return GOLCard(
+      variant: GOLCardVariant.standard,
+      padding: const EdgeInsets.all(GOLSpacing.cardPaddingSpacious),
+      child: Column(
+        children: [
+          Icon(
+            Iconsax.link_2,
+            size: 40,
+            color: colors.textTertiary,
+          ),
+          const SizedBox(height: GOLSpacing.space3),
+          Text(
+            'No Posts Yet',
+            style: textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: GOLSpacing.space2),
+          Text(
+            'Posts are optional reference links to track what content you published.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodySmall?.copyWith(
+              color: colors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: GOLSpacing.space2),
+          Text(
+            'Note: Posts don\'t affect revenue or profit calculations.',
+            textAlign: TextAlign.center,
+            style: textTheme.bodySmall?.copyWith(
+              color: colors.textTertiary,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          const SizedBox(height: GOLSpacing.space4),
+          GOLButton(
+            label: 'Add First Post',
+            variant: GOLButtonVariant.secondary,
+            onPressed: onAddPost,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Post Card
+class _PostCard extends ConsumerWidget {
+  final PostModel post;
+  final Tracker tracker;
+
+  const _PostCard({
+    required this.post,
+    required this.tracker,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return GOLCard(
+      variant: GOLCardVariant.standard,
+      padding: const EdgeInsets.all(GOLSpacing.space3),
+      child: InkWell(
+        onTap: () => _showEditPostModal(context, ref),
+        borderRadius: BorderRadius.circular(GOLRadius.md),
+        child: Row(
+          children: [
+            // Platform icon
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: colors.surfaceRaised,
+                borderRadius: BorderRadius.circular(GOLRadius.sm),
+              ),
+              child: Center(
+                child: PlatformIcons.getIcon(
+                  post.platform,
+                  size: 20,
+                  color: colors.interactivePrimary,
+                ),
+              ),
+            ),
+            const SizedBox(width: GOLSpacing.space3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    post.title,
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${post.platform}${post.publishedDate != null ? ' • ${DateFormat('MMM d, yyyy').format(post.publishedDate!)}' : ''}',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Iconsax.edit_2,
+              size: 16,
+              color: colors.textTertiary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditPostModal(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _EditPostModal(
+        post: post,
+        trackerId: tracker.id,
+      ),
+    );
+  }
+}
+
+/// Add Post Modal (Screen 12)
+class _AddPostModal extends ConsumerStatefulWidget {
+  final String trackerId;
+
+  const _AddPostModal({required this.trackerId});
+
+  @override
+  ConsumerState<_AddPostModal> createState() => _AddPostModalState();
+}
+
+class _AddPostModalState extends ConsumerState<_AddPostModal> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _urlController = TextEditingController();
+  final _notesController = TextEditingController();
+
+  String _selectedPlatform = PostPlatforms.all.first;
+  DateTime? _publishedDate;
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _urlController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+    final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surfaceDefault,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(GOLRadius.modal),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: bottomPadding),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: GOLSpacing.space4),
+                      decoration: BoxDecoration(
+                        color: colors.borderDefault,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+
+                  // Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Add Post',
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Iconsax.close_circle),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Title field
+                  Text(
+                    'Post Title *',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      hintText: 'e.g., Launch Announcement',
+                      filled: true,
+                      fillColor: colors.surfaceRaised,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().length < 3) {
+                        return 'Title must be at least 3 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  Text(
+                    'What content did you publish?',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colors.textTertiary,
+                    ),
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                  const GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Platform dropdown
+                  Text(
+                    'Platform *',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: GOLSpacing.space3),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(GOLRadius.md),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _selectedPlatform,
+                        isExpanded: true,
+                        icon: const Icon(Iconsax.arrow_down_1),
+                        items: PostPlatforms.all.map((platform) {
+                          return DropdownMenuItem(
+                            value: platform,
+                            child: Row(
+                              children: [
+                                PlatformIcons.getIcon(
+                                  platform,
+                                  size: 18,
+                                  color: colors.textPrimary,
+                                ),
+                                const SizedBox(width: GOLSpacing.space2),
+                                Text(platform),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedPlatform = value);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                  const GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Publish date
+                  Text(
+                    'Publish Date',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  InkWell(
+                    onTap: _selectDate,
+                    borderRadius: BorderRadius.circular(GOLRadius.md),
+                    child: Container(
+                      padding: const EdgeInsets.all(GOLSpacing.space3),
+                      decoration: BoxDecoration(
+                        color: colors.surfaceRaised,
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Iconsax.calendar_1,
+                            size: 20,
+                            color: colors.textSecondary,
+                          ),
+                          const SizedBox(width: GOLSpacing.space2),
+                          Text(
+                            _publishedDate != null
+                                ? DateFormat('MMM d, yyyy').format(_publishedDate!)
+                                : 'Select date (optional)',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: _publishedDate != null
+                                  ? colors.textPrimary
+                                  : colors.textTertiary,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Iconsax.arrow_right_3,
+                            size: 16,
+                            color: colors.textTertiary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                  const GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // URL field
+                  Text(
+                    'Post Link (Optional)',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  TextFormField(
+                    controller: _urlController,
+                    decoration: InputDecoration(
+                      hintText: 'https://...',
+                      filled: true,
+                      fillColor: colors.surfaceRaised,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    keyboardType: TextInputType.url,
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                  const GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Notes field
+                  Text(
+                    'Description (Optional)',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  TextFormField(
+                    controller: _notesController,
+                    decoration: InputDecoration(
+                      hintText: 'Post caption or summary...',
+                      filled: true,
+                      fillColor: colors.surfaceRaised,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    maxLines: 3,
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space6),
+
+                  // Action buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GOLButton(
+                          label: 'Cancel',
+                          variant: GOLButtonVariant.tertiary,
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                      const SizedBox(width: GOLSpacing.space3),
+                      Expanded(
+                        child: GOLButton(
+                          label: _isSubmitting ? 'Adding...' : 'Add Post',
+                          variant: GOLButtonVariant.primary,
+                          onPressed: _isSubmitting ? null : _submitPost,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _publishedDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (date != null) {
+      setState(() => _publishedDate = date);
+    }
+  }
+
+  Future<void> _submitPost() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    final result = await ref.read(postsProvider(widget.trackerId).notifier).createPost(
+      title: _titleController.text,
+      platform: _selectedPlatform,
+      url: _urlController.text.isEmpty ? null : _urlController.text,
+      publishedDate: _publishedDate,
+      notes: _notesController.text.isEmpty ? null : _notesController.text,
+    );
+
+    if (!mounted) return;
+
+    if (result.success) {
+      Navigator.pop(context);
+      showGOLToast(
+        context,
+        'Post added successfully',
+        variant: GOLToastVariant.success,
+      );
+    } else {
+      setState(() => _isSubmitting = false);
+      showGOLToast(
+        context,
+        result.error ?? 'Failed to add post',
+        variant: GOLToastVariant.error,
+      );
+    }
+  }
+}
+
+/// Edit Post Modal (Screen 13)
+class _EditPostModal extends ConsumerStatefulWidget {
+  final PostModel post;
+  final String trackerId;
+
+  const _EditPostModal({
+    required this.post,
+    required this.trackerId,
+  });
+
+  @override
+  ConsumerState<_EditPostModal> createState() => _EditPostModalState();
+}
+
+class _EditPostModalState extends ConsumerState<_EditPostModal> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _titleController;
+  late TextEditingController _urlController;
+  late TextEditingController _notesController;
+
+  late String _selectedPlatform;
+  DateTime? _publishedDate;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.post.title);
+    _urlController = TextEditingController(text: widget.post.url ?? '');
+    _notesController = TextEditingController(text: widget.post.notes ?? '');
+    _selectedPlatform = widget.post.platform;
+    _publishedDate = widget.post.publishedDate;
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _urlController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+    final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surfaceDefault,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(GOLRadius.modal),
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: bottomPadding),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Handle bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: GOLSpacing.space4),
+                      decoration: BoxDecoration(
+                        color: colors.borderDefault,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+
+                  // Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Edit Post',
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Iconsax.close_circle),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Title field
+                  Text(
+                    'Post Title *',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      hintText: 'e.g., Launch Announcement',
+                      filled: true,
+                      fillColor: colors.surfaceRaised,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().length < 3) {
+                        return 'Title must be at least 3 characters';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                  const GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Platform dropdown
+                  Text(
+                    'Platform *',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: GOLSpacing.space3),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(GOLRadius.md),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _selectedPlatform,
+                        isExpanded: true,
+                        icon: const Icon(Iconsax.arrow_down_1),
+                        items: PostPlatforms.all.map((platform) {
+                          return DropdownMenuItem(
+                            value: platform,
+                            child: Row(
+                              children: [
+                                PlatformIcons.getIcon(
+                                  platform,
+                                  size: 18,
+                                  color: colors.textPrimary,
+                                ),
+                                const SizedBox(width: GOLSpacing.space2),
+                                Text(platform),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedPlatform = value);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                  const GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Publish date
+                  Text(
+                    'Publish Date',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  InkWell(
+                    onTap: _selectDate,
+                    borderRadius: BorderRadius.circular(GOLRadius.md),
+                    child: Container(
+                      padding: const EdgeInsets.all(GOLSpacing.space3),
+                      decoration: BoxDecoration(
+                        color: colors.surfaceRaised,
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Iconsax.calendar_1,
+                            size: 20,
+                            color: colors.textSecondary,
+                          ),
+                          const SizedBox(width: GOLSpacing.space2),
+                          Text(
+                            _publishedDate != null
+                                ? DateFormat('MMM d, yyyy').format(_publishedDate!)
+                                : 'Select date (optional)',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: _publishedDate != null
+                                  ? colors.textPrimary
+                                  : colors.textTertiary,
+                            ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Iconsax.arrow_right_3,
+                            size: 16,
+                            color: colors.textTertiary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                  const GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // URL field
+                  Text(
+                    'Post Link (Optional)',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  TextFormField(
+                    controller: _urlController,
+                    decoration: InputDecoration(
+                      hintText: 'https://...',
+                      filled: true,
+                      fillColor: colors.surfaceRaised,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    keyboardType: TextInputType.url,
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                  const GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Notes field
+                  Text(
+                    'Description (Optional)',
+                    style: textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space2),
+                  TextFormField(
+                    controller: _notesController,
+                    decoration: InputDecoration(
+                      hintText: 'Post caption or summary...',
+                      filled: true,
+                      fillColor: colors.surfaceRaised,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    maxLines: 3,
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Post metadata
+                  Container(
+                    padding: const EdgeInsets.all(GOLSpacing.space3),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(GOLRadius.md),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Post Info',
+                          style: textTheme.labelSmall?.copyWith(
+                            color: colors.textTertiary,
+                          ),
+                        ),
+                        const SizedBox(height: GOLSpacing.space2),
+                        Text(
+                          'Created: ${DateFormat('MMM d, yyyy').format(widget.post.createdAt)}',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                        Text(
+                          'Last edited: ${DateFormat('MMM d, yyyy').format(widget.post.updatedAt)}',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space6),
+
+                  // Action buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GOLButton(
+                          label: 'Delete Post',
+                          variant: GOLButtonVariant.destructive,
+                          onPressed: _showDeleteConfirmation,
+                        ),
+                      ),
+                      const SizedBox(width: GOLSpacing.space3),
+                      Expanded(
+                        child: GOLButton(
+                          label: _isSubmitting ? 'Saving...' : 'Save Changes',
+                          variant: GOLButtonVariant.primary,
+                          onPressed: _isSubmitting ? null : _submitPost,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: GOLSpacing.space4),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _selectDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _publishedDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (date != null) {
+      setState(() => _publishedDate = date);
+    }
+  }
+
+  Future<void> _submitPost() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    final updatedPost = widget.post.copyWith(
+      title: _titleController.text,
+      platform: _selectedPlatform,
+      url: _urlController.text.isEmpty ? null : _urlController.text,
+      publishedDate: _publishedDate,
+      notes: _notesController.text.isEmpty ? null : _notesController.text,
+    );
+
+    final result = await ref.read(postsProvider(widget.trackerId).notifier).updatePost(updatedPost);
+
+    if (!mounted) return;
+
+    if (result.success) {
+      Navigator.pop(context);
+      showGOLToast(
+        context,
+        'Post updated successfully',
+        variant: GOLToastVariant.success,
+      );
+    } else {
+      setState(() => _isSubmitting = false);
+      showGOLToast(
+        context,
+        result.error ?? 'Failed to update post',
+        variant: GOLToastVariant.error,
+      );
+    }
+  }
+
+  void _showDeleteConfirmation() {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Post?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '"${widget.post.title}"',
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: GOLSpacing.space2),
+            Text(
+              'Platform: ${widget.post.platform}',
+              style: textTheme.bodySmall,
+            ),
+            if (widget.post.publishedDate != null)
+              Text(
+                'Posted: ${DateFormat('MMM d, yyyy').format(widget.post.publishedDate!)}',
+                style: textTheme.bodySmall,
+              ),
+            const SizedBox(height: GOLSpacing.space3),
+            Text(
+              'This action cannot be undone.',
+              style: textTheme.bodySmall?.copyWith(
+                color: colors.stateError,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          GOLButton(
+            label: 'Cancel',
+            variant: GOLButtonVariant.tertiary,
+            onPressed: () => Navigator.pop(dialogContext),
+          ),
+          GOLButton(
+            label: 'Delete Post',
+            variant: GOLButtonVariant.destructive,
+            onPressed: () async {
+              Navigator.pop(dialogContext); // Close dialog
+
+              final result = await ref.read(postsProvider(widget.trackerId).notifier).deletePost(widget.post.id);
+
+              if (!mounted) return;
+
+              Navigator.pop(context); // Close modal
+
+              if (result.success) {
+                showGOLToast(
+                  context,
+                  'Post deleted',
+                  variant: GOLToastVariant.success,
+                );
+              } else {
+                showGOLToast(
+                  context,
+                  result.error ?? 'Failed to delete post',
+                  variant: GOLToastVariant.error,
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

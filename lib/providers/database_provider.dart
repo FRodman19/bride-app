@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/local/database.dart';
 import '../data/local/daos/tracker_dao.dart';
 import '../data/local/daos/entry_dao.dart';
+import '../data/local/daos/post_dao.dart';
 import '../data/local/daos/sync_dao.dart';
 
 /// Provider for the local SQLite database.
@@ -29,6 +30,12 @@ final trackerDaoProvider = Provider<TrackerDao>((ref) {
 final entryDaoProvider = Provider<EntryDao>((ref) {
   final db = ref.watch(databaseProvider);
   return EntryDao(db);
+});
+
+/// Provider for the Post DAO.
+final postDaoProvider = Provider<PostDao>((ref) {
+  final db = ref.watch(databaseProvider);
+  return PostDao(db);
 });
 
 /// Provider for the Sync DAO.
