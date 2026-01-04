@@ -128,4 +128,11 @@ class EntryDao extends DatabaseAccessor<AppDatabase> with _$EntryDaoMixin {
       const DailyEntriesCompanion(syncStatus: Value('synced')),
     );
   }
+
+  /// Update sync status (synced, pending, error)
+  Future<void> updateSyncStatus(String id, String status) {
+    return (update(dailyEntries)..where((e) => e.id.equals(id))).write(
+      DailyEntriesCompanion(syncStatus: Value(status)),
+    );
+  }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/app_config.dart';
 import 'core/config/supabase_config.dart';
 import 'grow_out_loud/foundation/gol_theme.dart';
+import 'providers/sync_provider.dart';
 import 'routing/app_router.dart';
 import 'screens/design_system_home.dart';
 import 'screens/grow_out_loud_gallery_screen.dart';
@@ -27,6 +28,9 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+
+    // Initialize sync provider to listen for connectivity changes
+    ref.watch(syncProvider);
 
     return MaterialApp.router(
       title: 'Performance Tracker',
