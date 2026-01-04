@@ -78,7 +78,15 @@ class GOLTextField extends StatelessWidget {
             hintText: hintText,
             errorText: errorText,
             helperText: helperText,
-            prefixIcon: prefixIcon,
+            prefixIcon: prefixIcon != null
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 8),
+                    child: prefixIcon,
+                  )
+                : null,
+            prefixIconConstraints: prefixIcon != null
+                ? const BoxConstraints(minWidth: 0, minHeight: 0)
+                : null,
             suffixIcon: effectiveSuffixIcon,
             suffixIconConstraints: suffixConstraints,
           ),

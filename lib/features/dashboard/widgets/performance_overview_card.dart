@@ -28,7 +28,8 @@ class PerformanceOverviewCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final isProfit = totalProfit >= 0;
-    final profitColor = isProfit ? colors.stateSuccess : colors.stateError;
+    // Use normal text color for profit, only red for loss (more professional)
+    final profitColor = isProfit ? colors.textPrimary : colors.stateError;
 
     return GOLCard(
       variant: GOLCardVariant.elevated,

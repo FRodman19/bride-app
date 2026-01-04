@@ -6,6 +6,8 @@ import 'package:iconsax/iconsax.dart';
 import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../providers/tracker_provider.dart';
+import '../../../providers/entry_provider.dart';
+import '../../../domain/models/tracker.dart';
 import '../../../routing/routes.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../dashboard/widgets/tracker_card.dart';
@@ -116,9 +118,20 @@ class _ProjectsEmptyState extends StatelessWidget {
   }
 }
 
-class _TrackersListContent extends StatelessWidget {
-  final List<dynamic> activeTrackers;
-  final List<dynamic> archivedTrackers;
+/// Helper class to hold tracker stats calculated from entries
+class _TrackerStats {
+  final int totalProfit;
+  final int entryCount;
+
+  const _TrackerStats({
+    this.totalProfit = 0,
+    this.entryCount = 0,
+  });
+}
+
+class _TrackersListContent extends ConsumerWidget {
+  final List<Tracker> activeTrackers;
+  final List<Tracker> archivedTrackers;
 
   const _TrackersListContent({
     required this.activeTrackers,
@@ -126,9 +139,35 @@ class _TrackersListContent extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+
+    // Calculate stats from entries for each tracker
+    final Map<String, _TrackerStats> trackerStats = {};
+
+    for (final tracker in [...activeTrackers, ...archivedTrackers]) {
+      final entriesState = ref.watch(entriesProvider(tracker.id));
+
+      if (entriesState is EntriesLoaded) {
+        int revenue = 0;
+        int spend = 0;
+        for (final entry in entriesState.entries) {
+          revenue += entry.totalRevenue;
+          spend += entry.totalSpend;
+        }
+        trackerStats[tracker.id] = _TrackerStats(
+          totalProfit: revenue - spend,
+          entryCount: entriesState.entries.length,
+        );
+      } else {
+        // Use tracker's stored values as fallback while loading
+        trackerStats[tracker.id] = _TrackerStats(
+          totalProfit: tracker.totalProfit.round(),
+          entryCount: tracker.entryCount,
+        );
+      }
+    }
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -182,13 +221,18 @@ class _TrackersListContent extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: GOLSpacing.space3),
-              ...activeTrackers.map((tracker) => Padding(
-                    padding: const EdgeInsets.only(bottom: GOLSpacing.space3),
-                    child: TrackerCard(
-                      tracker: tracker,
-                      onTap: () => context.push('/trackers/${tracker.id}'),
-                    ),
-                  )),
+              ...activeTrackers.map((tracker) {
+                final stats = trackerStats[tracker.id] ?? const _TrackerStats();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: GOLSpacing.space3),
+                  child: TrackerCard(
+                    tracker: tracker,
+                    onTap: () => context.push('/trackers/${tracker.id}'),
+                    liveProfit: stats.totalProfit,
+                    liveEntryCount: stats.entryCount,
+                  ),
+                );
+              }),
             ],
 
             // Archived projects
@@ -208,16 +252,21 @@ class _TrackersListContent extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: GOLSpacing.space3),
-              ...archivedTrackers.map((tracker) => Padding(
-                    padding: const EdgeInsets.only(bottom: GOLSpacing.space3),
-                    child: Opacity(
-                      opacity: 0.7,
-                      child: TrackerCard(
-                        tracker: tracker,
-                        onTap: () => context.push('/trackers/${tracker.id}'),
-                      ),
+              ...archivedTrackers.map((tracker) {
+                final stats = trackerStats[tracker.id] ?? const _TrackerStats();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: GOLSpacing.space3),
+                  child: Opacity(
+                    opacity: 0.7,
+                    child: TrackerCard(
+                      tracker: tracker,
+                      onTap: () => context.push('/trackers/${tracker.id}'),
+                      liveProfit: stats.totalProfit,
+                      liveEntryCount: stats.entryCount,
                     ),
-                  )),
+                  ),
+                );
+              }),
             ],
 
             // Bottom padding for FAB

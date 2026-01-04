@@ -61,6 +61,12 @@ class GOLThemeData {
       scaffoldBackgroundColor: colors.backgroundPrimary,
       colorScheme: colorScheme,
       textTheme: textTheme,
+      // Cursor and text selection use accent color
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: colors.interactivePrimary,
+        selectionColor: colors.interactivePrimary.withValues(alpha: 0.3),
+        selectionHandleColor: colors.interactivePrimary,
+      ),
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0, // No elevation when scrolled
@@ -84,7 +90,7 @@ class GOLThemeData {
         hintStyle: textTheme.bodyMedium?.copyWith(color: colors.textTertiary),
         labelStyle: textTheme.labelSmall?.copyWith(color: colors.textSecondary),
         enabledBorder: _outline(colors.borderDefault, 1.5),
-        focusedBorder: _outline(colors.borderFocus, 2),
+        focusedBorder: _outline(colors.borderStrong, 2),  // Keep grey on focus, cursor has accent
         errorBorder: _outline(colors.stateError, 2),
         focusedErrorBorder: _outline(colors.stateError, 2),
       ),

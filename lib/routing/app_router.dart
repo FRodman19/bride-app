@@ -10,6 +10,10 @@ import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/tracker/screens/trackers_list_screen.dart';
 import '../features/tracker/screens/create_tracker_screen.dart';
 import '../features/tracker/screens/tracker_hub_screen.dart';
+import '../features/tracker/screens/log_entry_screen.dart';
+import '../features/tracker/screens/entry_detail_screen.dart';
+import '../features/tracker/screens/edit_entry_screen.dart';
+import '../features/tracker/screens/entry_history_screen.dart';
 import '../screens/grow_out_loud_gallery_screen.dart';
 import '../providers/auth_provider.dart';
 import 'routes.dart';
@@ -153,7 +157,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'log-entry',
             builder: (context, state) {
               final trackerId = state.pathParameters['id']!;
-              return _PlaceholderScreen('Log Entry: $trackerId');
+              return LogEntryScreen(trackerId: trackerId);
             },
           ),
           GoRoute(
@@ -161,7 +165,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'entry-history',
             builder: (context, state) {
               final trackerId = state.pathParameters['id']!;
-              return _PlaceholderScreen('Entry History: $trackerId');
+              return EntryHistoryScreen(trackerId: trackerId);
             },
           ),
           GoRoute(
@@ -178,7 +182,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) {
               final trackerId = state.pathParameters['id']!;
               final entryId = state.pathParameters['entryId']!;
-              return _PlaceholderScreen('Entry: $entryId (Tracker: $trackerId)');
+              return EntryDetailScreen(trackerId: trackerId, entryId: entryId);
             },
             routes: [
               GoRoute(
@@ -187,7 +191,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final trackerId = state.pathParameters['id']!;
                   final entryId = state.pathParameters['entryId']!;
-                  return _PlaceholderScreen('Edit Entry: $entryId (Tracker: $trackerId)');
+                  return EditEntryScreen(trackerId: trackerId, entryId: entryId);
                 },
               ),
             ],

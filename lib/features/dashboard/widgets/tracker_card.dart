@@ -9,14 +9,25 @@ import '../../../domain/models/tracker.dart';
 
 /// Compact tracker card for dashboard lists.
 /// Uses horizontal layout per design patterns.
+///
+/// Accepts optional live stats (totalProfit, entryCount) that override
+/// tracker's stored values for real-time display.
 class TrackerCard extends StatelessWidget {
   final Tracker tracker;
   final VoidCallback? onTap;
+
+  /// Live profit from entries (overrides tracker.totalProfit)
+  final int? liveProfit;
+
+  /// Live entry count from entries (overrides tracker.entryCount)
+  final int? liveEntryCount;
 
   const TrackerCard({
     super.key,
     required this.tracker,
     this.onTap,
+    this.liveProfit,
+    this.liveEntryCount,
   });
 
   @override
@@ -24,8 +35,13 @@ class TrackerCard extends StatelessWidget {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
 
-    final isProfit = tracker.totalProfit >= 0;
-    final profitColor = isProfit ? colors.stateSuccess : colors.stateError;
+    // Use live data if provided, otherwise fall back to tracker values
+    final displayProfit = liveProfit ?? tracker.totalProfit.round();
+    final displayEntryCount = liveEntryCount ?? tracker.entryCount;
+
+    final isProfit = displayProfit >= 0;
+    // Use normal text color for profit, only red for loss (more professional)
+    final profitColor = isProfit ? colors.textPrimary : colors.stateError;
 
     return GOLCard(
       variant: GOLCardVariant.interactive,
@@ -66,7 +82,7 @@ class TrackerCard extends StatelessWidget {
                 ),
                 const SizedBox(height: GOLSpacing.space1),
                 Text(
-                  '${tracker.entryCount} ${tracker.entryCount == 1 ? 'entry' : 'entries'}',
+                  '$displayEntryCount ${displayEntryCount == 1 ? 'entry' : 'entries'}',
                   style: textTheme.bodySmall?.copyWith(
                     color: colors.textSecondary,
                   ),
@@ -91,7 +107,7 @@ class TrackerCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 2),
                   Text(
-                    _formatProfit(tracker.totalProfit.round()),
+                    _formatProfit(displayProfit),
                     style: textTheme.titleSmall?.copyWith(
                       color: profitColor,
                       fontWeight: FontWeight.w600,
