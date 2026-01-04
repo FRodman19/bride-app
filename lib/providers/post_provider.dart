@@ -114,12 +114,6 @@ class PostPlatforms {
   static const List<String> all = [
     'Facebook',
     'TikTok',
-    'Instagram',
-    'YouTube',
-    'Twitter',
-    'LinkedIn',
-    'Blog',
-    'Other',
   ];
 }
 

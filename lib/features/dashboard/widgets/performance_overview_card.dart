@@ -13,6 +13,7 @@ class PerformanceOverviewCard extends StatelessWidget {
   final double totalRevenue;
   final double totalSpend;
   final String currencyCode;
+  final int activeProjectsCount;
 
   const PerformanceOverviewCard({
     super.key,
@@ -20,6 +21,7 @@ class PerformanceOverviewCard extends StatelessWidget {
     required this.totalRevenue,
     required this.totalSpend,
     this.currencyCode = 'XOF',
+    this.activeProjectsCount = 0,
   });
 
   @override
@@ -51,6 +53,35 @@ class PerformanceOverviewCard extends StatelessWidget {
                 style: textTheme.labelSmall?.copyWith(
                   color: colors.textSecondary,
                   letterSpacing: 1.2,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: GOLSpacing.space2,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.interactivePrimary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Iconsax.folder_2,
+                      size: 14,
+                      color: colors.interactivePrimary,
+                    ),
+                    const SizedBox(width: GOLSpacing.space1),
+                    Text(
+                      '$activeProjectsCount active',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: colors.interactivePrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

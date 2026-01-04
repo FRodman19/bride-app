@@ -156,18 +156,21 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(Routes.logEntryPath(tracker!.id)),
-        backgroundColor: colors.interactivePrimary,
-        icon: Icon(Iconsax.add, color: colors.textInverse),
-        label: Text(
-          'Log Entry',
-          style: textTheme.labelLarge?.copyWith(
-            color: colors.textInverse,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
+      // Hide FAB when project is archived (read-only mode)
+      floatingActionButton: tracker!.isArchived
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => context.push(Routes.logEntryPath(tracker!.id)),
+              backgroundColor: colors.interactivePrimary,
+              icon: Icon(Iconsax.add, color: colors.textInverse),
+              label: Text(
+                'Log Entry',
+                style: textTheme.labelLarge?.copyWith(
+                  color: colors.textInverse,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
     );
   }
 
@@ -199,20 +202,21 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                 ),
                 const SizedBox(height: GOLSpacing.space4),
 
-                // Actions
-                ListTile(
-                  leading: Icon(Iconsax.edit_2, color: colors.textPrimary),
-                  title: Text(
-                    'Edit Project',
-                    style: textTheme.bodyLarge?.copyWith(
-                      color: colors.textPrimary,
+                // Actions - Edit only available when not archived
+                if (!tracker.isArchived)
+                  ListTile(
+                    leading: Icon(Iconsax.edit_2, color: colors.textPrimary),
+                    title: Text(
+                      'Edit Project',
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: colors.textPrimary,
+                      ),
                     ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.push(Routes.editTrackerPath(tracker.id));
+                    },
                   ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push(Routes.editTrackerPath(tracker.id));
-                  },
-                ),
                 ListTile(
                   leading: Icon(Iconsax.archive_1, color: colors.textPrimary),
                   title: Text(
@@ -444,58 +448,6 @@ class _OverviewTab extends ConsumerWidget {
         children: [
           const SizedBox(height: GOLSpacing.space4),
 
-          // Status badge
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: GOLSpacing.space3,
-                  vertical: GOLSpacing.space1,
-                ),
-                decoration: BoxDecoration(
-                  color: tracker.isArchived
-                      ? colors.surfaceRaised
-                      : colors.stateSuccess.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: tracker.isArchived
-                            ? colors.textTertiary
-                            : colors.stateSuccess,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: GOLSpacing.space2),
-                    Text(
-                      tracker.isArchived ? 'Archived' : 'Active',
-                      style: textTheme.labelMedium?.copyWith(
-                        color: tracker.isArchived
-                            ? colors.textTertiary
-                            : colors.stateSuccess,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '$entryCount ${entryCount == 1 ? 'entry' : 'entries'}',
-                style: textTheme.bodySmall?.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: GOLSpacing.space5),
-
           // Performance card - now with live data
           _PerformanceCard(
             tracker: tracker,
@@ -665,7 +617,7 @@ class _OverviewTab extends ConsumerWidget {
                         tracker.revenueTarget!.round(),
                         currencyCode: tracker.currency,
                       ),
-                      current: tracker.totalRevenue,
+                      current: totalRevenue.toDouble(),
                       target: tracker.revenueTarget!,
                     ),
                   if (tracker.revenueTarget != null &&
@@ -675,7 +627,7 @@ class _OverviewTab extends ConsumerWidget {
                     _TargetRow(
                       label: 'Engagement Target',
                       value: '${tracker.engagementTarget} DMs/Leads',
-                      current: 0, // TODO: Get from entries
+                      current: totalDmsLeads.toDouble(),
                       target: tracker.engagementTarget!.toDouble(),
                     ),
                 ],
@@ -744,7 +696,7 @@ class _PerformanceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header - white text for visibility
+          // Header with badge
           Row(
             children: [
               Icon(Iconsax.chart_2, size: 20, color: colors.interactivePrimary),
@@ -755,6 +707,44 @@ class _PerformanceCard extends StatelessWidget {
                   color: colors.textPrimary,
                   letterSpacing: 1.2,
                   fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: GOLSpacing.space2,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: tracker.isArchived
+                      ? colors.surfaceRaised
+                      : colors.stateSuccess.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: tracker.isArchived
+                            ? colors.textTertiary
+                            : colors.stateSuccess,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: GOLSpacing.space1),
+                    Text(
+                      tracker.isArchived ? 'Archived' : 'Active',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: tracker.isArchived
+                            ? colors.textTertiary
+                            : colors.stateSuccess,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -3406,11 +3396,18 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                     controller: _titleController,
                     decoration: InputDecoration(
                       hintText: 'e.g., Launch Announcement',
-                      filled: true,
-                      fillColor: colors.surfaceRaised,
+                      filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
-                        borderSide: BorderSide.none,
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.interactivePrimary),
                       ),
                     ),
                     validator: (value) {
@@ -3443,7 +3440,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: GOLSpacing.space3),
                     decoration: BoxDecoration(
-                      color: colors.surfaceRaised,
+                      border: Border.all(color: colors.borderDefault),
                       borderRadius: BorderRadius.circular(GOLRadius.md),
                     ),
                     child: DropdownButtonHideUnderline(
@@ -3494,7 +3491,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                     child: Container(
                       padding: const EdgeInsets.all(GOLSpacing.space3),
                       decoration: BoxDecoration(
-                        color: colors.surfaceRaised,
+                        border: Border.all(color: colors.borderDefault),
                         borderRadius: BorderRadius.circular(GOLRadius.md),
                       ),
                       child: Row(
@@ -3542,11 +3539,18 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                     controller: _urlController,
                     decoration: InputDecoration(
                       hintText: 'https://...',
-                      filled: true,
-                      fillColor: colors.surfaceRaised,
+                      filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
-                        borderSide: BorderSide.none,
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.interactivePrimary),
                       ),
                     ),
                     keyboardType: TextInputType.url,
@@ -3568,11 +3572,18 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                     controller: _notesController,
                     decoration: InputDecoration(
                       hintText: 'Post caption or summary...',
-                      filled: true,
-                      fillColor: colors.surfaceRaised,
+                      filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
-                        borderSide: BorderSide.none,
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.interactivePrimary),
                       ),
                     ),
                     maxLines: 3,
@@ -3586,7 +3597,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                       Expanded(
                         child: GOLButton(
                           label: 'Cancel',
-                          variant: GOLButtonVariant.tertiary,
+                          variant: GOLButtonVariant.secondary,
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),
@@ -3766,11 +3777,18 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                     controller: _titleController,
                     decoration: InputDecoration(
                       hintText: 'e.g., Launch Announcement',
-                      filled: true,
-                      fillColor: colors.surfaceRaised,
+                      filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
-                        borderSide: BorderSide.none,
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.interactivePrimary),
                       ),
                     ),
                     validator: (value) {
@@ -3796,7 +3814,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: GOLSpacing.space3),
                     decoration: BoxDecoration(
-                      color: colors.surfaceRaised,
+                      border: Border.all(color: colors.borderDefault),
                       borderRadius: BorderRadius.circular(GOLRadius.md),
                     ),
                     child: DropdownButtonHideUnderline(
@@ -3847,7 +3865,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                     child: Container(
                       padding: const EdgeInsets.all(GOLSpacing.space3),
                       decoration: BoxDecoration(
-                        color: colors.surfaceRaised,
+                        border: Border.all(color: colors.borderDefault),
                         borderRadius: BorderRadius.circular(GOLRadius.md),
                       ),
                       child: Row(
@@ -3895,11 +3913,18 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                     controller: _urlController,
                     decoration: InputDecoration(
                       hintText: 'https://...',
-                      filled: true,
-                      fillColor: colors.surfaceRaised,
+                      filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
-                        borderSide: BorderSide.none,
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.interactivePrimary),
                       ),
                     ),
                     keyboardType: TextInputType.url,
@@ -3921,11 +3946,18 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                     controller: _notesController,
                     decoration: InputDecoration(
                       hintText: 'Post caption or summary...',
-                      filled: true,
-                      fillColor: colors.surfaceRaised,
+                      filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
-                        borderSide: BorderSide.none,
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.borderDefault),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(GOLRadius.md),
+                        borderSide: BorderSide(color: colors.interactivePrimary),
                       ),
                     ),
                     maxLines: 3,

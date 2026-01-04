@@ -212,9 +212,44 @@ class _DashboardContent extends ConsumerWidget {
               totalProfit: totalProfit.toDouble(),
               totalRevenue: totalRevenue.toDouble(),
               totalSpend: totalSpend.toDouble(),
+              activeProjectsCount: activeTrackers.length,
             ),
 
             const SizedBox(height: GOLSpacing.space6),
+
+            // Recent Project - most recently updated active project
+            if (activeTrackers.isNotEmpty) ...[
+              Row(
+                children: [
+                  Icon(Iconsax.clock, size: 20, color: colors.interactivePrimary),
+                  const SizedBox(width: GOLSpacing.space2),
+                  Text(
+                    'Recent Project',
+                    style: textTheme.titleMedium?.copyWith(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: GOLSpacing.space3),
+              Builder(
+                builder: (context) {
+                  // Get most recently updated tracker
+                  final recentTracker = [...activeTrackers]
+                    ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+                  final recent = recentTracker.first;
+                  final stats = trackerStats[recent.id] ?? const _TrackerStats();
+                  return TrackerCard(
+                    tracker: recent,
+                    onTap: () => context.push('/trackers/${recent.id}'),
+                    liveProfit: stats.totalProfit,
+                    liveEntryCount: stats.entryCount,
+                  );
+                },
+              ),
+              const SizedBox(height: GOLSpacing.space6),
+            ],
 
             // Top performing trackers
             if (topTrackers.isNotEmpty) ...[

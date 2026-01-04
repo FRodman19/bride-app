@@ -5,6 +5,9 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
+import '../../../grow_out_loud/foundation/gol_radius.dart';
+import '../../../grow_out_loud/components/gol_buttons.dart';
+import '../../../grow_out_loud/components/gol_overlays.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../providers/entry_provider.dart';
 import '../../../domain/models/tracker.dart';
@@ -129,7 +132,7 @@ class _TrackerStats {
   });
 }
 
-class _TrackersListContent extends ConsumerWidget {
+class _TrackersListContent extends ConsumerStatefulWidget {
   final List<Tracker> activeTrackers;
   final List<Tracker> archivedTrackers;
 
@@ -139,14 +142,327 @@ class _TrackersListContent extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_TrackersListContent> createState() => _TrackersListContentState();
+}
+
+class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
+  void _showProjectOptions(Tracker tracker) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: colors.surfaceDefault,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GOLRadius.modal),
+        ),
+        contentPadding: EdgeInsets.zero,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(GOLSpacing.space4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: colors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Iconsax.chart_square,
+                      size: 22,
+                      color: colors.interactivePrimary,
+                    ),
+                  ),
+                  const SizedBox(width: GOLSpacing.space3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tracker.name,
+                          style: textTheme.titleMedium?.copyWith(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: GOLSpacing.space2,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: tracker.isArchived
+                                ? colors.surfaceRaised
+                                : colors.stateSuccess.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            tracker.isArchived ? 'Archived' : 'Active',
+                            style: textTheme.labelSmall?.copyWith(
+                              color: tracker.isArchived
+                                  ? colors.textTertiary
+                                  : colors.stateSuccess,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(height: 1),
+
+            // Archive/Restore option
+            InkWell(
+              onTap: () {
+                Navigator.pop(dialogContext);
+                _handleArchiveRestore(tracker);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: GOLSpacing.space4,
+                  vertical: GOLSpacing.space3,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: colors.interactivePrimary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        tracker.isArchived ? Iconsax.refresh : Iconsax.archive_1,
+                        size: 20,
+                        color: colors.interactivePrimary,
+                      ),
+                    ),
+                    const SizedBox(width: GOLSpacing.space3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            tracker.isArchived ? 'Restore Project' : 'Archive Project',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            tracker.isArchived
+                                ? 'Move back to active projects'
+                                : 'Move to archive (read-only)',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Iconsax.arrow_right_3,
+                      size: 16,
+                      color: colors.textTertiary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const Divider(height: 1),
+
+            // Delete option
+            InkWell(
+              onTap: () {
+                Navigator.pop(dialogContext);
+                _showDeleteConfirmation(tracker);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: GOLSpacing.space4,
+                  vertical: GOLSpacing.space3,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: colors.stateError.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Iconsax.trash,
+                        size: 20,
+                        color: colors.stateError,
+                      ),
+                    ),
+                    const SizedBox(width: GOLSpacing.space3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Delete Project',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colors.stateError,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            'Permanently delete this project',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Iconsax.arrow_right_3,
+                      size: 16,
+                      color: colors.textTertiary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: GOLSpacing.space2),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleArchiveRestore(Tracker tracker) async {
+    final notifier = ref.read(trackersProvider.notifier);
+
+    if (tracker.isArchived) {
+      final result = await notifier.restoreTracker(tracker.id);
+      if (!mounted) return;
+
+      if (result.success) {
+        showGOLToast(
+          context,
+          'Project restored',
+          variant: GOLToastVariant.success,
+        );
+      } else {
+        showGOLToast(
+          context,
+          result.error ?? 'Failed to restore project',
+          variant: GOLToastVariant.error,
+        );
+      }
+    } else {
+      final result = await notifier.archiveTracker(tracker.id);
+      if (!mounted) return;
+
+      if (result.success) {
+        showGOLToast(
+          context,
+          'Project archived',
+          variant: GOLToastVariant.success,
+        );
+      } else {
+        showGOLToast(
+          context,
+          result.error ?? 'Failed to archive project',
+          variant: GOLToastVariant.error,
+        );
+      }
+    }
+  }
+
+  void _showDeleteConfirmation(Tracker tracker) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: colors.surfaceDefault,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GOLRadius.modal),
+        ),
+        title: Text(
+          'Delete Project?',
+          style: textTheme.titleLarge?.copyWith(
+            color: colors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This will permanently delete "${tracker.name}" and all its entries. This action cannot be undone.',
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          GOLButton(
+            label: 'Cancel',
+            variant: GOLButtonVariant.secondary,
+            onPressed: () => Navigator.pop(dialogContext),
+          ),
+          GOLButton(
+            label: 'Delete',
+            variant: GOLButtonVariant.destructive,
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+
+              final result = await ref.read(trackersProvider.notifier).deleteTracker(tracker.id);
+              if (!mounted) return;
+
+              if (result.success) {
+                showGOLToast(
+                  context,
+                  'Project deleted',
+                  variant: GOLToastVariant.success,
+                );
+              } else {
+                showGOLToast(
+                  context,
+                  result.error ?? 'Failed to delete project',
+                  variant: GOLToastVariant.error,
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
 
     // Calculate stats from entries for each tracker
     final Map<String, _TrackerStats> trackerStats = {};
 
-    for (final tracker in [...activeTrackers, ...archivedTrackers]) {
+    for (final tracker in [...widget.activeTrackers, ...widget.archivedTrackers]) {
       final entriesState = ref.watch(entriesProvider(tracker.id));
 
       if (entriesState is EntriesLoaded) {
@@ -190,7 +506,7 @@ class _TrackersListContent extends ConsumerWidget {
               ),
             ),
             Text(
-              '${activeTrackers.length} active, ${archivedTrackers.length} archived',
+              '${widget.activeTrackers.length} active, ${widget.archivedTrackers.length} archived',
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -199,7 +515,7 @@ class _TrackersListContent extends ConsumerWidget {
             const SizedBox(height: GOLSpacing.space6),
 
             // Active projects
-            if (activeTrackers.isNotEmpty) ...[
+            if (widget.activeTrackers.isNotEmpty) ...[
               Row(
                 children: [
                   Icon(Iconsax.chart_square, size: 20, color: colors.interactivePrimary),
@@ -213,7 +529,7 @@ class _TrackersListContent extends ConsumerWidget {
                   ),
                   const Spacer(),
                   Text(
-                    '${activeTrackers.length}/20',
+                    '${widget.activeTrackers.length}/20',
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -221,22 +537,25 @@ class _TrackersListContent extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: GOLSpacing.space3),
-              ...activeTrackers.map((tracker) {
+              ...widget.activeTrackers.map((tracker) {
                 final stats = trackerStats[tracker.id] ?? const _TrackerStats();
                 return Padding(
                   padding: const EdgeInsets.only(bottom: GOLSpacing.space3),
-                  child: TrackerCard(
-                    tracker: tracker,
-                    onTap: () => context.push('/trackers/${tracker.id}'),
-                    liveProfit: stats.totalProfit,
-                    liveEntryCount: stats.entryCount,
+                  child: GestureDetector(
+                    onLongPress: () => _showProjectOptions(tracker),
+                    child: TrackerCard(
+                      tracker: tracker,
+                      onTap: () => context.push('/trackers/${tracker.id}'),
+                      liveProfit: stats.totalProfit,
+                      liveEntryCount: stats.entryCount,
+                    ),
                   ),
                 );
               }),
             ],
 
             // Archived projects
-            if (archivedTrackers.isNotEmpty) ...[
+            if (widget.archivedTrackers.isNotEmpty) ...[
               const SizedBox(height: GOLSpacing.space6),
               Row(
                 children: [
@@ -252,17 +571,20 @@ class _TrackersListContent extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: GOLSpacing.space3),
-              ...archivedTrackers.map((tracker) {
+              ...widget.archivedTrackers.map((tracker) {
                 final stats = trackerStats[tracker.id] ?? const _TrackerStats();
                 return Padding(
                   padding: const EdgeInsets.only(bottom: GOLSpacing.space3),
-                  child: Opacity(
-                    opacity: 0.7,
-                    child: TrackerCard(
-                      tracker: tracker,
-                      onTap: () => context.push('/trackers/${tracker.id}'),
-                      liveProfit: stats.totalProfit,
-                      liveEntryCount: stats.entryCount,
+                  child: GestureDetector(
+                    onLongPress: () => _showProjectOptions(tracker),
+                    child: Opacity(
+                      opacity: 0.7,
+                      child: TrackerCard(
+                        tracker: tracker,
+                        onTap: () => context.push('/trackers/${tracker.id}'),
+                        liveProfit: stats.totalProfit,
+                        liveEntryCount: stats.entryCount,
+                      ),
                     ),
                   ),
                 );
