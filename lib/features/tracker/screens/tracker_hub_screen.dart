@@ -15,7 +15,10 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/platform_icons.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../providers/entry_provider.dart';
+import '../../../providers/reports_provider.dart';
 import '../../../routing/routes.dart';
+import '../../../services/export_service.dart';
+import '../../../grow_out_loud/components/gol_overlays.dart';
 
 /// Screen 3: Project Hub - Overview Tab
 ///
@@ -1999,11 +2002,195 @@ class _EntryCard extends StatelessWidget {
   }
 }
 
-/// Reports Tab - Screen 5 placeholder
-class _ReportsTab extends StatelessWidget {
+/// Reports Tab - Screen 5: Performance reports
+class _ReportsTab extends ConsumerWidget {
   final Tracker tracker;
 
   const _ReportsTab({required this.tracker});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+    final selectedPeriod = ref.watch(selectedReportPeriodProvider);
+
+    final reportsData = ref.watch(reportsProvider((
+      trackerId: tracker.id,
+      tracker: tracker,
+      period: selectedPeriod,
+    )));
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(GOLSpacing.space4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Time Period Selector
+          _TimePeriodSelector(
+            selectedPeriod: selectedPeriod,
+            onPeriodChanged: (period) {
+              ref.read(selectedReportPeriodProvider.notifier).state = period;
+            },
+          ),
+          const SizedBox(height: GOLSpacing.space4),
+
+          // Period Label
+          Text(
+            _getPeriodLabel(selectedPeriod, reportsData),
+            style: textTheme.titleMedium?.copyWith(
+              color: colors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: GOLSpacing.space4),
+
+          // Show empty state if no data
+          if (!reportsData.hasData) ...[
+            _ReportsEmptyState(tracker: tracker),
+          ] else ...[
+            // Total Profit/Loss Card
+            _TotalProfitCard(
+              reportsData: reportsData,
+              currency: tracker.currency,
+            ),
+            const SizedBox(height: GOLSpacing.space4),
+
+            // Revenue vs Spend Breakdown
+            if (reportsData.weeklyBreakdown.isNotEmpty) ...[
+              _RevenueSpendBreakdownCard(
+                weeklyBreakdown: reportsData.weeklyBreakdown,
+                currency: tracker.currency,
+              ),
+              const SizedBox(height: GOLSpacing.space4),
+            ],
+
+            // Worst Performing Days
+            if (reportsData.worstDays.isNotEmpty) ...[
+              _WorstPerformingDaysCard(
+                worstDays: reportsData.worstDays,
+                currency: tracker.currency,
+              ),
+              const SizedBox(height: GOLSpacing.space4),
+            ],
+
+            // Burn Rate Card
+            _BurnRateCard(
+              reportsData: reportsData,
+              currency: tracker.currency,
+            ),
+            const SizedBox(height: GOLSpacing.space4),
+
+            // Cumulative Profit Trend
+            if (reportsData.cumulativeProfitTrend.isNotEmpty) ...[
+              _CumulativeProfitCard(
+                reportsData: reportsData,
+                currency: tracker.currency,
+              ),
+              const SizedBox(height: GOLSpacing.space4),
+            ],
+
+            // Export Button
+            _ExportButton(tracker: tracker, reportsData: reportsData),
+          ],
+
+          const SizedBox(height: GOLSpacing.space8),
+        ],
+      ),
+    );
+  }
+
+  String _getPeriodLabel(ReportPeriod period, ReportsData data) {
+    switch (period) {
+      case ReportPeriod.daily:
+        return 'Daily Report (${DateFormat('MMMM d, yyyy').format(DateTime.now())})';
+      case ReportPeriod.weekly:
+        return 'Weekly Report (${DateFormat('MMM d').format(data.periodStart)} - ${DateFormat('MMM d').format(data.periodEnd)})';
+      case ReportPeriod.monthly:
+        return 'Monthly Report (${DateFormat('MMMM yyyy').format(DateTime.now())})';
+    }
+  }
+}
+
+/// Time period selector pills
+class _TimePeriodSelector extends StatelessWidget {
+  final ReportPeriod selectedPeriod;
+  final ValueChanged<ReportPeriod> onPeriodChanged;
+
+  const _TimePeriodSelector({
+    required this.selectedPeriod,
+    required this.onPeriodChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _PeriodPill(
+          label: 'Daily',
+          isSelected: selectedPeriod == ReportPeriod.daily,
+          onTap: () => onPeriodChanged(ReportPeriod.daily),
+        ),
+        const SizedBox(width: GOLSpacing.space2),
+        _PeriodPill(
+          label: 'Weekly',
+          isSelected: selectedPeriod == ReportPeriod.weekly,
+          onTap: () => onPeriodChanged(ReportPeriod.weekly),
+        ),
+        const SizedBox(width: GOLSpacing.space2),
+        _PeriodPill(
+          label: 'Monthly',
+          isSelected: selectedPeriod == ReportPeriod.monthly,
+          onTap: () => onPeriodChanged(ReportPeriod.monthly),
+        ),
+      ],
+    );
+  }
+}
+
+class _PeriodPill extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _PeriodPill({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: GOLSpacing.space4,
+          vertical: GOLSpacing.space2,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? colors.interactivePrimary : colors.surfaceRaised,
+          borderRadius: BorderRadius.circular(GOLRadius.full),
+        ),
+        child: Text(
+          label,
+          style: textTheme.labelMedium?.copyWith(
+            color: isSelected ? colors.textInverse : colors.textSecondary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Empty state for reports
+class _ReportsEmptyState extends StatelessWidget {
+  final Tracker tracker;
+
+  const _ReportsEmptyState({required this.tracker});
 
   @override
   Widget build(BuildContext context) {
@@ -2011,40 +2198,728 @@ class _ReportsTab extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: colors.surfaceRaised,
-              shape: BoxShape.circle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: GOLSpacing.space8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: colors.surfaceRaised,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Iconsax.chart_2,
+                size: 32,
+                color: colors.textTertiary,
+              ),
             ),
-            child: Icon(
-              Iconsax.chart_2,
-              size: 32,
-              color: colors.textTertiary,
+            const SizedBox(height: GOLSpacing.space4),
+            Text(
+              'No data yet',
+              style: textTheme.titleLarge?.copyWith(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          const SizedBox(height: GOLSpacing.space4),
-          Text(
-            'Reports coming soon',
-            style: textTheme.titleLarge?.copyWith(
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w600,
+            const SizedBox(height: GOLSpacing.space2),
+            Text(
+              'Log your first entry to see reports',
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-          const SizedBox(height: GOLSpacing.space2),
-          Text(
-            'Performance reports will be available here',
-            style: textTheme.bodyMedium?.copyWith(
-              color: colors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+}
+
+/// Total Profit/Loss Card
+class _TotalProfitCard extends StatelessWidget {
+  final ReportsData reportsData;
+  final String currency;
+
+  const _TotalProfitCard({
+    required this.reportsData,
+    required this.currency,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    final profitResult = CurrencyFormatter.formatProfit(
+      reportsData.netProfit,
+      currencyCode: currency,
+    );
+
+    return GOLCard(
+      variant: GOLCardVariant.elevated,
+      child: Padding(
+        padding: const EdgeInsets.all(GOLSpacing.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Iconsax.chart,
+                  size: 20,
+                  color: colors.interactivePrimary,
+                ),
+                const SizedBox(width: GOLSpacing.space2),
+                Text(
+                  'TOTAL PROFIT/LOSS',
+                  style: textTheme.labelSmall?.copyWith(
+                    color: colors.textSecondary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: GOLSpacing.space3),
+
+            // Net Profit
+            Text(
+              profitResult.formatted,
+              style: textTheme.displaySmall?.copyWith(
+                color: profitResult.isProfit
+                    ? colors.stateSuccess
+                    : colors.stateError,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: GOLSpacing.space3),
+
+            const GOLDivider(),
+            const SizedBox(height: GOLSpacing.space3),
+
+            // Breakdown
+            _BreakdownRow(
+              label: 'Total Revenue',
+              value: CurrencyFormatter.format(
+                reportsData.totalRevenue,
+                currencyCode: currency,
+              ),
+              valueColor: colors.textPrimary,
+            ),
+            const SizedBox(height: GOLSpacing.space2),
+            _BreakdownRow(
+              label: 'Total Spend',
+              value: '-${CurrencyFormatter.format(
+                reportsData.totalSpend,
+                currencyCode: currency,
+              )}',
+              valueColor: colors.stateError,
+            ),
+            if (reportsData.setupCost > 0) ...[
+              const SizedBox(height: GOLSpacing.space2),
+              _BreakdownRow(
+                label: 'Setup Costs',
+                value: '-${CurrencyFormatter.format(
+                  reportsData.setupCost,
+                  currencyCode: currency,
+                )}',
+                valueColor: colors.stateError,
+              ),
+            ],
+            const SizedBox(height: GOLSpacing.space2),
+            const GOLDivider(),
+            const SizedBox(height: GOLSpacing.space2),
+            _BreakdownRow(
+              label: 'Final Profit',
+              value: profitResult.formatted,
+              valueColor: profitResult.isProfit
+                  ? colors.stateSuccess
+                  : colors.stateError,
+              isBold: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BreakdownRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color valueColor;
+  final bool isBold;
+
+  const _BreakdownRow({
+    required this.label,
+    required this.value,
+    required this.valueColor,
+    this.isBold = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: textTheme.bodyMedium?.copyWith(
+            color: colors.textSecondary,
+            fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+        Text(
+          value,
+          style: textTheme.bodyMedium?.copyWith(
+            color: valueColor,
+            fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Revenue vs Spend Breakdown Card
+class _RevenueSpendBreakdownCard extends StatelessWidget {
+  final List<WeeklyBreakdown> weeklyBreakdown;
+  final String currency;
+
+  const _RevenueSpendBreakdownCard({
+    required this.weeklyBreakdown,
+    required this.currency,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return GOLCard(
+      variant: GOLCardVariant.elevated,
+      child: Padding(
+        padding: const EdgeInsets.all(GOLSpacing.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Iconsax.graph,
+                  size: 20,
+                  color: colors.interactivePrimary,
+                ),
+                const SizedBox(width: GOLSpacing.space2),
+                Text(
+                  'REVENUE VS SPEND OVER TIME',
+                  style: textTheme.labelSmall?.copyWith(
+                    color: colors.textSecondary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: GOLSpacing.space4),
+
+            // Weekly breakdown
+            ...weeklyBreakdown.map((week) => Padding(
+              padding: const EdgeInsets.only(bottom: GOLSpacing.space3),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    week.weekLabel,
+                    style: textTheme.labelMedium?.copyWith(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: GOLSpacing.space1),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Revenue: ${CurrencyFormatter.format(week.revenue, currencyCode: currency)}',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Spend: ${CurrencyFormatter.format(week.spend, currencyCode: currency)}',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Profit: ${CurrencyFormatter.formatProfit(week.profit, currencyCode: currency).formatted}',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: week.profit >= 0
+                                ? colors.stateSuccess
+                                : colors.stateError,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (week != weeklyBreakdown.last)
+                    const Padding(
+                      padding: EdgeInsets.only(top: GOLSpacing.space2),
+                      child: GOLDivider(),
+                    ),
+                ],
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Worst Performing Days Card
+class _WorstPerformingDaysCard extends StatelessWidget {
+  final List<DayPerformance> worstDays;
+  final String currency;
+
+  const _WorstPerformingDaysCard({
+    required this.worstDays,
+    required this.currency,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return GOLCard(
+      variant: GOLCardVariant.elevated,
+      child: Padding(
+        padding: const EdgeInsets.all(GOLSpacing.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Iconsax.warning_2,
+                  size: 20,
+                  color: colors.stateWarning,
+                ),
+                const SizedBox(width: GOLSpacing.space2),
+                Text(
+                  'WORST PERFORMING DAYS',
+                  style: textTheme.labelSmall?.copyWith(
+                    color: colors.textSecondary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: GOLSpacing.space4),
+
+            // Worst days list
+            ...worstDays.asMap().entries.map((entry) {
+              final index = entry.key + 1;
+              final day = entry.value;
+              final profitResult = CurrencyFormatter.formatProfit(
+                day.profit,
+                currencyCode: currency,
+              );
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: GOLSpacing.space3),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '$index. ${DateFormat('MMM d').format(day.date)}: ',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.textPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          profitResult.formatted,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: profitResult.isProfit
+                                ? colors.stateSuccess
+                                : colors.stateError,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Revenue: ${CurrencyFormatter.format(day.revenue, currencyCode: currency)}, Spend: ${CurrencyFormatter.format(day.spend, currencyCode: currency)}',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    if (entry.key < worstDays.length - 1)
+                      const Padding(
+                        padding: EdgeInsets.only(top: GOLSpacing.space2),
+                        child: GOLDivider(),
+                      ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Burn Rate Card
+class _BurnRateCard extends StatelessWidget {
+  final ReportsData reportsData;
+  final String currency;
+
+  const _BurnRateCard({
+    required this.reportsData,
+    required this.currency,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return GOLCard(
+      variant: GOLCardVariant.elevated,
+      child: Padding(
+        padding: const EdgeInsets.all(GOLSpacing.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Iconsax.money_send,
+                  size: 20,
+                  color: colors.interactivePrimary,
+                ),
+                const SizedBox(width: GOLSpacing.space2),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'BURN RATE',
+                        style: textTheme.labelSmall?.copyWith(
+                          color: colors.textSecondary,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      Text(
+                        'How fast you\'re spending money',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colors.textTertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: GOLSpacing.space4),
+
+            // Spend averages
+            _BreakdownRow(
+              label: 'Average Daily Spend',
+              value: CurrencyFormatter.format(
+                reportsData.avgDailySpend,
+                currencyCode: currency,
+              ),
+              valueColor: colors.textPrimary,
+            ),
+            const SizedBox(height: GOLSpacing.space2),
+            _BreakdownRow(
+              label: 'Average Weekly Spend',
+              value: CurrencyFormatter.format(
+                reportsData.avgWeeklySpend,
+                currencyCode: currency,
+              ),
+              valueColor: colors.textPrimary,
+            ),
+            const SizedBox(height: GOLSpacing.space2),
+            _BreakdownRow(
+              label: 'Average Monthly Spend',
+              value: CurrencyFormatter.format(
+                reportsData.avgMonthlySpend,
+                currencyCode: currency,
+              ),
+              valueColor: colors.textPrimary,
+            ),
+
+            const SizedBox(height: GOLSpacing.space3),
+            const GOLDivider(),
+            const SizedBox(height: GOLSpacing.space3),
+
+            // Projections
+            Text(
+              'Current Pace:',
+              style: textTheme.labelMedium?.copyWith(
+                color: colors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: GOLSpacing.space1),
+            Text(
+              'At this rate, you\'ll spend ${CurrencyFormatter.format(reportsData.projectedYearlySpend, currencyCode: currency)} per year on ads',
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.textSecondary,
+              ),
+            ),
+
+            const SizedBox(height: GOLSpacing.space3),
+            const GOLDivider(),
+            const SizedBox(height: GOLSpacing.space3),
+
+            // ROI
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'ROI',
+                  style: textTheme.labelMedium?.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  reportsData.totalSpend > 0
+                      ? '${reportsData.roi.toStringAsFixed(0)}%'
+                      : 'N/A',
+                  style: textTheme.titleMedium?.copyWith(
+                    color: reportsData.roi >= 0
+                        ? colors.stateSuccess
+                        : colors.stateError,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            if (reportsData.totalSpend > 0 && reportsData.roi > 0)
+              Text(
+                'For every 1 ${currency == 'XOF' ? 'FCFA' : currency} spent, you earn ${(reportsData.roi / 100 + 1).toStringAsFixed(2)} in revenue',
+                style: textTheme.bodySmall?.copyWith(
+                  color: colors.textTertiary,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Cumulative Profit Trend Card
+class _CumulativeProfitCard extends StatelessWidget {
+  final ReportsData reportsData;
+  final String currency;
+
+  const _CumulativeProfitCard({
+    required this.reportsData,
+    required this.currency,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    // Show last 5 data points
+    final trendPoints = reportsData.cumulativeProfitTrend.length > 5
+        ? reportsData.cumulativeProfitTrend.sublist(
+            reportsData.cumulativeProfitTrend.length - 5)
+        : reportsData.cumulativeProfitTrend;
+
+    return GOLCard(
+      variant: GOLCardVariant.elevated,
+      child: Padding(
+        padding: const EdgeInsets.all(GOLSpacing.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Iconsax.trend_up,
+                  size: 20,
+                  color: colors.interactivePrimary,
+                ),
+                const SizedBox(width: GOLSpacing.space2),
+                Text(
+                  'CUMULATIVE PROFIT TREND',
+                  style: textTheme.labelSmall?.copyWith(
+                    color: colors.textSecondary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: GOLSpacing.space4),
+
+            // Trend points
+            ...trendPoints.map((point) {
+              final profitResult = CurrencyFormatter.formatProfit(
+                point.cumulativeProfit,
+                currencyCode: currency,
+              );
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: GOLSpacing.space2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      DateFormat('MMM d').format(point.date),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      profitResult.formatted,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: profitResult.isProfit
+                            ? colors.stateSuccess
+                            : colors.stateError,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+
+            // Break-even info
+            if (reportsData.breakEvenDate != null) ...[
+              const SizedBox(height: GOLSpacing.space3),
+              const GOLDivider(),
+              const SizedBox(height: GOLSpacing.space3),
+              Row(
+                children: [
+                  Icon(
+                    Iconsax.tick_circle,
+                    size: 16,
+                    color: colors.stateSuccess,
+                  ),
+                  const SizedBox(width: GOLSpacing.space2),
+                  Expanded(
+                    child: Text(
+                      'Break-even: ${DateFormat('MMM d').format(reportsData.breakEvenDate!)} (day ${reportsData.breakEvenDays})',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colors.stateSuccess,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                'Recovered setup costs on ${DateFormat('MMM d').format(reportsData.breakEvenDate!)}',
+                style: textTheme.bodySmall?.copyWith(
+                  color: colors.textTertiary,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Export Button
+class _ExportButton extends ConsumerStatefulWidget {
+  final Tracker tracker;
+  final ReportsData reportsData;
+
+  const _ExportButton({
+    required this.tracker,
+    required this.reportsData,
+  });
+
+  @override
+  ConsumerState<_ExportButton> createState() => _ExportButtonState();
+}
+
+class _ExportButtonState extends ConsumerState<_ExportButton> {
+  bool _isExporting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GOLButton(
+      label: _isExporting ? 'Exporting...' : 'Export Report',
+      variant: GOLButtonVariant.secondary,
+      icon: Icon(
+        _isExporting ? Iconsax.refresh : Iconsax.export_1,
+        size: 18,
+      ),
+      onPressed: _isExporting ? null : () => _exportReport(context),
+      fullWidth: true,
+    );
+  }
+
+  Future<void> _exportReport(BuildContext context) async {
+    setState(() => _isExporting = true);
+
+    try {
+      // Get entries
+      final entriesState = ref.read(entriesProvider(widget.tracker.id));
+      if (entriesState is! EntriesLoaded) {
+        throw Exception('Entries not loaded');
+      }
+
+      await ExportService.exportEntriesToCsv(
+        tracker: widget.tracker,
+        entries: entriesState.entries,
+        reportsData: widget.reportsData,
+      );
+
+      if (mounted) {
+        showGOLToast(
+          context,
+          'Report exported successfully',
+          variant: GOLToastVariant.success,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        showGOLToast(
+          context,
+          'Failed to export: ${e.toString()}',
+          variant: GOLToastVariant.error,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isExporting = false);
+      }
+    }
   }
 }
