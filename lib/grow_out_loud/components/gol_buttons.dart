@@ -75,6 +75,8 @@ class GOLButton extends StatelessWidget {
   Color _spinnerColor(GOLSemanticColors colors) {
     switch (variant) {
       case GOLButtonVariant.primary:
+        // Always use dark spinner on primary button for contrast
+        return GOLPrimitives.neutral900;
       case GOLButtonVariant.destructive:
         return colors.textInverse;
       case GOLButtonVariant.secondary:
@@ -88,10 +90,15 @@ class GOLButton extends StatelessWidget {
     GOLSemanticColors colors,
     _ButtonSizeConfig config,
   ) {
-    final textStyle = Theme.of(context)
-        .textTheme
-        .labelMedium
-        ?.copyWith(fontSize: config.fontSize);
+    // Get base text style and apply dark color for primary button
+    final baseTextStyle = Theme.of(context).textTheme.labelMedium;
+    final textStyle = baseTextStyle?.copyWith(
+      fontSize: config.fontSize,
+      // For primary button, always use dark text for contrast on amber background
+      color: variant == GOLButtonVariant.primary
+          ? GOLPrimitives.neutral900
+          : null,
+    );
 
     final borderSide = variant == GOLButtonVariant.secondary
         ? BorderSide(color: colors.borderDefault, width: 1.5)
@@ -143,6 +150,8 @@ class GOLButton extends StatelessWidget {
 
       switch (variant) {
         case GOLButtonVariant.primary:
+          // Always use dark text on primary button for contrast
+          return GOLPrimitives.neutral900;
         case GOLButtonVariant.destructive:
           return colors.textInverse;
         case GOLButtonVariant.secondary:

@@ -20,6 +20,7 @@ import '../../../providers/reports_provider.dart';
 import '../../../routing/routes.dart';
 import '../../../services/export_service.dart';
 import '../../../grow_out_loud/components/gol_overlays.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Screen 3: Project Hub - Overview Tab
 ///
@@ -64,6 +65,8 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
           );
     }
 
+    final l10n = AppLocalizations.of(context)!;
+
     if (tracker == null) {
       return Scaffold(
         appBar: AppBar(
@@ -81,7 +84,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
               Icon(Iconsax.folder_cross, size: 48, color: colors.textTertiary),
               const SizedBox(height: GOLSpacing.space4),
               Text(
-                'Project not found',
+                l10n.projectNotFound,
                 style: textTheme.titleMedium?.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -138,10 +141,10 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                   fontWeight: FontWeight.w600,
                 ),
                 unselectedLabelStyle: textTheme.labelLarge,
-                tabs: const [
-                  Tab(text: 'Overview'),
-                  Tab(text: 'Entries'),
-                  Tab(text: 'Reports'),
+                tabs: [
+                  Tab(text: l10n.overview),
+                  Tab(text: l10n.entries),
+                  Tab(text: l10n.reports),
                 ],
               ),
             ),
@@ -164,7 +167,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
               backgroundColor: colors.interactivePrimary,
               icon: Icon(Iconsax.add, color: colors.textInverse),
               label: Text(
-                'Log Entry',
+                l10n.logEntry,
                 style: textTheme.labelLarge?.copyWith(
                   color: colors.textInverse,
                   fontWeight: FontWeight.w600,
@@ -177,6 +180,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
   void _showActionsMenu(BuildContext context, Tracker tracker) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -207,7 +211,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                   ListTile(
                     leading: Icon(Iconsax.edit_2, color: colors.textPrimary),
                     title: Text(
-                      'Edit Project',
+                      l10n.editProject,
                       style: textTheme.bodyLarge?.copyWith(
                         color: colors.textPrimary,
                       ),
@@ -220,7 +224,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                 ListTile(
                   leading: Icon(Iconsax.archive_1, color: colors.textPrimary),
                   title: Text(
-                    tracker.isArchived ? 'Restore Project' : 'Archive Project',
+                    tracker.isArchived ? l10n.restoreProject : l10n.archiveProject,
                     style: textTheme.bodyLarge?.copyWith(
                       color: colors.textPrimary,
                     ),
@@ -233,7 +237,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                 ListTile(
                   leading: Icon(Iconsax.export_1, color: colors.textPrimary),
                   title: Text(
-                    'Export Data',
+                    l10n.exportData,
                     style: textTheme.bodyLarge?.copyWith(
                       color: colors.textPrimary,
                     ),
@@ -247,7 +251,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                 ListTile(
                   leading: Icon(Iconsax.trash, color: colors.stateError),
                   title: Text(
-                    'Delete Project',
+                    l10n.deleteProject,
                     style: textTheme.bodyLarge?.copyWith(
                       color: colors.stateError,
                     ),
@@ -267,6 +271,7 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
 
   Future<void> _handleArchiveRestore(Tracker tracker) async {
     final notifier = ref.read(trackersProvider.notifier);
+    final l10n = AppLocalizations.of(context)!;
 
     if (tracker.isArchived) {
       // Restore
@@ -276,13 +281,13 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
       if (result.success) {
         showGOLToast(
           context,
-          '${tracker.name} restored',
+          l10n.nameRestored(tracker.name),
           variant: GOLToastVariant.success,
         );
       } else {
         showGOLToast(
           context,
-          result.error ?? 'Failed to restore',
+          result.error ?? l10n.failedToRestore,
           variant: GOLToastVariant.error,
         );
       }
@@ -294,14 +299,14 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
       if (result.success) {
         showGOLToast(
           context,
-          '${tracker.name} archived',
+          l10n.nameArchived(tracker.name),
           variant: GOLToastVariant.success,
         );
         context.go(Routes.dashboard);
       } else {
         showGOLToast(
           context,
-          result.error ?? 'Failed to archive',
+          result.error ?? l10n.failedToArchive,
           variant: GOLToastVariant.error,
         );
       }
@@ -311,11 +316,12 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
   void _showDeleteConfirmation(Tracker tracker) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Project?'),
+        title: Text(l10n.deleteTrackerTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -327,18 +333,18 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
             ),
             const SizedBox(height: GOLSpacing.space3),
             Text(
-              'This will permanently delete the project and all associated data including:',
+              l10n.deleteTrackerMessage,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.textSecondary,
               ),
             ),
             const SizedBox(height: GOLSpacing.space2),
-            _buildDeleteInfoItem('All daily entries', colors, textTheme),
-            _buildDeleteInfoItem('All posts', colors, textTheme),
-            _buildDeleteInfoItem('All reports data', colors, textTheme),
+            _buildDeleteInfoItem(l10n.allDailyEntries, colors, textTheme),
+            _buildDeleteInfoItem(l10n.allPosts, colors, textTheme),
+            _buildDeleteInfoItem(l10n.allReportsData, colors, textTheme),
             const SizedBox(height: GOLSpacing.space3),
             Text(
-              'This action cannot be undone.',
+              l10n.actionCannotBeUndone,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.stateError,
                 fontWeight: FontWeight.w500,
@@ -348,12 +354,12 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
         ),
         actions: [
           GOLButton(
-            label: 'Cancel',
+            label: l10n.cancel,
             variant: GOLButtonVariant.tertiary,
             onPressed: () => Navigator.pop(dialogContext),
           ),
           GOLButton(
-            label: 'Delete',
+            label: l10n.delete,
             variant: GOLButtonVariant.destructive,
             onPressed: () async {
               Navigator.pop(dialogContext);
@@ -365,14 +371,14 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
               if (result.success) {
                 showGOLToast(
                   context,
-                  '${tracker.name} deleted',
+                  l10n.trackerDeleted(tracker.name),
                   variant: GOLToastVariant.success,
                 );
                 context.go(Routes.dashboard);
               } else {
                 showGOLToast(
                   context,
-                  result.error ?? 'Failed to delete',
+                  result.error ?? l10n.failedToDelete,
                   variant: GOLToastVariant.error,
                 );
               }
@@ -418,6 +424,7 @@ class _OverviewTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     // Watch entries for real-time stats
     final entriesState = ref.watch(entriesProvider(tracker.id));
@@ -471,7 +478,7 @@ class _OverviewTab extends ConsumerWidget {
           // Platforms section - now with actual icons
           if (tracker.platforms.isNotEmpty) ...[
             _SectionHeader(
-              title: 'Platforms',
+              title: l10n.platforms,
             ),
             const SizedBox(height: GOLSpacing.space3),
             Wrap(
@@ -499,14 +506,14 @@ class _OverviewTab extends ConsumerWidget {
 
           // Recent Entries section
           _SectionHeader(
-            title: 'Recent Entries',
+            title: l10n.recentEntries,
             trailing: entryCount > 0
                 ? TextButton(
                     onPressed: () {
                       // Switch to entries tab
                     },
                     child: Text(
-                      'View All',
+                      l10n.viewAll,
                       style: textTheme.labelMedium?.copyWith(
                         color: colors.interactivePrimary,
                       ),
@@ -519,8 +526,8 @@ class _OverviewTab extends ConsumerWidget {
           if (entryCount == 0)
             _EmptySection(
               icon: Iconsax.calendar_tick,
-              title: 'No entries yet',
-              subtitle: 'Log your first daily entry to start tracking',
+              title: l10n.noEntriesYetShort,
+              subtitle: l10n.logFirstEntryToStart,
             )
           else
             // Show recent entries from live data
@@ -568,7 +575,7 @@ class _OverviewTab extends ConsumerWidget {
             const SizedBox(height: GOLSpacing.space2),
             Center(
               child: Text(
-                '${entryCount - 3} more entries - View in Entries tab',
+                l10n.moreEntriesInTab(entryCount - 3),
                 style: textTheme.bodyMedium?.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -581,7 +588,7 @@ class _OverviewTab extends ConsumerWidget {
           // Goals section (if any)
           if (tracker.goalTypes.isNotEmpty) ...[
             _SectionHeader(
-              title: 'Goals',
+              title: l10n.goals,
             ),
             const SizedBox(height: GOLSpacing.space3),
             Wrap(
@@ -602,7 +609,7 @@ class _OverviewTab extends ConsumerWidget {
           if (tracker.revenueTarget != null ||
               tracker.engagementTarget != null) ...[
             _SectionHeader(
-              title: 'Targets',
+              title: l10n.targets,
             ),
             const SizedBox(height: GOLSpacing.space3),
             GOLCard(
@@ -612,7 +619,7 @@ class _OverviewTab extends ConsumerWidget {
                 children: [
                   if (tracker.revenueTarget != null)
                     _TargetRow(
-                      label: 'Revenue Target',
+                      label: l10n.revenueTarget,
                       value: CurrencyFormatter.format(
                         tracker.revenueTarget!.round(),
                         currencyCode: tracker.currency,
@@ -625,8 +632,8 @@ class _OverviewTab extends ConsumerWidget {
                     const SizedBox(height: GOLSpacing.space3),
                   if (tracker.engagementTarget != null)
                     _TargetRow(
-                      label: 'Engagement Target',
-                      value: '${tracker.engagementTarget} DMs/Leads',
+                      label: l10n.engagementTarget,
+                      value: '${tracker.engagementTarget} ${l10n.dmsLeads}',
                       current: totalDmsLeads.toDouble(),
                       target: tracker.engagementTarget!.toDouble(),
                     ),
@@ -639,7 +646,7 @@ class _OverviewTab extends ConsumerWidget {
           // Notes section
           if (tracker.notes != null && tracker.notes!.isNotEmpty) ...[
             _SectionHeader(
-              title: 'Notes',
+              title: l10n.notes,
             ),
             const SizedBox(height: GOLSpacing.space3),
             GOLCard(
@@ -685,6 +692,7 @@ class _PerformanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isProfit = totalProfit >= 0;
     // Use normal text color for profit, only red for loss (more professional)
@@ -702,7 +710,7 @@ class _PerformanceCard extends StatelessWidget {
               Icon(Iconsax.chart_2, size: 20, color: colors.interactivePrimary),
               const SizedBox(width: GOLSpacing.space2),
               Text(
-                'PERFORMANCE',
+                l10n.performance,
                 style: textTheme.labelSmall?.copyWith(
                   color: colors.textPrimary,
                   letterSpacing: 1.2,
@@ -736,7 +744,7 @@ class _PerformanceCard extends StatelessWidget {
                     ),
                     const SizedBox(width: GOLSpacing.space1),
                     Text(
-                      tracker.isArchived ? 'Archived' : 'Active',
+                      tracker.isArchived ? l10n.archived : l10n.active,
                       style: textTheme.labelSmall?.copyWith(
                         color: tracker.isArchived
                             ? colors.textTertiary
@@ -784,7 +792,7 @@ class _PerformanceCard extends StatelessWidget {
           const SizedBox(height: GOLSpacing.space1),
 
           Text(
-            isProfit ? 'Net profit' : 'Net loss',
+            isProfit ? l10n.netProfit : l10n.netLoss,
             style: textTheme.bodySmall?.copyWith(
               color: colors.textSecondary,
             ),
@@ -798,7 +806,7 @@ class _PerformanceCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _MetricColumn(
-                    label: 'Revenue',
+                    label: l10n.revenue,
                     value: CurrencyFormatter.format(
                       totalRevenue,
                       currencyCode: tracker.currency,
@@ -815,7 +823,7 @@ class _PerformanceCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _MetricColumn(
-                    label: 'Spend',
+                    label: l10n.spend,
                     value: CurrencyFormatter.format(
                       totalSpend,
                       currencyCode: tracker.currency,
@@ -899,6 +907,7 @@ class _MetricsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final daysSinceStart =
         DateTime.now().difference(tracker.startDate).inDays + 1;
 
@@ -909,17 +918,17 @@ class _MetricsGrid extends StatelessWidget {
             children: [
               _MetricCard(
                 icon: Iconsax.calendar_tick,
-                label: 'Days Active',
+                label: l10n.daysActive,
                 value: '$daysSinceStart',
-                subtitle: 'since start',
+                subtitle: l10n.sinceStart,
                 subtitleStyle: _MetricSubtitleStyle.plain,
               ),
               const SizedBox(height: GOLSpacing.space3),
               _MetricCard(
                 icon: Iconsax.document_text,
-                label: 'Entries',
+                label: l10n.entries,
                 value: '$entryCount',
-                subtitle: 'logged',
+                subtitle: l10n.logged,
                 subtitleStyle: _MetricSubtitleStyle.plain,
               ),
             ],
@@ -931,7 +940,7 @@ class _MetricsGrid extends StatelessWidget {
             children: [
               _MetricCard(
                 icon: Iconsax.wallet_1,
-                label: 'Setup Cost',
+                label: l10n.setupCost,
                 value: CurrencyFormatter.format(
                   tracker.setupCost.round(),
                   currencyCode: tracker.currency,
@@ -940,7 +949,7 @@ class _MetricsGrid extends StatelessWidget {
               const SizedBox(height: GOLSpacing.space3),
               _MetricCard(
                 icon: Iconsax.chart_1,
-                label: 'Monthly Cost',
+                label: l10n.monthlyCost,
                 value: CurrencyFormatter.format(
                   tracker.growthCostMonthly.round(),
                   currencyCode: tracker.currency,
@@ -1230,6 +1239,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final entriesState = ref.watch(entriesProvider(widget.tracker.id));
+    final l10n = AppLocalizations.of(context)!;
 
     // Loading state
     if (entriesState is EntriesLoading) {
@@ -1245,7 +1255,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
             Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
             const SizedBox(height: GOLSpacing.space4),
             Text(
-              'Failed to load entries',
+              l10n.failedToLoadEntries,
               style: textTheme.titleMedium?.copyWith(
                 color: colors.textPrimary,
               ),
@@ -1310,6 +1320,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
   Widget _buildEmptyState(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -1335,7 +1346,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
 
             // Title
             Text(
-              'No Entries Yet',
+              l10n.noEntriesYetTitle,
               style: textTheme.headlineSmall?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -1345,7 +1356,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
 
             // Description
             Text(
-              'Daily entries track your campaign performance day by day.',
+              l10n.dailyEntriesDescription,
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -1364,17 +1375,17 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Each entry logs:',
+                    l10n.eachEntryLogs,
                     style: textTheme.labelMedium?.copyWith(
                       color: colors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: GOLSpacing.space2),
-                  _buildBulletPoint(context, 'Total revenue for the day'),
-                  _buildBulletPoint(context, 'Ad spend per platform'),
-                  _buildBulletPoint(context, 'DMs/Leads received'),
-                  _buildBulletPoint(context, 'Daily profit (calculated)'),
+                  _buildBulletPoint(context, l10n.totalRevenueForDay),
+                  _buildBulletPoint(context, l10n.adSpendPerPlatform),
+                  _buildBulletPoint(context, l10n.dmsLeadsReceived),
+                  _buildBulletPoint(context, l10n.dailyProfitCalculated),
                 ],
               ),
             ),
@@ -1382,7 +1393,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
 
             // Secondary message
             Text(
-              'Start tracking to see trends, ROI, and burn rate.',
+              l10n.startTrackingToSee,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.textTertiary,
               ),
@@ -1392,7 +1403,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
 
             // CTA Button
             GOLButton(
-              label: 'Log First Entry',
+              label: l10n.logFirstEntry,
               icon: const Icon(Iconsax.add),
               onPressed: () =>
                   context.push(Routes.logEntryPath(widget.tracker.id)),
@@ -1563,23 +1574,24 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
   Widget _buildFilterPills(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       children: [
         _FilterPill(
-          label: 'This Week',
+          label: l10n.thisWeek,
           isSelected: _selectedFilter == _EntryFilter.thisWeek,
           onTap: () => setState(() => _selectedFilter = _EntryFilter.thisWeek),
         ),
         const SizedBox(width: GOLSpacing.space2),
         _FilterPill(
-          label: 'This Month',
+          label: l10n.thisMonth,
           isSelected: _selectedFilter == _EntryFilter.thisMonth,
           onTap: () => setState(() => _selectedFilter = _EntryFilter.thisMonth),
         ),
         const SizedBox(width: GOLSpacing.space2),
         _FilterPill(
-          label: 'All Time',
+          label: l10n.allTime,
           isSelected: _selectedFilter == _EntryFilter.allTime,
           onTap: () => setState(() => _selectedFilter = _EntryFilter.allTime),
         ),
@@ -1590,7 +1602,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
               context.push(Routes.entryHistoryPath(widget.tracker.id)),
           icon: Icon(Iconsax.clock, size: 16, color: colors.interactivePrimary),
           label: Text(
-            'History',
+            l10n.history,
             style: textTheme.labelMedium?.copyWith(
               color: colors.interactivePrimary,
             ),

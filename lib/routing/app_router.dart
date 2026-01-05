@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../l10n/generated/app_localizations.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
@@ -15,6 +16,7 @@ import '../features/tracker/screens/entry_detail_screen.dart';
 import '../features/tracker/screens/edit_entry_screen.dart';
 import '../features/tracker/screens/entry_history_screen.dart';
 import '../features/tracker/screens/archive_screen.dart';
+import '../features/settings/screens/settings_screen.dart';
 import '../screens/grow_out_loud_gallery_screen.dart';
 import '../providers/auth_provider.dart';
 import 'routes.dart';
@@ -114,7 +116,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.settings,
             name: 'settings',
-            builder: (context, state) => const _PlaceholderScreen('Settings'),
+            builder: (context, state) => const SettingsScreen(),
             routes: [
               GoRoute(
                 path: 'platforms',
@@ -259,27 +261,29 @@ class _MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _calculateSelectedIndex(context),
         onTap: (index) => _onItemTapped(index, context),
         enableFeedback: false, // No fancy animations per design system
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Iconsax.category),
-            activeIcon: Icon(Iconsax.category5),
-            label: 'Dashboard',
+            icon: const Icon(Iconsax.category),
+            activeIcon: const Icon(Iconsax.category5),
+            label: l10n.dashboard,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Iconsax.folder_2),
-            activeIcon: Icon(Iconsax.folder_25),
-            label: 'Projects',
+            icon: const Icon(Iconsax.folder_2),
+            activeIcon: const Icon(Iconsax.folder_25),
+            label: l10n.projects,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Iconsax.setting_2),
-            activeIcon: Icon(Iconsax.setting_25),
-            label: 'Settings',
+            icon: const Icon(Iconsax.setting_2),
+            activeIcon: const Icon(Iconsax.setting_25),
+            label: l10n.settings,
           ),
         ],
       ),

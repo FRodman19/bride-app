@@ -14,6 +14,7 @@ import '../../../domain/models/tracker.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../routing/routes.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Screen 6: Archive View
 ///
@@ -26,6 +27,7 @@ class ArchiveScreen extends ConsumerWidget {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final trackersState = ref.watch(trackersProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -33,13 +35,13 @@ class ArchiveScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Archived Trackers',
+              l10n.archivedTrackers,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             Text(
-              'Performance',
+              l10n.performance,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -65,6 +67,8 @@ class ArchiveScreen extends ConsumerWidget {
   }
 
   Widget _buildBody(BuildContext context, WidgetRef ref, TrackersState state) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (state is TrackersLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -76,10 +80,10 @@ class ArchiveScreen extends ConsumerWidget {
           children: [
             const Icon(Iconsax.warning_2, size: 48),
             const SizedBox(height: GOLSpacing.space4),
-            Text('Error: ${state.message}'),
+            Text('${l10n.error}: ${state.message}'),
             const SizedBox(height: GOLSpacing.space4),
             GOLButton(
-              label: 'Retry',
+              label: l10n.retry,
               onPressed: () => ref.read(trackersProvider.notifier).loadTrackers(),
             ),
           ],
@@ -109,6 +113,7 @@ class _ArchiveEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -123,14 +128,14 @@ class _ArchiveEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space5),
             Text(
-              'No Archived Trackers',
+              l10n.noArchivedTrackers,
               style: textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: GOLSpacing.space3),
             Text(
-              'Archived trackers are campaigns you\'ve completed or paused.',
+              l10n.archivedTrackersDescription,
               textAlign: TextAlign.center,
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
@@ -144,7 +149,7 @@ class _ArchiveEmptyState extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Archiving a tracker:',
+                    l10n.archivingATracker,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -152,28 +157,28 @@ class _ArchiveEmptyState extends StatelessWidget {
                   const SizedBox(height: GOLSpacing.space3),
                   _InfoRow(
                     icon: Iconsax.minus_cirlce,
-                    text: 'Removes it from active dashboard',
+                    text: l10n.removesFromDashboard,
                     colors: colors,
                     textTheme: textTheme,
                   ),
                   const SizedBox(height: GOLSpacing.space2),
                   _InfoRow(
                     icon: Iconsax.document_text,
-                    text: 'Preserves all data',
+                    text: l10n.preservesAllData,
                     colors: colors,
                     textTheme: textTheme,
                   ),
                   const SizedBox(height: GOLSpacing.space2),
                   _InfoRow(
                     icon: Iconsax.refresh_circle,
-                    text: 'Can be restored anytime',
+                    text: l10n.canBeRestoredAnytime,
                     colors: colors,
                     textTheme: textTheme,
                   ),
                   const SizedBox(height: GOLSpacing.space2),
                   _InfoRow(
                     icon: Iconsax.clock,
-                    text: 'Keeps historical records',
+                    text: l10n.keepsHistoricalRecords,
                     colors: colors,
                     textTheme: textTheme,
                   ),
@@ -182,7 +187,7 @@ class _ArchiveEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space5),
             Text(
-              'To archive a tracker:\nOpen tracker > Menu > Archive',
+              l10n.toArchiveTracker,
               textAlign: TextAlign.center,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.textTertiary,
@@ -241,6 +246,7 @@ class _ArchiveList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
@@ -249,14 +255,14 @@ class _ArchiveList extends ConsumerWidget {
         children: [
           const SizedBox(height: GOLSpacing.space4),
           Text(
-            'These trackers are archived but preserved for reference. You can restore or permanently delete them.',
+            l10n.archivedTrackersPreserved,
             style: textTheme.bodyMedium?.copyWith(
               color: colors.textSecondary,
             ),
           ),
           const SizedBox(height: GOLSpacing.space5),
           Text(
-            'ARCHIVED TRACKERS (${trackers.length})',
+            l10n.archivedTrackersCount(trackers.length),
             style: textTheme.labelSmall?.copyWith(
               color: colors.textTertiary,
               letterSpacing: 1.2,
@@ -284,7 +290,7 @@ class _ArchiveList extends ConsumerWidget {
                 const SizedBox(width: GOLSpacing.space2),
                 Expanded(
                   child: Text(
-                    'Archived trackers don\'t count toward active performance metrics',
+                    l10n.archivedTrackersNote,
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.textTertiary,
                     ),
@@ -310,13 +316,14 @@ class _ArchivedTrackerCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     // Calculate final profit
     final finalProfit = (tracker.totalRevenue - tracker.totalSpend - tracker.setupCost).round();
     final profitResult = CurrencyFormatter.formatProfit(finalProfit, currencyCode: tracker.currency);
 
     // Calculate duration (use updatedAt as approximate archive date)
-    final duration = _calculateDuration(tracker.startDate, tracker.updatedAt);
+    final duration = _calculateDuration(context, tracker.startDate, tracker.updatedAt);
 
     return GOLCard(
       variant: GOLCardVariant.standard,
@@ -380,7 +387,7 @@ class _ArchivedTrackerCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: _InfoChip(
-                  label: 'Archived',
+                  label: l10n.archived,
                   value: DateFormat('MMM d, yyyy').format(tracker.updatedAt),
                   colors: colors,
                   textTheme: textTheme,
@@ -389,7 +396,7 @@ class _ArchivedTrackerCard extends ConsumerWidget {
               const SizedBox(width: GOLSpacing.space2),
               Expanded(
                 child: _InfoChip(
-                  label: 'Duration',
+                  label: l10n.duration,
                   value: duration,
                   colors: colors,
                   textTheme: textTheme,
@@ -410,7 +417,7 @@ class _ArchivedTrackerCard extends ConsumerWidget {
             child: Row(
               children: [
                 Text(
-                  'Final Profit:',
+                  l10n.finalProfit,
                   style: textTheme.bodySmall?.copyWith(
                     color: colors.textSecondary,
                   ),
@@ -434,7 +441,7 @@ class _ArchivedTrackerCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: GOLButton(
-                  label: 'Restore',
+                  label: l10n.restore,
                   variant: GOLButtonVariant.secondary,
                   onPressed: () => _restoreTracker(context, ref),
                 ),
@@ -442,7 +449,7 @@ class _ArchivedTrackerCard extends ConsumerWidget {
               const SizedBox(width: GOLSpacing.space2),
               Expanded(
                 child: GOLButton(
-                  label: 'Delete',
+                  label: l10n.delete,
                   variant: GOLButtonVariant.destructive,
                   onPressed: () => _showDeleteConfirmation(context, ref),
                 ),
@@ -454,22 +461,24 @@ class _ArchivedTrackerCard extends ConsumerWidget {
     );
   }
 
-  String _calculateDuration(DateTime start, DateTime end) {
+  String _calculateDuration(BuildContext context, DateTime start, DateTime end) {
+    final l10n = AppLocalizations.of(context)!;
     final difference = end.difference(start);
     final days = difference.inDays;
 
     if (days < 7) {
-      return '$days days';
+      return l10n.daysCount(days);
     } else if (days < 30) {
       final weeks = (days / 7).round();
-      return '$weeks ${weeks == 1 ? 'week' : 'weeks'}';
+      return l10n.weeksCount(weeks);
     } else {
       final months = (days / 30).round();
-      return '$months ${months == 1 ? 'month' : 'months'}';
+      return l10n.monthsCount(months);
     }
   }
 
   Future<void> _restoreTracker(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await ref.read(trackersProvider.notifier).restoreTracker(tracker.id);
 
     if (!context.mounted) return;
@@ -477,13 +486,13 @@ class _ArchivedTrackerCard extends ConsumerWidget {
     if (result.success) {
       showGOLToast(
         context,
-        '${tracker.name} restored',
+        l10n.trackerRestored(tracker.name),
         variant: GOLToastVariant.success,
       );
     } else {
       showGOLToast(
         context,
-        result.error ?? 'Failed to restore tracker',
+        result.error ?? l10n.failedToRestoreTracker,
         variant: GOLToastVariant.error,
       );
     }
@@ -492,11 +501,12 @@ class _ArchivedTrackerCard extends ConsumerWidget {
   void _showDeleteConfirmation(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Tracker?'),
+        title: Text(l10n.deleteTrackerTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -508,18 +518,18 @@ class _ArchivedTrackerCard extends ConsumerWidget {
             ),
             const SizedBox(height: GOLSpacing.space3),
             Text(
-              'This will permanently delete the tracker and all associated data including:',
+              l10n.deleteTrackerMessage,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.textSecondary,
               ),
             ),
             const SizedBox(height: GOLSpacing.space2),
-            _DeleteInfoItem(text: 'All daily entries', colors: colors, textTheme: textTheme),
-            _DeleteInfoItem(text: 'All posts', colors: colors, textTheme: textTheme),
-            _DeleteInfoItem(text: 'All reports data', colors: colors, textTheme: textTheme),
+            _DeleteInfoItem(text: l10n.allDailyEntries, colors: colors, textTheme: textTheme),
+            _DeleteInfoItem(text: l10n.allPosts, colors: colors, textTheme: textTheme),
+            _DeleteInfoItem(text: l10n.allReportsData, colors: colors, textTheme: textTheme),
             const SizedBox(height: GOLSpacing.space3),
             Text(
-              'This action cannot be undone.',
+              l10n.actionCannotBeUndone,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.stateError,
                 fontWeight: FontWeight.w500,
@@ -529,12 +539,12 @@ class _ArchivedTrackerCard extends ConsumerWidget {
         ),
         actions: [
           GOLButton(
-            label: 'Cancel',
+            label: l10n.cancel,
             variant: GOLButtonVariant.tertiary,
             onPressed: () => Navigator.pop(dialogContext),
           ),
           GOLButton(
-            label: 'Delete',
+            label: l10n.delete,
             variant: GOLButtonVariant.destructive,
             onPressed: () async {
               Navigator.pop(dialogContext);
@@ -546,13 +556,13 @@ class _ArchivedTrackerCard extends ConsumerWidget {
               if (result.success) {
                 showGOLToast(
                   context,
-                  '${tracker.name} deleted',
+                  l10n.trackerDeleted(tracker.name),
                   variant: GOLToastVariant.success,
                 );
               } else {
                 showGOLToast(
                   context,
-                  result.error ?? 'Failed to delete tracker',
+                  result.error ?? l10n.failedToDeleteTracker,
                   variant: GOLToastVariant.error,
                 );
               }

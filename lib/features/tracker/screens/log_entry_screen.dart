@@ -16,6 +16,7 @@ import '../../../providers/tracker_provider.dart';
 import '../../../providers/entry_provider.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/platform_icons.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Screen 7: Log Daily Entry
 ///
@@ -131,9 +132,10 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
     if (!mounted) return;
 
     if (result.success) {
+      final l10n = AppLocalizations.of(context)!;
       showGOLToast(
         context,
-        'Entry logged successfully',
+        l10n.entryLoggedSuccess,
         variant: GOLToastVariant.success,
       );
       context.pop();
@@ -147,11 +149,12 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final tracker = ref.watch(trackerByIdProvider(widget.trackerId));
+    final l10n = AppLocalizations.of(context)!;
 
     if (tracker == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Log Entry')),
-        body: const Center(child: Text('Tracker not found')),
+        appBar: AppBar(title: Text(l10n.logEntry)),
+        body: Center(child: Text(l10n.trackerNotFound)),
       );
     }
 
@@ -170,7 +173,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Log Entry',
+          l10n.logEntry,
           style: textTheme.headlineSmall?.copyWith(
             color: colors.textPrimary,
             fontWeight: FontWeight.bold,
@@ -180,7 +183,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
           Padding(
             padding: const EdgeInsets.only(right: GOLSpacing.space3),
             child: GOLButton(
-              label: 'Save',
+              label: l10n.save,
               onPressed: _isLoading ? null : _saveEntry,
               variant: GOLButtonVariant.primary,
               size: GOLButtonSize.small,
@@ -196,7 +199,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
           padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
           children: [
             // Date Selector
-            _buildDateSelector(colors, textTheme, dateFormat, isToday),
+            _buildDateSelector(colors, textTheme, dateFormat, isToday, l10n),
 
             const SizedBox(height: GOLSpacing.space6),
             const GOLDivider(),
@@ -204,7 +207,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
 
             // Total Revenue
             GOLTextField(
-              label: 'Total Revenue',
+              label: l10n.totalRevenue,
               hintText: '0',
               controller: _revenueController,
               keyboardType: TextInputType.number,
@@ -215,7 +218,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
               trailingSuffix: GOLBadge(text: tracker.currency),
             ),
             Text(
-              'How much did you earn today?',
+              l10n.howMuchEarnToday,
               style: textTheme.bodySmall?.copyWith(color: colors.textTertiary),
             ),
 
@@ -224,14 +227,14 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
             const SizedBox(height: GOLSpacing.space6),
 
             // Platform Spends Section
-            _buildPlatformSpendsSection(colors, textTheme, tracker),
+            _buildPlatformSpendsSection(colors, textTheme, tracker, l10n),
 
             const SizedBox(height: GOLSpacing.space6),
             const GOLDivider(),
             const SizedBox(height: GOLSpacing.space6),
 
             // DMs/Leads Counter
-            _buildDmsLeadsCounter(colors, textTheme),
+            _buildDmsLeadsCounter(colors, textTheme, l10n),
 
             const SizedBox(height: GOLSpacing.space6),
             const GOLDivider(),
@@ -239,8 +242,8 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
 
             // Notes (optional)
             GOLTextField(
-              label: 'Notes (Optional)',
-              hintText: 'Any notes about today...',
+              label: l10n.notesOptional,
+              hintText: l10n.anyNotesAboutToday,
               controller: _notesController,
               prefixIcon: Icon(Iconsax.note_1, color: colors.textTertiary),
             ),
@@ -250,13 +253,13 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
             const SizedBox(height: GOLSpacing.space6),
 
             // Summary Card
-            _buildSummaryCard(colors, textTheme, tracker.currency),
+            _buildSummaryCard(colors, textTheme, tracker.currency, l10n),
 
             const SizedBox(height: GOLSpacing.space8),
 
             // Save Button (bottom)
             GOLButton(
-              label: _isLoading ? 'Saving...' : 'Save Entry',
+              label: _isLoading ? l10n.saving : l10n.saveEntry,
               onPressed: _isLoading ? null : _saveEntry,
               variant: GOLButtonVariant.primary,
               fullWidth: true,
@@ -274,12 +277,13 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
     TextTheme textTheme,
     DateFormat dateFormat,
     bool isToday,
+    AppLocalizations l10n,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Date',
+          l10n.date,
           style: textTheme.labelSmall?.copyWith(color: colors.textSecondary),
         ),
         const SizedBox(height: GOLSpacing.inputLabelGap),
@@ -312,7 +316,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
                   children: [
                     Text(
                       isToday
-                          ? 'TODAY'
+                          ? l10n.todayLabel
                           : dateFormat.format(_selectedDate).toUpperCase(),
                       style: textTheme.labelMedium?.copyWith(
                         color: colors.interactivePrimary,
@@ -361,6 +365,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
     GOLSemanticColors colors,
     TextTheme textTheme,
     dynamic tracker,
+    AppLocalizations l10n,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,7 +378,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
                 Icon(Iconsax.money_send, size: 16, color: colors.textSecondary),
                 const SizedBox(width: GOLSpacing.space2),
                 Text(
-                  'AD SPEND',
+                  l10n.adSpend,
                   style: textTheme.labelMedium?.copyWith(
                     color: colors.textSecondary,
                     fontWeight: FontWeight.w600,
@@ -382,7 +387,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
               ],
             ),
             Text(
-              'Today: ${CurrencyFormatter.format(_totalSpend, currencyCode: tracker.currency)}',
+              l10n.todaySpend(CurrencyFormatter.format(_totalSpend, currencyCode: tracker.currency)),
               style: textTheme.labelMedium?.copyWith(
                 color: colors.interactivePrimary,
                 fontWeight: FontWeight.w600,
@@ -412,14 +417,14 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
         }),
 
         Text(
-          'Enter how much you spent on each platform today',
+          l10n.enterSpendPerPlatform,
           style: textTheme.bodySmall?.copyWith(color: colors.textTertiary),
         ),
       ],
     );
   }
 
-  Widget _buildDmsLeadsCounter(GOLSemanticColors colors, TextTheme textTheme) {
+  Widget _buildDmsLeadsCounter(GOLSemanticColors colors, TextTheme textTheme, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -428,7 +433,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
             Icon(Iconsax.message, size: 20, color: colors.textSecondary),
             const SizedBox(width: GOLSpacing.space2),
             Text(
-              'DMS / LEADS (Optional)',
+              l10n.dmsLeadsOptional,
               style: textTheme.labelMedium?.copyWith(
                 color: colors.textSecondary,
                 fontWeight: FontWeight.w600,
@@ -436,7 +441,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
             ),
             const Spacer(),
             Text(
-              'Inbound only',
+              l10n.inboundOnly,
               style: textTheme.bodySmall?.copyWith(color: colors.textTertiary),
             ),
           ],
@@ -537,6 +542,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
     GOLSemanticColors colors,
     TextTheme textTheme,
     String currency,
+    AppLocalizations l10n,
   ) {
     final isProfitable = _profit >= 0;
 
@@ -546,7 +552,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SUMMARY',
+            l10n.summary,
             style: textTheme.labelMedium?.copyWith(
               color: colors.textSecondary,
               fontWeight: FontWeight.w600,
@@ -557,7 +563,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
           _buildSummaryRow(
             textTheme,
             colors,
-            'Revenue',
+            l10n.revenue,
             CurrencyFormatter.format(_totalRevenue, currencyCode: currency),
             colors.textPrimary,
           ),
@@ -565,7 +571,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
           _buildSummaryRow(
             textTheme,
             colors,
-            'Spend',
+            l10n.spend,
             '-${CurrencyFormatter.format(_totalSpend, currencyCode: currency)}',
             colors.stateError,
           ),
@@ -577,7 +583,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
           _buildSummaryRow(
             textTheme,
             colors,
-            'Profit/Loss',
+            l10n.profitLoss,
             '${isProfitable ? '+' : ''}${CurrencyFormatter.format(_profit, currencyCode: currency)}',
             isProfitable ? colors.stateSuccess : colors.stateError,
             isBold: true,

@@ -5,6 +5,7 @@ import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_cards.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Performance overview card showing aggregated metrics.
 /// Uses horizontal layout with dividers per design patterns.
@@ -28,6 +29,7 @@ class PerformanceOverviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isProfit = totalProfit >= 0;
     // Use normal text color for profit, only red for loss (more professional)
@@ -49,7 +51,7 @@ class PerformanceOverviewCard extends StatelessWidget {
               ),
               const SizedBox(width: GOLSpacing.space2),
               Text(
-                'PERFORMANCE OVERVIEW',
+                l10n.performanceOverview,
                 style: textTheme.labelSmall?.copyWith(
                   color: colors.textSecondary,
                   letterSpacing: 1.2,
@@ -75,7 +77,7 @@ class PerformanceOverviewCard extends StatelessWidget {
                     ),
                     const SizedBox(width: GOLSpacing.space1),
                     Text(
-                      '$activeProjectsCount active',
+                      l10n.activeCount(activeProjectsCount),
                       style: textTheme.labelSmall?.copyWith(
                         color: colors.interactivePrimary,
                         fontWeight: FontWeight.w500,
@@ -118,7 +120,7 @@ class PerformanceOverviewCard extends StatelessWidget {
           const SizedBox(height: GOLSpacing.space1),
 
           Text(
-            isProfit ? 'Net profit' : 'Net loss',
+            isProfit ? l10n.netProfit : l10n.netLoss,
             style: textTheme.bodySmall?.copyWith(
               color: colors.textSecondary,
             ),
@@ -133,7 +135,7 @@ class PerformanceOverviewCard extends StatelessWidget {
                 // Revenue
                 Expanded(
                   child: _MetricItem(
-                    label: 'Revenue',
+                    label: l10n.revenue,
                     value: _formatAmount(totalRevenue.round()),
                     icon: Iconsax.wallet_add,
                     valueColor: colors.textPrimary,
@@ -152,7 +154,7 @@ class PerformanceOverviewCard extends StatelessWidget {
                 // Spend
                 Expanded(
                   child: _MetricItem(
-                    label: 'Spend',
+                    label: l10n.spend,
                     value: _formatAmount(totalSpend.round()),
                     icon: Iconsax.wallet_minus,
                     valueColor: colors.textPrimary,

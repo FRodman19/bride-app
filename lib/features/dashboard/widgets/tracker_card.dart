@@ -6,6 +6,7 @@ import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_cards.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../domain/models/tracker.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Compact tracker card for dashboard lists.
 /// Uses horizontal layout per design patterns.
@@ -34,6 +35,7 @@ class TrackerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     // Use live data if provided, otherwise fall back to tracker values
     final displayProfit = liveProfit ?? tracker.totalProfit.round();
@@ -82,7 +84,7 @@ class TrackerCard extends StatelessWidget {
                 ),
                 const SizedBox(height: GOLSpacing.space1),
                 Text(
-                  '$displayEntryCount ${displayEntryCount == 1 ? 'entry' : 'entries'}',
+                  '$displayEntryCount ${displayEntryCount == 1 ? l10n.entrySingular : l10n.entriesPlural}',
                   style: textTheme.bodySmall?.copyWith(
                     color: colors.textSecondary,
                   ),
@@ -117,7 +119,7 @@ class TrackerCard extends StatelessWidget {
               ),
               const SizedBox(height: GOLSpacing.space1),
               Text(
-                isProfit ? 'profit' : 'loss',
+                isProfit ? l10n.profit : l10n.loss,
                 style: textTheme.labelSmall?.copyWith(
                   color: colors.textTertiary,
                 ),

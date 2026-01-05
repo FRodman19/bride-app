@@ -5,6 +5,7 @@ import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_buttons.dart';
 import '../../../grow_out_loud/components/gol_cards.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Feature item for empty state bullet list.
 class EmptyStateFeature {
@@ -24,6 +25,7 @@ class EmptyState extends StatelessWidget {
   final VoidCallback? onAction;
   final bool useCard;
   final List<EmptyStateFeature>? features;
+  final String? whatYouCanTrackLabel;
 
   const EmptyState({
     super.key,
@@ -34,63 +36,65 @@ class EmptyState extends StatelessWidget {
     this.onAction,
     this.useCard = false,
     this.features,
+    this.whatYouCanTrackLabel,
   });
 
   /// Dashboard/Projects empty state - no projects yet.
-  factory EmptyState.dashboard({required VoidCallback onCreateProject}) {
+  factory EmptyState.dashboard({required VoidCallback onCreateProject, required AppLocalizations l10n}) {
     return EmptyState(
       icon: Iconsax.folder_add,
-      title: 'Nothing yet',
-      subtitle: 'Start your first project and track your progress',
-      actionLabel: 'Start New Project',
+      title: l10n.nothingYet,
+      subtitle: l10n.startFirstProject,
+      actionLabel: l10n.startNewProject,
       onAction: onCreateProject,
       useCard: true,
-      features: const [
-        EmptyStateFeature(icon: Iconsax.money_recive, text: 'Track revenue & spending'),
-        EmptyStateFeature(icon: Iconsax.chart_success, text: 'Monitor growth metrics'),
-        EmptyStateFeature(icon: Iconsax.document_text, text: 'Log posts & content'),
-        EmptyStateFeature(icon: Iconsax.status_up, text: 'See performance trends'),
+      features: [
+        EmptyStateFeature(icon: Iconsax.money_recive, text: l10n.trackRevenueSpending),
+        EmptyStateFeature(icon: Iconsax.chart_success, text: l10n.monitorGrowthMetrics),
+        EmptyStateFeature(icon: Iconsax.document_text, text: l10n.logPostsContent),
+        EmptyStateFeature(icon: Iconsax.status_up, text: l10n.seePerformanceTrends),
       ],
+      whatYouCanTrackLabel: l10n.whatYouCanTrack,
     );
   }
 
   /// Entries empty state - no entries for this project.
-  factory EmptyState.entries({required VoidCallback onLogEntry}) {
+  factory EmptyState.entries({required VoidCallback onLogEntry, required AppLocalizations l10n}) {
     return EmptyState(
       icon: Iconsax.calendar_tick,
-      title: 'No entries yet',
-      subtitle: 'Log your first daily entry to start tracking revenue and spend',
-      actionLabel: 'Log Entry',
+      title: l10n.noEntriesYet,
+      subtitle: l10n.noEntriesYetSubtitle,
+      actionLabel: l10n.logEntry,
       onAction: onLogEntry,
     );
   }
 
   /// Posts empty state - no posts for this project.
-  factory EmptyState.posts({required VoidCallback onAddPost}) {
+  factory EmptyState.posts({required VoidCallback onAddPost, required AppLocalizations l10n}) {
     return EmptyState(
       icon: Iconsax.document_text,
-      title: 'No posts yet',
-      subtitle: 'Add posts to track your content across platforms',
-      actionLabel: 'Add Post',
+      title: l10n.noPostsYet,
+      subtitle: l10n.noPostsYetSubtitle,
+      actionLabel: l10n.addPost,
       onAction: onAddPost,
     );
   }
 
   /// Archive empty state - no archived projects.
-  factory EmptyState.archive() {
-    return const EmptyState(
+  factory EmptyState.archive({required AppLocalizations l10n}) {
+    return EmptyState(
       icon: Iconsax.archive_1,
-      title: 'No archived projects',
-      subtitle: 'Projects you archive will appear here',
+      title: l10n.noArchivedProjects,
+      subtitle: l10n.archivedProjectsAppearHere,
     );
   }
 
   /// Entry history empty state - no entries found.
-  factory EmptyState.entryHistory() {
-    return const EmptyState(
+  factory EmptyState.entryHistory({required AppLocalizations l10n}) {
+    return EmptyState(
       icon: Iconsax.calendar,
-      title: 'No entries found',
-      subtitle: 'Try adjusting your filters or date range',
+      title: l10n.noEntriesFound,
+      subtitle: l10n.tryAdjustingFilters,
     );
   }
 
@@ -176,7 +180,12 @@ class EmptyState extends StatelessWidget {
           // Feature bullets below the card
           if (features != null && features!.isNotEmpty) ...[
             const SizedBox(height: GOLSpacing.space6),
-            _FeatureList(features: features!, colors: colors, textTheme: textTheme),
+            _FeatureList(
+              features: features!,
+              colors: colors,
+              textTheme: textTheme,
+              whatYouCanTrackLabel: whatYouCanTrackLabel,
+            ),
           ],
         ],
       );
@@ -197,11 +206,13 @@ class _FeatureList extends StatelessWidget {
   final List<EmptyStateFeature> features;
   final GOLSemanticColors colors;
   final TextTheme textTheme;
+  final String? whatYouCanTrackLabel;
 
   const _FeatureList({
     required this.features,
     required this.colors,
     required this.textTheme,
+    this.whatYouCanTrackLabel,
   });
 
   @override
@@ -212,7 +223,7 @@ class _FeatureList extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: GOLSpacing.space2),
           child: Text(
-            'What you can track:',
+            whatYouCanTrackLabel ?? 'What you can track:',
             style: textTheme.labelMedium?.copyWith(
               color: colors.textSecondary,
               fontWeight: FontWeight.w500,

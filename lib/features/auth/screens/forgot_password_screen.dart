@@ -8,6 +8,7 @@ import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_buttons.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/utils/validators.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../widgets/auth_text_field.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
@@ -62,6 +63,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -82,7 +84,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
               // Header
               Text(
-                'Reset password',
+                l10n.resetPassword,
                 style: textTheme.displaySmall?.copyWith(
                   color: colors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -91,8 +93,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               const SizedBox(height: GOLSpacing.space2),
               Text(
                 _emailSent
-                    ? 'Check your email for a password reset link'
-                    : 'Enter your email and we\'ll send you a reset link',
+                    ? l10n.checkEmailForResetLink
+                    : l10n.resetPasswordInstructions,
                 style: textTheme.bodyMedium?.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -117,7 +119,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       const SizedBox(width: GOLSpacing.space3),
                       Expanded(
                         child: Text(
-                          'Password reset email sent to ${_emailController.text}',
+                          l10n.passwordResetEmailSent(_emailController.text),
                           style: textTheme.bodyMedium?.copyWith(
                             color: colors.stateSuccess,
                           ),
@@ -130,7 +132,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 const SizedBox(height: GOLSpacing.space6),
 
                 GOLButton(
-                  label: 'Back to Sign In',
+                  label: l10n.backToSignIn,
                   onPressed: () => context.pop(),
                   fullWidth: true,
                   size: GOLButtonSize.large,
@@ -138,8 +140,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               ] else ...[
                 // Email input
                 AuthTextField(
-                  label: 'Email',
-                  hintText: 'Enter your email',
+                  label: l10n.email,
+                  hintText: l10n.enterYourEmail,
                   controller: _emailController,
                   errorText: _emailError,
                   keyboardType: TextInputType.emailAddress,
@@ -154,7 +156,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 const SizedBox(height: GOLSpacing.space6),
 
                 GOLButton(
-                  label: 'Send Reset Link',
+                  label: l10n.sendResetLink,
                   onPressed: _isLoading ? null : _handleResetPassword,
                   isLoading: _isLoading,
                   fullWidth: true,

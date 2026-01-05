@@ -16,6 +16,7 @@ import '../../../grow_out_loud/components/gol_dividers.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/constants/currency_constants.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Screen 2: Create Project
 ///
@@ -86,7 +87,8 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
     if (_nameError != null) return;
     if (_selectedPlatforms.isEmpty) {
-      showGOLToast(context, 'Please select at least one platform');
+      final l10n = AppLocalizations.of(context)!;
+      showGOLToast(context, l10n.pleaseSelectPlatform);
       return;
     }
 
@@ -117,9 +119,10 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
       setState(() => _isLoading = false);
 
       if (result.success) {
+        final l10n = AppLocalizations.of(context)!;
         showGOLToast(
           context,
-          'Project created successfully',
+          l10n.projectCreatedSuccess,
           variant: GOLToastVariant.success,
         );
         context.pop();
@@ -138,6 +141,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final canCreate = ref.watch(canCreateTrackerProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -146,7 +150,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'New Project',
+          l10n.newProject,
           style: textTheme.headlineSmall?.copyWith(
             color: colors.textPrimary,
             fontWeight: FontWeight.bold,
@@ -164,8 +168,8 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                 children: [
                   // Name field
                   GOLTextField(
-                    label: 'Project Name',
-                    hintText: 'e.g., Summer Campaign 2024',
+                    label: l10n.projectName,
+                    hintText: l10n.projectNameHint,
                     controller: _nameController,
                     errorText: _nameError,
                     maxLength: 50,
@@ -175,7 +179,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
                   // Start date
-                  _buildLabel('Start Date'),
+                  _buildLabel(l10n.startDate),
                   const SizedBox(height: GOLSpacing.inputLabelGap),
                   GOLCard(
                     variant: GOLCardVariant.interactive,
@@ -203,7 +207,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
                   // Currency dropdown
-                  _buildLabel('Currency'),
+                  _buildLabel(l10n.currency),
                   const SizedBox(height: GOLSpacing.inputLabelGap),
                   _CurrencyDropdown(
                     value: _currency,
@@ -213,7 +217,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
                   // Platforms
-                  _buildLabel('Platforms'),
+                  _buildLabel(l10n.platforms),
                   const SizedBox(height: GOLSpacing.inputLabelGap),
                   GOLSelectableChipGroup(
                     items: _availablePlatforms,
@@ -228,7 +232,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
                   // Revenue target (optional) - with currency suffix
                   GOLTextField(
-                    label: 'Revenue Target (Optional)',
+                    label: l10n.revenueTargetOptional,
                     hintText: 'e.g., 500000',
                     controller: _revenueTargetController,
                     keyboardType: TextInputType.number,
@@ -240,8 +244,8 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
                   // Engagement target (optional)
                   GOLTextField(
-                    label: 'Engagement Target (Optional)',
-                    hintText: 'e.g., 100 DMs/Leads',
+                    label: l10n.engagementTargetOptional,
+                    hintText: l10n.engagementTargetHint,
                     controller: _engagementTargetController,
                     keyboardType: TextInputType.number,
                     prefixIcon: Icon(Iconsax.message, color: colors.textTertiary),
@@ -251,32 +255,32 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
                   // Setup cost - with currency suffix
                   GOLTextField(
-                    label: 'Setup Cost',
+                    label: l10n.setupCost,
                     hintText: '0',
                     controller: _setupCostController,
                     keyboardType: TextInputType.number,
                     prefixIcon: Icon(Iconsax.wallet_minus, color: colors.textTertiary),
                     trailingSuffix: GOLBadge(text: _currencyInfo.code),
-                    helperText: 'One-time cost to set up this project (ads, tools, etc.)',
+                    helperText: l10n.setupCostHelper,
                   ),
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
                   // Monthly growth cost - with currency suffix
                   GOLTextField(
-                    label: 'Monthly Growth Cost',
+                    label: l10n.monthlyGrowthCost,
                     hintText: '0',
                     controller: _growthCostController,
                     keyboardType: TextInputType.number,
                     prefixIcon: Icon(Iconsax.chart_1, color: colors.textTertiary),
                     trailingSuffix: GOLBadge(text: _currencyInfo.code),
-                    helperText: 'Recurring monthly expenses (subscriptions, ads budget, etc.)',
+                    helperText: l10n.monthlyGrowthCostHelper,
                   ),
 
                   const SizedBox(height: GOLSpacing.betweenFormFields),
 
                   // Goals (optional)
-                  _buildLabel('Goals (Optional)'),
+                  _buildLabel(l10n.goalsOptional),
                   const SizedBox(height: GOLSpacing.inputLabelGap),
                   GOLSelectableChipGroup(
                     items: _availableGoals,
@@ -291,8 +295,8 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
                   // Notes (optional)
                   GOLTextField(
-                    label: 'Notes (Optional)',
-                    hintText: 'Add any notes about this project...',
+                    label: l10n.notesOptional,
+                    hintText: l10n.addNotesOptional,
                     controller: _notesController,
                     maxLength: 500,
                   ),
@@ -301,7 +305,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
                   // Create button
                   GOLButton(
-                    label: 'Create Project',
+                    label: l10n.createProject,
                     onPressed: _isLoading ? null : _handleCreate,
                     isLoading: _isLoading,
                     fullWidth: true,
@@ -418,7 +422,7 @@ class _CurrencyDropdown extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(GOLSpacing.space4),
                 child: Text(
-                  'Select Currency',
+                  AppLocalizations.of(context)!.selectCurrency,
                   style: textTheme.titleMedium?.copyWith(
                     color: colors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -523,6 +527,7 @@ class _LimitReachedState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -545,7 +550,7 @@ class _LimitReachedState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space6),
             Text(
-              'Project Limit Reached',
+              l10n.projectLimitReached,
               style: textTheme.titleLarge?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -554,7 +559,7 @@ class _LimitReachedState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space2),
             Text(
-              'You have 20 active projects. Archive some to create new ones.',
+              l10n.projectLimitMessage,
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -562,7 +567,7 @@ class _LimitReachedState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space6),
             GOLButton(
-              label: 'Go Back',
+              label: l10n.goBack,
               onPressed: () => context.pop(),
               variant: GOLButtonVariant.secondary,
             ),

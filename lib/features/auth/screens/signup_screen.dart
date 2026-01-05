@@ -8,6 +8,7 @@ import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_buttons.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../core/utils/validators.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../widgets/auth_text_field.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
@@ -81,6 +82,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -101,7 +103,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
               // Header
               Text(
-                'Create account',
+                l10n.createAccount,
                 style: textTheme.displaySmall?.copyWith(
                   color: colors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -110,8 +112,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               const SizedBox(height: GOLSpacing.space2),
               Text(
                 _emailConfirmationSent
-                    ? 'Almost there! Check your email to confirm.'
-                    : 'Start tracking your campaign performance',
+                    ? l10n.almostThereCheckEmail
+                    : l10n.joinToStartTracking,
                 style: textTheme.bodyMedium?.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -139,7 +141,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Check your email',
+                              l10n.checkYourEmail,
                               style: textTheme.titleSmall?.copyWith(
                                 color: colors.stateSuccess,
                                 fontWeight: FontWeight.w600,
@@ -147,7 +149,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             ),
                             const SizedBox(height: GOLSpacing.space1),
                             Text(
-                              'We sent a confirmation link to ${_emailController.text}',
+                              l10n.emailConfirmationSent(_emailController.text),
                               style: textTheme.bodySmall?.copyWith(
                                 color: colors.textSecondary,
                               ),
@@ -162,7 +164,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 const SizedBox(height: GOLSpacing.space6),
 
                 GOLButton(
-                  label: 'Back to Sign In',
+                  label: l10n.backToSignIn,
                   onPressed: () => context.pop(),
                   fullWidth: true,
                   size: GOLButtonSize.large,
@@ -170,8 +172,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               ] else ...[
                 // Email field
                 AuthTextField(
-                  label: 'Email',
-                  hintText: 'Enter your email',
+                  label: l10n.email,
+                  hintText: l10n.enterYourEmail,
                   controller: _emailController,
                   errorText: _emailError,
                   keyboardType: TextInputType.emailAddress,
@@ -186,8 +188,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 // Password field
                 AuthTextField(
-                  label: 'Password',
-                  hintText: 'Create a password (min 6 characters)',
+                  label: l10n.password,
+                  hintText: l10n.createPasswordHint,
                   controller: _passwordController,
                   errorText: _passwordError,
                   isPassword: true,
@@ -202,8 +204,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 // Confirm password field
                 AuthTextField(
-                  label: 'Confirm Password',
-                  hintText: 'Re-enter your password',
+                  label: l10n.confirmPassword,
+                  hintText: l10n.reEnterPassword,
                   controller: _confirmPasswordController,
                   errorText: _confirmPasswordError,
                   isPassword: true,
@@ -219,7 +221,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 // Sign up button
                 GOLButton(
-                  label: 'Create Account',
+                  label: l10n.createAccount,
                   onPressed: _isLoading ? null : _handleSignup,
                   isLoading: _isLoading,
                   fullWidth: true,
@@ -233,7 +235,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      l10n.alreadyHaveAccount,
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -241,7 +243,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     TextButton(
                       onPressed: () => context.pop(),
                       child: Text(
-                        'Sign In',
+                        l10n.signIn,
                         style: textTheme.bodyMedium?.copyWith(
                           color: colors.interactivePrimary,
                           fontWeight: FontWeight.w600,

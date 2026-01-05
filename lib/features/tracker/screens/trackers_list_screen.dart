@@ -12,6 +12,7 @@ import '../../../providers/tracker_provider.dart';
 import '../../../providers/entry_provider.dart';
 import '../../../domain/models/tracker.dart';
 import '../../../routing/routes.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../dashboard/widgets/tracker_card.dart';
 
@@ -26,6 +27,7 @@ class TrackersListScreen extends ConsumerWidget {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final trackersState = ref.watch(trackersProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
@@ -40,7 +42,7 @@ class TrackersListScreen extends ConsumerWidget {
                   Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
                   const SizedBox(height: GOLSpacing.space4),
                   Text(
-                    'Error loading projects',
+                    l10n.errorLoadingProjects,
                     style: textTheme.titleMedium?.copyWith(
                       color: colors.textPrimary,
                     ),
@@ -88,6 +90,7 @@ class _ProjectsEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
@@ -98,14 +101,14 @@ class _ProjectsEmptyState extends StatelessWidget {
 
           // Header - consistent with non-empty state
           Text(
-            'Projects',
+            l10n.projects,
             style: textTheme.displaySmall?.copyWith(
               color: colors.textPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
-            'Manage all your projects',
+            l10n.manageAllProjects,
             style: textTheme.bodyMedium?.copyWith(
               color: colors.textSecondary,
             ),
@@ -114,7 +117,7 @@ class _ProjectsEmptyState extends StatelessWidget {
           const SizedBox(height: GOLSpacing.space6),
 
           // Empty state card with feature bullets
-          EmptyState.dashboard(onCreateProject: onCreateProject),
+          EmptyState.dashboard(onCreateProject: onCreateProject, l10n: l10n),
         ],
       ),
     );

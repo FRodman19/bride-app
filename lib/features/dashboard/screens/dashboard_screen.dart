@@ -9,6 +9,7 @@ import '../../../providers/tracker_provider.dart';
 import '../../../providers/entry_provider.dart';
 import '../../../domain/models/tracker.dart';
 import '../../../routing/routes.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../widgets/performance_overview_card.dart';
 import '../widgets/tracker_card.dart';
@@ -24,6 +25,7 @@ class DashboardScreen extends ConsumerWidget {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final trackersState = ref.watch(trackersProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
@@ -38,7 +40,7 @@ class DashboardScreen extends ConsumerWidget {
                   Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
                   const SizedBox(height: GOLSpacing.space4),
                   Text(
-                    'Error loading trackers',
+                    l10n.errorLoadingTrackers,
                     style: textTheme.titleMedium?.copyWith(
                       color: colors.textPrimary,
                     ),
@@ -99,6 +101,7 @@ class _DashboardContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     // Calculate stats from entries for each tracker
     final Map<String, _TrackerStats> trackerStats = {};
@@ -181,14 +184,16 @@ class _DashboardContent extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Dashboard',
+                        l10n.dashboard,
                         style: textTheme.displaySmall?.copyWith(
                           color: colors.textPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        '${activeTrackers.length} active project${activeTrackers.length == 1 ? '' : 's'}',
+                        activeTrackers.length == 1
+                            ? l10n.activeProjectsCount(activeTrackers.length)
+                            : l10n.activeProjectsCountPlural(activeTrackers.length),
                         style: textTheme.bodyMedium?.copyWith(
                           color: colors.textSecondary,
                         ),
@@ -224,7 +229,7 @@ class _DashboardContent extends ConsumerWidget {
                   Icon(Iconsax.clock, size: 20, color: colors.interactivePrimary),
                   const SizedBox(width: GOLSpacing.space2),
                   Text(
-                    'Recent Project',
+                    l10n.recentProject,
                     style: textTheme.titleMedium?.copyWith(
                       color: colors.textPrimary,
                       fontWeight: FontWeight.w600,
@@ -258,7 +263,7 @@ class _DashboardContent extends ConsumerWidget {
                   Icon(Iconsax.trend_up, size: 20, color: colors.stateSuccess),
                   const SizedBox(width: GOLSpacing.space2),
                   Text(
-                    'Top Performers',
+                    l10n.topPerformers,
                     style: textTheme.titleMedium?.copyWith(
                       color: colors.textPrimary,
                       fontWeight: FontWeight.w600,
@@ -289,7 +294,7 @@ class _DashboardContent extends ConsumerWidget {
                   Icon(Iconsax.trend_down, size: 20, color: colors.stateError),
                   const SizedBox(width: GOLSpacing.space2),
                   Text(
-                    'Needs Attention',
+                    l10n.needsAttention,
                     style: textTheme.titleMedium?.copyWith(
                       color: colors.textPrimary,
                       fontWeight: FontWeight.w600,
@@ -330,6 +335,7 @@ class _DashboardEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
@@ -348,14 +354,14 @@ class _DashboardEmptyState extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Dashboard',
+                      l10n.dashboard,
                       style: textTheme.displaySmall?.copyWith(
                         color: colors.textPrimary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Track your project performance',
+                      l10n.trackYourPerformance,
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -367,7 +373,7 @@ class _DashboardEmptyState extends StatelessWidget {
               IconButton(
                 onPressed: () => context.push(Routes.designSystemGallery),
                 icon: Icon(Iconsax.color_swatch, color: colors.textSecondary),
-                tooltip: 'Design System Gallery',
+                tooltip: l10n.designSystemGallery,
               ),
             ],
           ),
@@ -375,7 +381,7 @@ class _DashboardEmptyState extends StatelessWidget {
           const SizedBox(height: GOLSpacing.space6),
 
           // Empty state card with feature bullets
-          EmptyState.dashboard(onCreateProject: onCreateProject),
+          EmptyState.dashboard(onCreateProject: onCreateProject, l10n: l10n),
         ],
       ),
     );

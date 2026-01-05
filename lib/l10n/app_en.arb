@@ -1,0 +1,477 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Performance Tracker",
+
+  "settings": "Settings",
+  "settingsSubtitle": "Manage your preferences",
+
+  "account": "ACCOUNT",
+  "preferences": "PREFERENCES",
+  "notifications": "NOTIFICATIONS",
+  "dataAndStorage": "DATA & STORAGE",
+  "about": "ABOUT",
+
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageFrench": "French",
+  "languageUpdated": "Language updated to {language}",
+  "@languageUpdated": {
+    "placeholders": {
+      "language": {"type": "String"}
+    }
+  },
+
+  "defaultCurrency": "Default Currency",
+  "currencyUpdated": "Default currency updated",
+  "selectCurrency": "Select Currency",
+
+  "theme": "Theme",
+  "themeLight": "Light Mode",
+  "themeDark": "Dark Mode",
+  "themeSystem": "System Default",
+  "themeUpdated": "Theme updated",
+
+  "pushNotifications": "Push Notifications",
+  "dailyReminder": "Daily Reminder",
+  "weeklySummary": "Weekly Summary",
+  "comingSoon": "Coming soon",
+
+  "allDataSynced": "All data synced",
+  "lastSynced": "Last synced: Just now",
+  "itemsPendingSync": "{count} items pending sync",
+  "@itemsPendingSync": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "willSyncWhenOnline": "Will sync when online",
+  "syncComingSoon": "Sync coming soon",
+
+  "version": "Version",
+  "privacyPolicy": "Privacy Policy",
+  "termsOfService": "Terms of Service",
+
+  "logout": "Logout",
+  "loggingOut": "Logging out...",
+  "logoutConfirmTitle": "Logout",
+  "logoutConfirmMessage": "Are you sure you want to logout?",
+  "logoutConfirmSubtext": "You'll need to sign in again to access your data.",
+  "logoutDataSaved": "Your data is saved and will sync when you return.",
+  "cancel": "Cancel",
+  "failedToLogout": "Failed to logout",
+
+  "dashboard": "Dashboard",
+  "performance": "Performance",
+  "activeProjectsCount": "{count} active project",
+  "@activeProjectsCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "activeProjectsCountPlural": "{count} active projects",
+  "@activeProjectsCountPlural": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "trackYourPerformance": "Track your project performance",
+  "errorLoadingTrackers": "Error loading trackers",
+  "recentProject": "Recent Project",
+  "topPerformers": "Top Performers",
+  "needsAttention": "Needs Attention",
+
+  "projects": "Projects",
+  "project": "Project",
+  "manageAllProjects": "Manage all your projects",
+  "errorLoadingProjects": "Error loading projects",
+  "activeProjects": "Active Projects",
+  "archived": "Archived",
+  "active": "Active",
+  "activeArchivedCount": "{active} active, {archived} archived",
+  "@activeArchivedCount": {
+    "placeholders": {
+      "active": {"type": "int"},
+      "archived": {"type": "int"}
+    }
+  },
+
+  "newProject": "New Project",
+  "createProject": "Create Project",
+  "createFirstProject": "Create First Project",
+  "projectCreatedSuccess": "Project created successfully",
+  "projectName": "Project Name",
+  "projectNameHint": "e.g., Summer Campaign 2024",
+  "enterProjectName": "Enter project name",
+  "startDate": "Start Date",
+  "selectStartDate": "Select start date",
+  "currency": "Currency",
+  "platforms": "Platforms",
+  "selectPlatforms": "Select platforms",
+  "revenueTarget": "Revenue Target",
+  "revenueTargetOptional": "Revenue Target (Optional)",
+  "optional": "Optional",
+  "engagementTarget": "Engagement Target",
+  "engagementTargetOptional": "Engagement Target (Optional)",
+  "engagementTargetHint": "e.g., 100 DMs/Leads",
+  "setupCost": "Setup Cost",
+  "setupCostHelper": "One-time cost to set up this project (ads, tools, etc.)",
+  "monthlyGrowthCost": "Monthly Growth Cost",
+  "monthlyGrowthCostHelper": "Recurring monthly expenses (subscriptions, ads budget, etc.)",
+  "goalsOptional": "Goals (Optional)",
+  "notesOptional": "Notes (Optional)",
+  "addNotesOptional": "Add any notes about this project...",
+  "notes": "Notes",
+  "anyNotesAboutToday": "Any notes about today...",
+  "save": "Save",
+  "saving": "Saving...",
+  "create": "Create",
+  "goBack": "Go Back",
+  "projectLimitReached": "Project Limit Reached",
+  "projectLimitMessage": "You have 20 active projects. Archive some to create new ones.",
+  "pleaseSelectPlatform": "Please select at least one platform",
+
+  "archiveProject": "Archive Project",
+  "restoreProject": "Restore Project",
+  "moveToArchive": "Move to archive (read-only)",
+  "moveToActive": "Move back to active projects",
+  "deleteProject": "Delete Project",
+  "deleteProjectPermanently": "Permanently delete this project",
+  "deleteProjectConfirmTitle": "Delete Project?",
+  "deleteProjectConfirmMessage": "This will permanently delete \"{name}\" and all its entries. This action cannot be undone.",
+  "@deleteProjectConfirmMessage": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "delete": "Delete",
+  "restore": "Restore",
+  "projectRestored": "Project restored",
+  "trackerRestored": "{name} restored",
+  "@trackerRestored": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "projectArchived": "Project archived",
+  "projectDeleted": "Project deleted",
+  "trackerDeleted": "{name} deleted",
+  "@trackerDeleted": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "failedToRestoreProject": "Failed to restore project",
+  "failedToRestoreTracker": "Failed to restore tracker",
+  "failedToArchiveProject": "Failed to archive project",
+  "failedToDeleteProject": "Failed to delete project",
+  "failedToDeleteTracker": "Failed to delete tracker",
+
+  "archivedTrackers": "Archived Trackers",
+  "noArchivedTrackers": "No Archived Trackers",
+  "archivedTrackersDescription": "Archived trackers are campaigns you've completed or paused.",
+  "archivingATracker": "Archiving a tracker:",
+  "removesFromDashboard": "Removes it from active dashboard",
+  "preservesAllData": "Preserves all data",
+  "canBeRestoredAnytime": "Can be restored anytime",
+  "keepsHistoricalRecords": "Keeps historical records",
+  "toArchiveTracker": "To archive a tracker:\nOpen tracker > Menu > Archive",
+  "archivedTrackersPreserved": "These trackers are archived but preserved for reference. You can restore or permanently delete them.",
+  "archivedTrackersCount": "ARCHIVED TRACKERS ({count})",
+  "@archivedTrackersCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "archivedTrackersNote": "Archived trackers don't count toward active performance metrics",
+  "finalProfit": "Final Profit:",
+  "duration": "Duration",
+  "deleteTrackerTitle": "Delete Tracker?",
+  "deleteTrackerMessage": "This will permanently delete the tracker and all associated data including:",
+  "allDailyEntries": "All daily entries",
+  "allPosts": "All posts",
+  "allReportsData": "All reports data",
+  "actionCannotBeUndone": "This action cannot be undone.",
+  "daysCount": "{count} days",
+  "@daysCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "weeksCount": "{count} {count, plural, =1{week} other{weeks}}",
+  "@weeksCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "monthsCount": "{count} {count, plural, =1{month} other{months}}",
+  "@monthsCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+
+  "signIn": "Sign In",
+  "signInToContinue": "Sign in to continue tracking your performance",
+  "welcomeBack": "Welcome back",
+  "email": "Email",
+  "enterYourEmail": "Enter your email",
+  "password": "Password",
+  "enterYourPassword": "Enter your password",
+  "createPasswordHint": "Create a password (min 6 characters)",
+  "forgotPassword": "Forgot password?",
+  "dontHaveAccount": "Don't have an account? ",
+  "signUp": "Sign Up",
+
+  "createAccount": "Create account",
+  "joinToStartTracking": "Start tracking your campaign performance",
+  "almostThereCheckEmail": "Almost there! Check your email to confirm.",
+  "checkYourEmail": "Check your email",
+  "emailConfirmationSent": "We sent a confirmation link to {email}",
+  "@emailConfirmationSent": {
+    "placeholders": {"email": {"type": "String"}}
+  },
+  "fullName": "Full Name",
+  "enterYourName": "Enter your name",
+  "confirmPassword": "Confirm Password",
+  "reEnterPassword": "Re-enter your password",
+  "alreadyHaveAccount": "Already have an account? ",
+  "backToSignIn": "Back to Sign In",
+
+  "resetPassword": "Reset password",
+  "resetPasswordInstructions": "Enter your email and we'll send you a reset link",
+  "checkEmailForResetLink": "Check your email for a password reset link",
+  "passwordResetEmailSent": "Password reset email sent to {email}",
+  "@passwordResetEmailSent": {
+    "placeholders": {"email": {"type": "String"}}
+  },
+  "sendResetLink": "Send Reset Link",
+
+  "logEntry": "Log Entry",
+  "editEntry": "Edit Entry",
+  "entryDetail": "Entry Detail",
+  "entryHistory": "Entry History",
+  "trackerNotFound": "Tracker not found",
+  "date": "Date",
+  "todayLabel": "TODAY",
+  "revenue": "Revenue",
+  "totalRevenue": "Total Revenue",
+  "howMuchEarnToday": "How much did you earn today?",
+  "enterRevenue": "Enter revenue",
+  "adSpend": "AD SPEND",
+  "todaySpend": "Today: {amount}",
+  "@todaySpend": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "enterSpendPerPlatform": "Enter how much you spent on each platform today",
+  "platformSpend": "Platform Spend",
+  "addPlatformSpend": "Add Platform Spend",
+  "dmsLeads": "DMs/Leads",
+  "dmsLeadsOptional": "DMS / LEADS (Optional)",
+  "inboundOnly": "Inbound only",
+  "summary": "SUMMARY",
+  "profit": "Profit",
+  "profitLoss": "Profit/Loss",
+  "totalProfit": "Total Profit",
+  "totalSpend": "Total Spend",
+  "spend": "Spend",
+  "saveEntry": "Save Entry",
+  "entryLoggedSuccess": "Entry logged successfully",
+  "entrySaved": "Entry saved successfully",
+  "entryUpdated": "Entry updated successfully",
+  "entryDeleted": "Entry deleted successfully",
+  "deleteEntry": "Delete Entry",
+  "deleteEntryConfirm": "Are you sure you want to delete this entry?",
+
+  "overview": "Overview",
+  "dailyEntries": "Daily Entries",
+  "reports": "Reports",
+  "entries": "Entries",
+  "posts": "Posts",
+  "noEntriesYet": "No entries yet",
+  "noEntriesYetSubtitle": "Log your first daily entry to start tracking revenue and spend",
+  "startLoggingEntries": "Start logging your daily performance",
+  "logFirstEntry": "Log First Entry",
+  "noPostsYet": "No posts yet",
+  "noPostsYetSubtitle": "Add posts to track your content across platforms",
+  "addPost": "Add Post",
+  "noArchivedProjects": "No archived projects",
+  "archivedProjectsAppearHere": "Projects you archive will appear here",
+  "noEntriesFound": "No entries found",
+  "tryAdjustingFilters": "Try adjusting your filters or date range",
+
+  "netProfit": "NET PROFIT",
+  "roi": "ROI",
+
+  "nothingYet": "Nothing yet",
+  "startFirstProject": "Start your first project and track your progress",
+  "startNewProject": "Start New Project",
+  "whatYouCanTrack": "What you can track:",
+  "trackRevenueSpending": "Track revenue & spending",
+  "monitorGrowthMetrics": "Monitor growth metrics",
+  "logPostsContent": "Log posts & content",
+  "seePerformanceTrends": "See performance trends",
+
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "thisWeek": "This Week",
+  "thisMonth": "This Month",
+  "allTime": "All Time",
+  "daily": "Daily",
+  "weekly": "Weekly",
+  "monthly": "Monthly",
+
+  "designSystemGallery": "Design System Gallery",
+  "error": "Error",
+  "retry": "Retry",
+  "loading": "Loading...",
+  "noData": "No data",
+  "success": "Success",
+  "info": "Info",
+  "warning": "Warning",
+
+  "productLaunch": "Product Launch",
+  "leadGeneration": "Lead Generation",
+  "brandAwareness": "Brand Awareness",
+  "sales": "Sales",
+  "engagement": "Engagement",
+
+  "projectNotFound": "Project not found",
+  "startedOn": "Started {date}",
+  "@startedOn": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "editProject": "Edit Project",
+  "exportData": "Export Data",
+  "nameRestored": "{name} restored",
+  "@nameRestored": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "failedToRestore": "Failed to restore",
+  "nameArchived": "{name} archived",
+  "@nameArchived": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "failedToArchive": "Failed to archive",
+  "failedToDelete": "Failed to delete",
+
+  "recentEntries": "Recent Entries",
+  "viewAll": "View All",
+  "noEntriesYetShort": "No entries yet",
+  "logFirstEntryToStart": "Log your first daily entry to start tracking",
+  "moreEntriesInTab": "{count} more entries - View in Entries tab",
+  "@moreEntriesInTab": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "goals": "Goals",
+  "targets": "Targets",
+  "target": "Target: {value}",
+  "@target": {
+    "placeholders": {"value": {"type": "String"}}
+  },
+  "netLoss": "Net loss",
+  "daysActive": "Days Active",
+  "sinceStart": "since start",
+  "logged": "logged",
+  "monthlyCost": "Monthly Cost",
+  "failedToLoadEntries": "Failed to load entries",
+  "noEntriesYetTitle": "No Entries Yet",
+  "dailyEntriesDescription": "Daily entries track your campaign performance day by day.",
+  "eachEntryLogs": "Each entry logs:",
+  "totalRevenueForDay": "Total revenue for the day",
+  "adSpendPerPlatform": "Ad spend per platform",
+  "dmsLeadsReceived": "DMs/Leads received",
+  "dailyProfitCalculated": "Daily profit (calculated)",
+  "startTrackingToSee": "Start tracking to see trends, ROI, and burn rate.",
+  "summaryFilter": "SUMMARY ({filter})",
+  "@summaryFilter": {
+    "placeholders": {"filter": {"type": "String"}}
+  },
+  "totalEntries": "Total Entries",
+  "avgDailyProfit": "Avg Daily Profit",
+  "totalDmsLeads": "Total DMs/Leads",
+  "bestDay": "Best Day",
+  "worstDay": "Worst Day",
+  "history": "History",
+  "noEntriesForFilter": "No entries for {filter}",
+  "@noEntriesForFilter": {
+    "placeholders": {"filter": {"type": "String"}}
+  },
+  "todaySection": "TODAY",
+  "yesterdaySection": "YESTERDAY",
+  "thisWeekSection": "THIS WEEK",
+  "lastWeekSection": "LAST WEEK",
+  "thisMonthSection": "THIS MONTH",
+  "loss": "loss",
+  "rev": "Rev: {amount}",
+  "@rev": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "spendAmount": "Spend: {amount}",
+  "@spendAmount": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "dms": "DMs",
+  "reportsTitle": "Reports",
+  "quickExport": "Quick Export",
+  "csv": "CSV",
+  "pdf": "PDF",
+  "exportAllData": "Export all data as spreadsheet",
+  "exportFormattedReport": "Export formatted report",
+  "exportedSuccess": "Exported successfully",
+  "failedToExport": "Failed to export",
+  "comingSoonExport": "Export coming soon",
+  "keyInsights": "Key Insights",
+  "projectPerformance": "Project Performance",
+  "profitableProject": "Profitable project!",
+  "needsOptimization": "Needs optimization",
+  "avgProfitMargin": "Avg profit margin",
+  "spendAnalysis": "Spend Analysis",
+  "totalAdSpend": "Total ad spend across platforms",
+  "avgDailySpend": "Avg daily spend: {amount}",
+  "@avgDailySpend": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "engagementStats": "Engagement Stats",
+  "totalLeadsReceived": "Total leads/DMs received",
+  "avgPerDay": "Avg {count}/day",
+  "@avgPerDay": {
+    "placeholders": {"count": {"type": "String"}}
+  },
+  "needMoreData": "Need more data",
+  "logMoreEntries": "Log more entries to see insights",
+  "noPostsSection": "Posts",
+  "addYourFirstPost": "Add your first post to track content",
+
+  "performanceOverview": "PERFORMANCE OVERVIEW",
+  "activeCount": "{count} active",
+  "@activeCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "entryCount": "{count} {count, plural, =1{entry} other{entries}}",
+  "@entryCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "entrySingular": "entry",
+  "entriesPlural": "entries",
+
+  "daily": "Daily",
+  "weekly": "Weekly",
+  "monthly": "Monthly",
+  "dailyReport": "Daily Report ({date})",
+  "@dailyReport": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "weeklyReport": "Weekly Report ({start} - {end})",
+  "@weeklyReport": {
+    "placeholders": {"start": {"type": "String"}, "end": {"type": "String"}}
+  },
+  "monthlyReport": "Monthly Report ({month})",
+  "@monthlyReport": {
+    "placeholders": {"month": {"type": "String"}}
+  },
+  "noDataYet": "No data yet",
+  "logFirstEntryForReports": "Log your first entry to see reports",
+  "totalProfitLoss": "TOTAL PROFIT/LOSS",
+  "totalRevenueLabel": "Total Revenue",
+  "totalSpendLabel": "Total Spend",
+  "setupCosts": "Setup Costs",
+  "finalProfitLabel": "Final Profit",
+  "revenueVsSpendOverTime": "REVENUE VS SPEND OVER TIME",
+  "revenueLabel": "Revenue: {amount}",
+  "@revenueLabel": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "spendLabel": "Spend: {amount}",
+  "@spendLabel": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "worstPerformingDays": "WORST PERFORMING DAYS",
+  "burnRate": "BURN RATE",
+  "dailyBurnRate": "Daily Burn Rate",
+  "projectedMonthlyBurn": "Projected Monthly Burn",
+  "daysUntilBudgetDepleted": "Days until budget depleted",
+  "cumulativeProfit": "CUMULATIVE PROFIT",
+  "exportReport": "Export Report",
+  "logFirstEntry": "Log First Entry"
+}

@@ -9,6 +9,7 @@ import '../../../grow_out_loud/components/gol_buttons.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../routing/routes.dart';
 import '../../../core/utils/validators.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../widgets/auth_text_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -68,6 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
@@ -82,7 +84,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Header
                 Text(
-                  'Welcome back',
+                  l10n.welcomeBack,
                   style: textTheme.displaySmall?.copyWith(
                     color: colors.textPrimary,
                     fontWeight: FontWeight.bold,
@@ -90,7 +92,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: GOLSpacing.space2),
                 Text(
-                  'Sign in to continue tracking your performance',
+                  l10n.signInToContinue,
                   style: textTheme.bodyMedium?.copyWith(
                     color: colors.textSecondary,
                   ),
@@ -100,8 +102,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Email field
                 AuthTextField(
-                  label: 'Email',
-                  hintText: 'Enter your email',
+                  label: l10n.email,
+                  hintText: l10n.enterYourEmail,
                   controller: _emailController,
                   errorText: _emailError,
                   keyboardType: TextInputType.emailAddress,
@@ -116,8 +118,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Password field
                 AuthTextField(
-                  label: 'Password',
-                  hintText: 'Enter your password',
+                  label: l10n.password,
+                  hintText: l10n.enterYourPassword,
                   controller: _passwordController,
                   errorText: _passwordError,
                   isPassword: true,
@@ -137,7 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: TextButton(
                     onPressed: () => context.push(Routes.forgotPassword),
                     child: Text(
-                      'Forgot password?',
+                      l10n.forgotPassword,
                       style: textTheme.bodySmall?.copyWith(
                         color: colors.interactivePrimary,
                       ),
@@ -149,7 +151,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Login button
                 GOLButton(
-                  label: 'Sign In',
+                  label: l10n.signIn,
                   onPressed: _isLoading ? null : _handleLogin,
                   isLoading: _isLoading,
                   fullWidth: true,
@@ -163,7 +165,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account? ",
+                      l10n.dontHaveAccount,
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -171,7 +173,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     TextButton(
                       onPressed: () => context.push(Routes.signUp),
                       child: Text(
-                        'Sign Up',
+                        l10n.signUp,
                         style: textTheme.bodyMedium?.copyWith(
                           color: colors.interactivePrimary,
                           fontWeight: FontWeight.w600,
