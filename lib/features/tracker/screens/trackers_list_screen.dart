@@ -152,6 +152,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
   void _showProjectOptions(Tracker tracker) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -209,7 +210,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            tracker.isArchived ? 'Archived' : 'Active',
+                            tracker.isArchived ? l10n.archived : l10n.active,
                             style: textTheme.labelSmall?.copyWith(
                               color: tracker.isArchived
                                   ? colors.textTertiary
@@ -259,7 +260,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            tracker.isArchived ? 'Restore Project' : 'Archive Project',
+                            tracker.isArchived ? l10n.restoreProject : l10n.archiveProject,
                             style: textTheme.bodyMedium?.copyWith(
                               color: colors.textPrimary,
                               fontWeight: FontWeight.w500,
@@ -267,8 +268,8 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
                           ),
                           Text(
                             tracker.isArchived
-                                ? 'Move back to active projects'
-                                : 'Move to archive (read-only)',
+                                ? l10n.moveToActive
+                                : l10n.moveToArchive,
                             style: textTheme.bodySmall?.copyWith(
                               color: colors.textSecondary,
                             ),
@@ -320,14 +321,14 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Delete Project',
+                            l10n.deleteProject,
                             style: textTheme.bodyMedium?.copyWith(
                               color: colors.stateError,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
-                            'Permanently delete this project',
+                            l10n.deleteProjectPermanently,
                             style: textTheme.bodySmall?.copyWith(
                               color: colors.textSecondary,
                             ),
@@ -353,6 +354,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
   }
 
   Future<void> _handleArchiveRestore(Tracker tracker) async {
+    final l10n = AppLocalizations.of(context)!;
     final notifier = ref.read(trackersProvider.notifier);
 
     if (tracker.isArchived) {
@@ -362,13 +364,13 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
       if (result.success) {
         showGOLToast(
           context,
-          'Project restored',
+          l10n.projectRestored,
           variant: GOLToastVariant.success,
         );
       } else {
         showGOLToast(
           context,
-          result.error ?? 'Failed to restore project',
+          result.error ?? l10n.failedToRestoreProject,
           variant: GOLToastVariant.error,
         );
       }
@@ -379,13 +381,13 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
       if (result.success) {
         showGOLToast(
           context,
-          'Project archived',
+          l10n.projectArchived,
           variant: GOLToastVariant.success,
         );
       } else {
         showGOLToast(
           context,
-          result.error ?? 'Failed to archive project',
+          result.error ?? l10n.failedToArchiveProject,
           variant: GOLToastVariant.error,
         );
       }
@@ -395,6 +397,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
   void _showDeleteConfirmation(Tracker tracker) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -404,7 +407,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
           borderRadius: BorderRadius.circular(GOLRadius.modal),
         ),
         title: Text(
-          'Delete Project?',
+          l10n.deleteProjectConfirmTitle,
           style: textTheme.titleLarge?.copyWith(
             color: colors.textPrimary,
             fontWeight: FontWeight.bold,
@@ -415,7 +418,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'This will permanently delete "${tracker.name}" and all its entries. This action cannot be undone.',
+              l10n.deleteProjectConfirmMessage(tracker.name),
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -424,12 +427,12 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
         ),
         actions: [
           GOLButton(
-            label: 'Cancel',
+            label: l10n.cancel,
             variant: GOLButtonVariant.secondary,
             onPressed: () => Navigator.pop(dialogContext),
           ),
           GOLButton(
-            label: 'Delete',
+            label: l10n.delete,
             variant: GOLButtonVariant.destructive,
             onPressed: () async {
               Navigator.pop(dialogContext);
@@ -440,13 +443,13 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
               if (result.success) {
                 showGOLToast(
                   context,
-                  'Project deleted',
+                  l10n.projectDeleted,
                   variant: GOLToastVariant.success,
                 );
               } else {
                 showGOLToast(
                   context,
-                  result.error ?? 'Failed to delete project',
+                  result.error ?? l10n.failedToDeleteProject,
                   variant: GOLToastVariant.error,
                 );
               }
@@ -461,6 +464,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     // Calculate stats from entries for each tracker
     final Map<String, _TrackerStats> trackerStats = {};
@@ -502,14 +506,17 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
 
             // Header
             Text(
-              'Projects',
+              l10n.projectsHeading,
               style: textTheme.displaySmall?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              '${widget.activeTrackers.length} active, ${widget.archivedTrackers.length} archived',
+              l10n.activeArchivedCount(
+                widget.activeTrackers.length,
+                widget.archivedTrackers.length,
+              ),
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -524,7 +531,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
                   Icon(Iconsax.chart_square, size: 20, color: colors.interactivePrimary),
                   const SizedBox(width: GOLSpacing.space2),
                   Text(
-                    'Active Projects',
+                    l10n.activeProjects,
                     style: textTheme.titleMedium?.copyWith(
                       color: colors.textPrimary,
                       fontWeight: FontWeight.w600,
@@ -565,7 +572,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
                   Icon(Iconsax.archive_1, size: 20, color: colors.textTertiary),
                   const SizedBox(width: GOLSpacing.space2),
                   Text(
-                    'Archived',
+                    l10n.archived,
                     style: textTheme.titleMedium?.copyWith(
                       color: colors.textSecondary,
                       fontWeight: FontWeight.w600,

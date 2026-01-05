@@ -865,7 +865,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sinceStart => 'depuis le début';
 
   @override
-  String get logged => 'enregistrées';
+  String get logged => 'Enregistré';
 
   @override
   String get monthlyCost => 'Coût Mensuel';
@@ -1131,4 +1131,343 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get exportReport => 'Exporter le Rapport';
+
+  @override
+  String get adding => 'Ajout en cours...';
+
+  @override
+  String get adjustFiltersOrSearch =>
+      'Essayez de modifier vos filtres ou votre recherche';
+
+  @override
+  String get all => 'Tous';
+
+  @override
+  String get allEntries => 'Toutes les entrées';
+
+  @override
+  String get averageDailySpend => 'Dépense moyenne quotidienne';
+
+  @override
+  String get averageMonthlySpend => 'Dépense moyenne mensuelle';
+
+  @override
+  String get averageWeeklySpend => 'Dépense moyenne hebdomadaire';
+
+  @override
+  String get avgDaily => 'Moyenne quotidienne';
+
+  @override
+  String breakEvenLabel(String date, int day) {
+    return 'Point mort : $date (jour $day)';
+  }
+
+  @override
+  String get breakdown => 'Détails';
+
+  @override
+  String get burnRateDescription => 'La vitesse à laquelle vous dépensez';
+
+  @override
+  String burnRateProjection(String amount) {
+    return 'À ce rythme, vous dépenserez $amount par an en publicité';
+  }
+
+  @override
+  String get calculation => 'Calcul';
+
+  @override
+  String completeHistoryTitle(String name) {
+    return '$name - Historique complet';
+  }
+
+  @override
+  String get completeTimeline => 'Chronologie complète';
+
+  @override
+  String createdOn(String date) {
+    return 'Créé : $date';
+  }
+
+  @override
+  String get cumulativeProfitTrend => 'TENDANCE DU PROFIT CUMULÉ';
+
+  @override
+  String get currentPace => 'Rythme actuel :';
+
+  @override
+  String get dailyEarningQuestion => 'Combien avez-vous gagné ce jour-là ?';
+
+  @override
+  String get dailyLoss => 'Perte quotidienne';
+
+  @override
+  String get dailyProfit => 'Profit quotidien';
+
+  @override
+  String dailyReportLabel(String date) {
+    return 'Rapport quotidien ($date)';
+  }
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get dateLocked =>
+      'La date ne peut pas être modifiée lors de l\'édition';
+
+  @override
+  String get dateRange => 'Plage de dates';
+
+  @override
+  String get defaultUserEmail => 'utilisateur@example.com';
+
+  @override
+  String get defaultUserInitial => 'U';
+
+  @override
+  String get defaultUserName => 'Utilisateur';
+
+  @override
+  String get deletePost => 'Supprimer le post';
+
+  @override
+  String get deletePostQuestion => 'Supprimer le post ?';
+
+  @override
+  String get descriptionOptional => 'Description (facultatif)';
+
+  @override
+  String get designSystemGalleryTooltip => 'Galerie du design system';
+
+  @override
+  String get edit => 'Modifier';
+
+  @override
+  String get editPost => 'Modifier le post';
+
+  @override
+  String get engagementMetrics => 'Indicateurs d\'engagement';
+
+  @override
+  String entriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'entrées',
+      one: 'entrée',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String get entriesNotLoaded => 'Entrées non chargées';
+
+  @override
+  String get entryDeletedSuccessfully => 'Entrée supprimée avec succès';
+
+  @override
+  String get entryHistoryDescription =>
+      'L\'historique regroupe tous vos journaux quotidiens au même endroit.';
+
+  @override
+  String get entryHistoryHighlightsTitle =>
+      'En enregistrant des entrées, vous verrez :';
+
+  @override
+  String get entryNotFound => 'Entrée introuvable';
+
+  @override
+  String get entryUpdatedSuccessfully => 'Entrée mise à jour avec succès';
+
+  @override
+  String get exporting => 'Export en cours...';
+
+  @override
+  String get failedToAddPost => 'Échec de l\'ajout du post';
+
+  @override
+  String get failedToDeleteEntry => 'Échec de la suppression de l\'entrée';
+
+  @override
+  String get failedToDeletePost => 'Échec de la suppression du post';
+
+  @override
+  String get failedToUpdatePost => 'Échec de la mise à jour du post';
+
+  @override
+  String get fromAllChannelsCombined => 'Depuis tous les canaux combinés';
+
+  @override
+  String get goalBrandAwareness => 'Notoriété de la marque';
+
+  @override
+  String get goalEngagement => 'Engagement';
+
+  @override
+  String get goalLeadGeneration => 'Génération de leads';
+
+  @override
+  String get goalProductLaunch => 'Lancement de produit';
+
+  @override
+  String get goalSales => 'Ventes';
+
+  @override
+  String get lastEdited => 'Dernière modification';
+
+  @override
+  String get lastEditedLabel => 'Dernière modification';
+
+  @override
+  String lastEditedOn(String date, String time) {
+    return 'Dernière modification : $date à $time';
+  }
+
+  @override
+  String loggedOn(String date, String time) {
+    return 'Enregistré : $date à $time';
+  }
+
+  @override
+  String get message => 'message';
+
+  @override
+  String get messages => 'messages';
+
+  @override
+  String get messagesReceivedQuestion =>
+      'Combien de messages ou de leads avez-vous reçus ?';
+
+  @override
+  String get metadata => 'Métadonnées';
+
+  @override
+  String monthlyReportLabel(String monthYear) {
+    return 'Rapport mensuel ($monthYear)';
+  }
+
+  @override
+  String get never => 'Jamais';
+
+  @override
+  String get noAdSpendRecorded => 'Aucune dépense publicitaire enregistrée';
+
+  @override
+  String get noEntriesFor => 'Aucune entrée pour';
+
+  @override
+  String get notAvailable => 'N/D';
+
+  @override
+  String get platformLabel => 'Plateforme';
+
+  @override
+  String get platformRequired => 'Plateforme *';
+
+  @override
+  String get postAddedSuccessfully => 'Post ajouté avec succès';
+
+  @override
+  String get postContentPrompt => 'Quel contenu avez-vous publié ?';
+
+  @override
+  String get postDeleted => 'Post supprimé';
+
+  @override
+  String get postDescriptionHint => 'Légende ou résumé du post...';
+
+  @override
+  String get postInfo => 'Infos du post';
+
+  @override
+  String get postLinkOptional => 'Lien du post (facultatif)';
+
+  @override
+  String get postTitleHint => 'ex. Annonce de lancement';
+
+  @override
+  String get postTitleRequired => 'Titre du post *';
+
+  @override
+  String get postTitleValidation =>
+      'Le titre doit comporter au moins 3 caractères';
+
+  @override
+  String get postUpdatedSuccessfully => 'Post mis à jour avec succès';
+
+  @override
+  String postedOn(String date) {
+    return 'Publié : $date';
+  }
+
+  @override
+  String get postsDoNotAffectMetrics =>
+      'Remarque : les posts n\'affectent pas les calculs de revenus ou de profits.';
+
+  @override
+  String get postsOptionalDescription =>
+      'Les posts sont des liens facultatifs pour suivre le contenu publié.';
+
+  @override
+  String get potentialLeads => 'Prospects potentiels';
+
+  @override
+  String get profitLossSummary => 'RÉCAPITULATIF PROFIT/PERTE';
+
+  @override
+  String get profitTrends => 'Tendances de profit';
+
+  @override
+  String get publishDate => 'Date de publication';
+
+  @override
+  String recoveredSetupCosts(String date) {
+    return 'Coûts de configuration récupérés le $date';
+  }
+
+  @override
+  String get revenuePatterns => 'Tendances de revenus';
+
+  @override
+  String roiEarningsDescription(String currency, String multiplier) {
+    return 'Pour chaque 1 $currency dépensé, vous gagnez $multiplier de revenus';
+  }
+
+  @override
+  String get saveChanges => 'Enregistrer les modifications';
+
+  @override
+  String get searchByDateHint => 'Rechercher par date...';
+
+  @override
+  String get selectDateOptional => 'Sélectionner une date (facultatif)';
+
+  @override
+  String get startLoggingHistory =>
+      'Commencez à enregistrer pour constituer votre historique de performance !';
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String get totalReceived => 'Total reçu';
+
+  @override
+  String viewAllPosts(int count) {
+    return 'Voir les $count posts';
+  }
+
+  @override
+  String weeklyReportRange(String start, String end) {
+    return 'Rapport hebdomadaire ($start - $end)';
+  }
+
+  @override
+  String get projectsHeading => 'Projets';
+
+  @override
+  String projectStartedOn(String date) {
+    return 'Démarré le $date';
+  }
 }

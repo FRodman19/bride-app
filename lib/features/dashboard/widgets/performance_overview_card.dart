@@ -21,7 +21,7 @@ class PerformanceOverviewCard extends StatelessWidget {
     required this.totalProfit,
     required this.totalRevenue,
     required this.totalSpend,
-    this.currencyCode = 'XOF',
+    this.currencyCode = "XOF",
     this.activeProjectsCount = 0,
   });
 

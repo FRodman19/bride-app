@@ -205,7 +205,7 @@ class _DashboardContent extends ConsumerWidget {
                 IconButton(
                   onPressed: () => context.push(Routes.designSystemGallery),
                   icon: Icon(Iconsax.color_swatch, color: colors.textSecondary),
-                  tooltip: 'Design System Gallery',
+                  tooltip: l10n.designSystemGalleryTooltip,
                 ),
               ],
             ),

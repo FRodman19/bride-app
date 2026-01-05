@@ -473,5 +473,165 @@
   "daysUntilBudgetDepleted": "Days until budget depleted",
   "cumulativeProfit": "CUMULATIVE PROFIT",
   "exportReport": "Export Report",
-  "logFirstEntry": "Log First Entry"
+  "logFirstEntry": "Log First Entry",
+
+  "adding": "Adding...",
+  "adjustFiltersOrSearch": "Try adjusting your filters or search",
+  "all": "All",
+  "allEntries": "All Entries",
+  "averageDailySpend": "Average Daily Spend",
+  "averageMonthlySpend": "Average Monthly Spend",
+  "averageWeeklySpend": "Average Weekly Spend",
+  "avgDaily": "Avg Daily",
+  "breakEvenLabel": "Break-even: {date} (day {day})",
+  "@breakEvenLabel": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "day": {"type": "int"}
+    }
+  },
+  "breakdown": "Breakdown",
+  "burnRateDescription": "How fast you're spending money",
+  "burnRateProjection": "At this rate, you'll spend {amount} per year on ads",
+  "@burnRateProjection": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "calculation": "Calculation",
+  "completeHistoryTitle": "{name} - Complete History",
+  "@completeHistoryTitle": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "completeTimeline": "Complete timeline",
+  "createdOn": "Created: {date}",
+  "@createdOn": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "cumulativeProfitTrend": "CUMULATIVE PROFIT TREND",
+  "currentPace": "Current Pace:",
+  "dailyEarningQuestion": "How much did you earn this day?",
+  "dailyLoss": "Daily Loss",
+  "dailyProfit": "Daily Profit",
+  "dailyReportLabel": "Daily Report ({date})",
+  "@dailyReportLabel": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "dateLabel": "Date",
+  "dateLocked": "Date cannot be changed when editing",
+  "dateRange": "Date Range",
+  "defaultUserEmail": "utilisateur@example.com",
+  "defaultUserInitial": "U",
+  "defaultUserName": "User",
+  "deletePost": "Delete Post",
+  "deletePostQuestion": "Delete Post?",
+  "descriptionOptional": "Description (Optional)",
+  "designSystemGalleryTooltip": "Design System Gallery",
+  "edit": "Edit",
+  "editPost": "Edit Post",
+  "engagementMetrics": "Engagement metrics",
+  "entriesCount": "{count} {count, plural, =1{entry} other{entries}}",
+  "@entriesCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "entriesNotLoaded": "Entries not loaded",
+  "entryDeletedSuccessfully": "Entry deleted successfully",
+  "entryHistoryDescription": "Entry history shows all your daily performance logs in one place.",
+  "entryHistoryHighlightsTitle": "As you log entries, you'll see:",
+  "entryNotFound": "Entry not found",
+  "entryUpdatedSuccessfully": "Entry updated successfully",
+  "exporting": "Exporting...",
+  "failedToAddPost": "Failed to add post",
+  "failedToDeleteEntry": "Failed to delete entry",
+  "failedToDeletePost": "Failed to delete post",
+  "failedToUpdatePost": "Failed to update post",
+  "fromAllChannelsCombined": "From all channels combined",
+  "goalBrandAwareness": "Brand Awareness",
+  "goalEngagement": "Engagement",
+  "goalLeadGeneration": "Lead Generation",
+  "goalProductLaunch": "Product Launch",
+  "goalSales": "Sales",
+  "lastEdited": "Last edited",
+  "lastEditedLabel": "Last edited",
+  "lastEditedOn": "Last edited: {date} at {time}",
+  "@lastEditedOn": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "logged": "Logged",
+  "loggedOn": "Logged: {date} at {time}",
+  "@loggedOn": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "message": "message",
+  "messages": "messages",
+  "messagesReceivedQuestion": "How many messages or leads did you receive?",
+  "metadata": "Metadata",
+  "monthlyReportLabel": "Monthly Report ({monthYear})",
+  "@monthlyReportLabel": {
+    "placeholders": {"monthYear": {"type": "String"}}
+  },
+  "never": "Never",
+  "noAdSpendRecorded": "No ad spend recorded",
+  "noEntriesFor": "No entries for",
+  "notAvailable": "N/A",
+  "platformLabel": "Platform",
+  "platformRequired": "Platform *",
+  "postAddedSuccessfully": "Post added successfully",
+  "postContentPrompt": "What content did you publish?",
+  "postDeleted": "Post deleted",
+  "postDescriptionHint": "Post caption or summary...",
+  "postInfo": "Post Info",
+  "postLinkOptional": "Post Link (Optional)",
+  "postTitleHint": "e.g., Launch Announcement",
+  "postTitleRequired": "Post Title *",
+  "postTitleValidation": "Title must be at least 3 characters",
+  "postUpdatedSuccessfully": "Post updated successfully",
+  "postedOn": "Posted: {date}",
+  "@postedOn": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "postsDoNotAffectMetrics": "Note: Posts don't affect revenue or profit calculations.",
+  "postsOptionalDescription": "Posts are optional reference links to track what content you published.",
+  "potentialLeads": "Potential leads",
+  "profitLossSummary": "PROFIT/LOSS SUMMARY",
+  "profitTrends": "Profit trends",
+  "publishDate": "Publish Date",
+  "recoveredSetupCosts": "Recovered setup costs on {date}",
+  "@recoveredSetupCosts": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "revenuePatterns": "Revenue patterns",
+  "roiEarningsDescription": "For every 1 {currency} spent, you earn {multiplier} in revenue",
+  "@roiEarningsDescription": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "multiplier": {"type": "String"}
+    }
+  },
+  "saveChanges": "Save Changes",
+  "searchByDateHint": "Search by date...",
+  "selectDateOptional": "Select date (optional)",
+  "startLoggingHistory": "Start logging to build your performance history!",
+  "totalLabel": "Total",
+  "totalReceived": "Total Received",
+  "viewAllPosts": "View all {count} posts",
+  "@viewAllPosts": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "weeklyReportRange": "Weekly Report ({start} - {end})",
+  "@weeklyReportRange": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "projectsHeading": "Projects",
+  "projectStartedOn": "Started {date}",
+  "@projectStartedOn": {
+    "placeholders": {"date": {"type": "String"}}
+  }
 }

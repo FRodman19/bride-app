@@ -16,6 +16,7 @@ import '../../../core/utils/platform_icons.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../providers/entry_provider.dart';
 import '../../../routing/routes.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Screen 8: Entry Detail View
 ///
@@ -35,6 +36,7 @@ class EntryDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final trackersState = ref.watch(trackersProvider);
     final entriesState = ref.watch(entriesProvider(trackerId));
@@ -91,7 +93,7 @@ class EntryDetailScreen extends ConsumerWidget {
               Icon(Iconsax.document_text, size: 48, color: colors.textTertiary),
               const SizedBox(height: GOLSpacing.space4),
               Text(
-                'Entry not found',
+                l10n.entryNotFound,
                 style: textTheme.titleMedium?.copyWith(
                   color: colors.textSecondary,
                 ),
@@ -116,14 +118,14 @@ class EntryDetailScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Entry Detail',
+              l10n.entryDetail,
               style: textTheme.titleMedium?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
             ),
             Text(
-              DateFormat('EEEE, MMM d, yyyy').format(entry.entryDate),
+              DateFormat('EEEE, MMM d, yyyy', l10n.localeName).format(entry.entryDate),
               style: textTheme.bodySmall?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -137,7 +139,7 @@ class EntryDetailScreen extends ConsumerWidget {
             ),
             icon: Icon(Iconsax.edit_2, size: 18, color: colors.interactivePrimary),
             label: Text(
-              'Edit',
+              l10n.edit,
               style: textTheme.labelLarge?.copyWith(
                 color: colors.interactivePrimary,
               ),
@@ -163,25 +165,25 @@ class EntryDetailScreen extends ConsumerWidget {
             const SizedBox(height: GOLSpacing.space5),
 
             // Breakdown Section
-            _SectionHeader(title: 'Breakdown'),
+            _SectionHeader(title: l10n.breakdown),
             const SizedBox(height: GOLSpacing.space3),
 
             // Revenue Card
             _BreakdownCard(
               icon: Iconsax.wallet_add,
-              title: 'REVENUE',
+              title: l10n.revenue,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Total Received',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colors.textSecondary,
-                        ),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l10n.totalReceived,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colors.textSecondary,
                       ),
+                    ),
                       Text(
                         CurrencyFormatter.format(
                           entry.totalRevenue,
@@ -196,7 +198,7 @@ class EntryDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: GOLSpacing.space1),
                   Text(
-                    'From all channels combined',
+                    l10n.fromAllChannelsCombined,
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.textTertiary,
                     ),
@@ -210,14 +212,14 @@ class EntryDetailScreen extends ConsumerWidget {
             // Ad Spend Card
             _BreakdownCard(
               icon: Iconsax.money_send,
-              title: 'AD SPEND',
+              title: l10n.adSpend,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Platform breakdown
                   if (entry.platformSpends.isEmpty)
                     Text(
-                      'No ad spend recorded',
+                      l10n.noAdSpendRecorded,
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textTertiary,
                       ),
@@ -265,7 +267,7 @@ class EntryDetailScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Total Spend',
+                          l10n.totalSpend,
                           style: textTheme.bodyMedium?.copyWith(
                             color: colors.textPrimary,
                             fontWeight: FontWeight.w600,
@@ -301,7 +303,7 @@ class EntryDetailScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Total Received',
+                        l10n.totalReceived,
                         style: textTheme.bodyMedium?.copyWith(
                           color: colors.textSecondary,
                         ),
@@ -310,25 +312,25 @@ class EntryDetailScreen extends ConsumerWidget {
                         children: [
                           Text(
                             '${entry.totalDmsLeads}',
-                            style: textTheme.titleMedium?.copyWith(
-                              color: colors.interactivePrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          style: textTheme.titleMedium?.copyWith(
+                            color: colors.interactivePrimary,
+                            fontWeight: FontWeight.w600,
                           ),
-                          const SizedBox(width: GOLSpacing.space1),
-                          Text(
-                            entry.totalDmsLeads == 1 ? 'message' : 'messages',
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: colors.textSecondary,
-                            ),
+                        ),
+                        const SizedBox(width: GOLSpacing.space1),
+                        Text(
+                          entry.totalDmsLeads == 1 ? l10n.message : l10n.messages,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.textSecondary,
                           ),
+                        ),
                         ],
                       ),
                     ],
                   ),
                   const SizedBox(height: GOLSpacing.space1),
                   Text(
-                    'Potential leads',
+                    l10n.potentialLeads,
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.textTertiary,
                     ),
@@ -340,7 +342,7 @@ class EntryDetailScreen extends ConsumerWidget {
             const SizedBox(height: GOLSpacing.space5),
 
             // Calculation Section
-            _SectionHeader(title: 'Calculation'),
+            _SectionHeader(title: l10n.calculation),
             const SizedBox(height: GOLSpacing.space3),
 
             GOLCard(
@@ -349,7 +351,7 @@ class EntryDetailScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   _CalculationRow(
-                    label: 'Revenue',
+                    label: l10n.revenue,
                     value: CurrencyFormatter.format(
                       entry.totalRevenue,
                       currencyCode: tracker.currency,
@@ -358,7 +360,7 @@ class EntryDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: GOLSpacing.space2),
                   _CalculationRow(
-                    label: 'Total Spend',
+                    label: l10n.totalSpend,
                     value: '- ${CurrencyFormatter.format(
                       entry.totalSpend,
                       currencyCode: tracker.currency,
@@ -372,7 +374,7 @@ class EntryDetailScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Daily ${isProfit ? 'Profit' : 'Loss'}',
+                        isProfit ? l10n.dailyProfit : l10n.dailyLoss,
                         style: textTheme.titleMedium?.copyWith(
                           color: colors.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -407,7 +409,7 @@ class EntryDetailScreen extends ConsumerWidget {
             // Notes section (if any)
             if (entry.notes != null && entry.notes!.isNotEmpty) ...[
               const SizedBox(height: GOLSpacing.space5),
-              _SectionHeader(title: 'Notes'),
+              _SectionHeader(title: l10n.notes),
               const SizedBox(height: GOLSpacing.space3),
               GOLCard(
                 variant: GOLCardVariant.standard,
@@ -424,7 +426,7 @@ class EntryDetailScreen extends ConsumerWidget {
             const SizedBox(height: GOLSpacing.space5),
 
             // Metadata Section
-            _SectionHeader(title: 'Metadata'),
+            _SectionHeader(title: l10n.metadata),
             const SizedBox(height: GOLSpacing.space3),
 
             GOLCard(
@@ -433,19 +435,29 @@ class EntryDetailScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   _MetadataRow(
-                    label: 'Logged',
-                    value: '${DateFormat('MMM d, yyyy').format(entry.createdAt)} at ${DateFormat('h:mm a').format(entry.createdAt)}',
+                    label: l10n.logged,
+                    value: l10n.loggedOn(
+                      DateFormat('MMM d, yyyy', l10n.localeName).format(entry.createdAt),
+                      DateFormat('h:mm a', l10n.localeName).format(entry.createdAt),
+                    ),
                   ),
                   const SizedBox(height: GOLSpacing.space2),
                   _MetadataRow(
-                    label: 'Last edited',
+                    label: l10n.lastEditedLabel,
                     value: entry.updatedAt.isAtSameMomentAs(entry.createdAt)
-                        ? 'Never'
-                        : '${DateFormat('MMM d, yyyy').format(entry.updatedAt)} at ${DateFormat('h:mm a').format(entry.updatedAt)}',
+                        ? l10n.never
+                        : l10n.lastEditedOn(
+                            DateFormat('MMM d, yyyy', l10n.localeName).format(
+                              entry.updatedAt,
+                            ),
+                            DateFormat('h:mm a', l10n.localeName).format(
+                              entry.updatedAt,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: GOLSpacing.space2),
                   _MetadataRow(
-                    label: 'Project',
+                    label: l10n.project,
                     value: tracker.name,
                   ),
                 ],
@@ -459,7 +471,7 @@ class EntryDetailScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: GOLButton(
-                    label: 'Edit Entry',
+                    label: l10n.editEntry,
                     onPressed: () => context.push(
                       Routes.editEntryPath(trackerId, entryId),
                     ),
@@ -471,7 +483,7 @@ class EntryDetailScreen extends ConsumerWidget {
                 const SizedBox(width: GOLSpacing.space3),
                 Expanded(
                   child: GOLButton(
-                    label: 'Delete Entry',
+                    label: l10n.deleteEntry,
                     onPressed: () => _showDeleteConfirmation(
                       context,
                       ref,
@@ -500,9 +512,10 @@ class EntryDetailScreen extends ConsumerWidget {
     Entry entry,
     String currency,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDeleteEntryConfirmation(
       context: context,
-      date: DateFormat('MMMM d, yyyy').format(entry.entryDate),
+      date: DateFormat('MMMM d, yyyy', l10n.localeName).format(entry.entryDate),
       revenue: CurrencyFormatter.format(entry.totalRevenue, currencyCode: currency),
       spend: CurrencyFormatter.format(entry.totalSpend, currencyCode: currency),
       profit: '${entry.isProfitable ? '+' : ''}${CurrencyFormatter.format(entry.profit, currencyCode: currency)}',
@@ -515,9 +528,9 @@ class EntryDetailScreen extends ConsumerWidget {
           .deleteEntry(entryId);
       if (result.success && context.mounted) {
         context.pop();
-        showSuccessToast(context, 'Entry deleted successfully');
+        showSuccessToast(context, l10n.entryDeletedSuccessfully);
       } else if (!result.success && context.mounted) {
-        showErrorToast(context, result.error ?? 'Failed to delete entry');
+        showErrorToast(context, result.error ?? l10n.failedToDeleteEntry);
       }
     }
   }
@@ -536,6 +549,7 @@ class _ProfitSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isProfit = entry.profit >= 0;
     // Use normal text color for profit, only red for loss (more professional)
@@ -547,7 +561,7 @@ class _ProfitSummaryCard extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'PROFIT/LOSS SUMMARY',
+            l10n.profitLossSummary,
             style: textTheme.labelSmall?.copyWith(
               color: colors.textSecondary,
               letterSpacing: 1.2,
@@ -578,7 +592,7 @@ class _ProfitSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: GOLSpacing.space2),
           Text(
-            isProfit ? 'Net Profit' : 'Net Loss',
+            isProfit ? l10n.netProfit : l10n.netLoss,
             style: textTheme.bodyMedium?.copyWith(
               color: colors.textSecondary,
             ),

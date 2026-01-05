@@ -14,6 +14,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../providers/entry_provider.dart';
 import '../../../routing/routes.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Screen 10: Entry History (All Entries List)
 ///
@@ -48,14 +49,15 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final tracker = ref.watch(trackerByIdProvider(widget.trackerId));
     final entriesState = ref.watch(entriesProvider(widget.trackerId));
 
     if (tracker == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('All Entries')),
-        body: const Center(child: Text('Tracker not found')),
+        appBar: AppBar(title: Text(l10n.allEntries)),
+        body: Center(child: Text(l10n.trackerNotFound)),
       );
     }
 
@@ -70,7 +72,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
                 controller: _searchController,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'Search by date...',
+                  hintText: l10n.searchByDateHint,
                   hintStyle: textTheme.bodyMedium?.copyWith(
                     color: colors.textTertiary,
                   ),
@@ -85,14 +87,14 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'All Entries',
+                    l10n.allEntries,
                     style: textTheme.titleMedium?.copyWith(
                       color: colors.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   Text(
-                    '${tracker.name} - Complete History',
+                    l10n.completeHistoryTitle(tracker.name),
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -126,6 +128,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
   Widget _buildBody(BuildContext context, Tracker tracker, EntriesState entriesState) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     if (entriesState is EntriesLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -139,7 +142,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
             Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
             const SizedBox(height: GOLSpacing.space4),
             Text(
-              'Failed to load entries',
+              l10n.failedToLoadEntries,
               style: textTheme.titleMedium?.copyWith(color: colors.textPrimary),
             ),
           ],
@@ -161,7 +164,9 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
     // Apply search
     if (_searchQuery.isNotEmpty) {
       filteredEntries = filteredEntries.where((e) {
-        final dateStr = DateFormat('MMM d yyyy').format(e.entryDate).toLowerCase();
+        final dateStr = DateFormat("MMM d yyyy", l10n.localeName)
+            .format(e.entryDate)
+            .toLowerCase();
         return dateStr.contains(_searchQuery.toLowerCase());
       }).toList();
     }
@@ -209,7 +214,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
                         ),
                       ),
                       Text(
-                        '${group.value.length} ${group.value.length == 1 ? 'entry' : 'entries'}',
+                        l10n.entriesCount(group.value.length),
                         style: textTheme.labelSmall?.copyWith(
                           color: colors.textTertiary,
                         ),
@@ -245,6 +250,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
   Widget _buildEmptyState(BuildContext context, Tracker tracker) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -270,7 +276,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
 
             // Title
             Text(
-              'No Entries Yet',
+              l10n.noEntriesYet,
               style: textTheme.headlineSmall?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -280,7 +286,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
 
             // Description
             Text(
-              'Entry history shows all your daily performance logs in one place.',
+              l10n.entryHistoryDescription,
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -299,18 +305,18 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'As you log entries, you\'ll see:',
+                    l10n.entryHistoryHighlightsTitle,
                     style: textTheme.labelMedium?.copyWith(
                       color: colors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: GOLSpacing.space2),
-                  _buildHistoryBulletPoint(context, 'Complete timeline'),
-                  _buildHistoryBulletPoint(context, 'Profit trends'),
-                  _buildHistoryBulletPoint(context, 'Revenue patterns'),
-                  _buildHistoryBulletPoint(context, 'Spend analysis'),
-                  _buildHistoryBulletPoint(context, 'Engagement metrics'),
+                  _buildHistoryBulletPoint(context, l10n.completeTimeline),
+                  _buildHistoryBulletPoint(context, l10n.profitTrends),
+                  _buildHistoryBulletPoint(context, l10n.revenuePatterns),
+                  _buildHistoryBulletPoint(context, l10n.spendAnalysis),
+                  _buildHistoryBulletPoint(context, l10n.engagementMetrics),
                 ],
               ),
             ),
@@ -318,7 +324,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
 
             // Secondary message
             Text(
-              'Start logging to build your performance history!',
+              l10n.startLoggingHistory,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.textTertiary,
               ),
@@ -328,7 +334,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
 
             // CTA Button
             GOLButton(
-              label: 'Log First Entry',
+              label: l10n.logFirstEntry,
               icon: const Icon(Iconsax.add),
               onPressed: () => context.push(Routes.logEntryPath(widget.trackerId)),
               size: GOLButtonSize.large,
@@ -372,6 +378,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
   Widget _buildNoResultsState(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -381,14 +388,14 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
             Icon(Iconsax.search_status, size: 48, color: colors.textTertiary),
             const SizedBox(height: GOLSpacing.space3),
             Text(
-              'No entries found',
+              l10n.noEntriesFound,
               style: textTheme.titleMedium?.copyWith(
                 color: colors.textPrimary,
               ),
             ),
             const SizedBox(height: GOLSpacing.space2),
             Text(
-              'Try adjusting your filters or search',
+              l10n.adjustFiltersOrSearch,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -406,6 +413,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
   ) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isProfit = stats.totalProfit >= 0;
 
@@ -420,7 +428,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
               Icon(Iconsax.chart_2, size: 18, color: colors.interactivePrimary),
               const SizedBox(width: GOLSpacing.space2),
               Text(
-                'OVERVIEW',
+                l10n.overview,
                 style: textTheme.labelSmall?.copyWith(
                   color: colors.textSecondary,
                   letterSpacing: 0.5,
@@ -436,7 +444,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
             children: [
               Expanded(
                 child: _OverviewStatItem(
-                  label: 'Total Entries',
+                  label: l10n.totalEntries,
                   value: '${stats.totalEntries}',
                 ),
               ),
@@ -448,7 +456,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
               ),
               Expanded(
                 child: _OverviewStatItem(
-                  label: 'Date Range',
+                  label: l10n.dateRange,
                   value: stats.dateRange,
                 ),
               ),
@@ -463,7 +471,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
             children: [
               Expanded(
                 child: _OverviewStatItem(
-                  label: 'Total Profit',
+                  label: l10n.totalProfit,
                   value: CurrencyFormatter.format(
                     stats.totalProfit,
                     currencyCode: currency,
@@ -479,7 +487,7 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
               ),
               Expanded(
                 child: _OverviewStatItem(
-                  label: 'Avg Daily',
+                  label: l10n.avgDaily,
                   value: CurrencyFormatter.format(
                     stats.avgDaily.round(),
                     currencyCode: currency,
@@ -497,22 +505,24 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
   }
 
   Widget _buildFilterPills(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Row(
       children: [
         _FilterPill(
-          label: 'All',
+          label: l10n.all,
           isSelected: _selectedFilter == _HistoryFilter.all,
           onTap: () => setState(() => _selectedFilter = _HistoryFilter.all),
         ),
         const SizedBox(width: GOLSpacing.space2),
         _FilterPill(
-          label: 'Profit',
+          label: l10n.profit,
           isSelected: _selectedFilter == _HistoryFilter.profit,
           onTap: () => setState(() => _selectedFilter = _HistoryFilter.profit),
         ),
         const SizedBox(width: GOLSpacing.space2),
         _FilterPill(
-          label: 'Loss',
+          label: l10n.loss,
           isSelected: _selectedFilter == _HistoryFilter.loss,
           onTap: () => setState(() => _selectedFilter = _HistoryFilter.loss),
         ),
@@ -533,13 +543,16 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
 
   Map<String, List<Entry>> _groupEntriesByMonth(List<Entry> entries) {
     final Map<String, List<Entry>> grouped = {};
+    final l10n = AppLocalizations.of(context)!;
 
     // Sort entries by date (most recent first)
     final sortedEntries = List<Entry>.from(entries)
       ..sort((a, b) => b.entryDate.compareTo(a.entryDate));
 
     for (final entry in sortedEntries) {
-      final monthKey = DateFormat('MMMM yyyy').format(entry.entryDate).toUpperCase();
+      final monthKey = DateFormat("MMMM yyyy", l10n.localeName)
+          .format(entry.entryDate)
+          .toUpperCase();
       grouped.putIfAbsent(monthKey, () => []);
       grouped[monthKey]!.add(entry);
     }
@@ -548,10 +561,11 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
   }
 
   _OverviewStats _calculateOverviewStats(List<Entry> entries) {
+    final l10n = AppLocalizations.of(context)!;
     if (entries.isEmpty) {
       return _OverviewStats(
         totalEntries: 0,
-        dateRange: 'No entries',
+        dateRange: l10n.noEntriesYetShort,
         totalProfit: 0,
         avgDaily: 0,
       );
@@ -575,8 +589,8 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
     final avgDaily = entries.isNotEmpty ? totalProfit / entries.length : 0.0;
 
     // Format date range
-    final dateFormat = DateFormat('MMM d');
-    final yearFormat = DateFormat('yyyy');
+    final dateFormat = DateFormat("MMM d", l10n.localeName);
+    final yearFormat = DateFormat("yyyy", l10n.localeName);
     String dateRange;
     if (firstDate.year == lastDate.year) {
       dateRange = '${dateFormat.format(firstDate)} - ${dateFormat.format(lastDate)}, ${yearFormat.format(lastDate)}';
@@ -705,6 +719,7 @@ class _HistoryEntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isProfit = entry.profit >= 0;
     // Use normal text color for profit, only red for loss (more professional)
@@ -731,7 +746,7 @@ class _HistoryEntryCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            DateFormat('MMM d').format(entry.entryDate),
+                            DateFormat("MMM d", l10n.localeName).format(entry.entryDate),
                             style: textTheme.titleSmall?.copyWith(
                               color: colors.textPrimary,
                               fontWeight: FontWeight.w600,
@@ -763,7 +778,7 @@ class _HistoryEntryCard extends StatelessWidget {
                           ),
                           const SizedBox(width: GOLSpacing.space1),
                           Text(
-                            isProfit ? 'profit' : 'loss',
+                            isProfit ? l10n.profit : l10n.loss,
                             style: textTheme.bodySmall?.copyWith(
                               color: colors.textTertiary,
                             ),
@@ -775,7 +790,7 @@ class _HistoryEntryCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            'Revenue: ',
+                            '${l10n.revenue}: ',
                             style: textTheme.bodySmall?.copyWith(
                               color: colors.textTertiary,
                             ),
@@ -792,7 +807,7 @@ class _HistoryEntryCard extends StatelessWidget {
                           ),
                           const SizedBox(width: GOLSpacing.space3),
                           Text(
-                            'Spend: ',
+                            '${l10n.spend}: ',
                             style: textTheme.bodySmall?.copyWith(
                               color: colors.textTertiary,
                             ),

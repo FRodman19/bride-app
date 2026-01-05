@@ -38,23 +38,24 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
 
   DateTime _startDate = DateTime.now();
   String _currency = 'XAF'; // Default to Franc CFA (BEAC)
-  final Set<String> _selectedPlatforms = {'Facebook', 'TikTok'};
+  final Set<String> _selectedPlatforms = {"Facebook", "TikTok"};
   final Set<String> _selectedGoals = {};
 
   String? _nameError;
   bool _isLoading = false;
 
-  final List<String> _availablePlatforms = ['Facebook', 'TikTok'];
-  final List<String> _availableGoals = [
-    'Product Launch',
-    'Lead Generation',
-    'Brand Awareness',
-    'Sales',
-    'Engagement',
-  ];
+  final List<String> _availablePlatforms = ["Facebook", "TikTok"];
 
   /// Get the current currency info
   CurrencyInfo get _currencyInfo => CurrencyConstants.getCurrency(_currency);
+
+  List<String> _goalOptions(AppLocalizations l10n) => [
+        l10n.goalProductLaunch,
+        l10n.goalLeadGeneration,
+        l10n.goalBrandAwareness,
+        l10n.goalSales,
+        l10n.goalEngagement,
+      ];
 
   @override
   void dispose() {
@@ -142,6 +143,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
     final textTheme = Theme.of(context).textTheme;
     final canCreate = ref.watch(canCreateTrackerProvider);
     final l10n = AppLocalizations.of(context)!;
+    final availableGoals = _goalOptions(l10n);
 
     return Scaffold(
       appBar: AppBar(
@@ -193,7 +195,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                         Icon(Iconsax.calendar_1, color: colors.textTertiary),
                         const SizedBox(width: GOLSpacing.space3),
                         Text(
-                          DateFormat('dd/MM/yyyy').format(_startDate),
+                          DateFormat('dd/MM/yyyy', l10n.localeName).format(_startDate),
                           style: textTheme.bodyMedium?.copyWith(
                             color: colors.textPrimary,
                           ),
@@ -283,7 +285,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                   _buildLabel(l10n.goalsOptional),
                   const SizedBox(height: GOLSpacing.inputLabelGap),
                   GOLSelectableChipGroup(
-                    items: _availableGoals,
+                    items: availableGoals,
                     selectedItems: _selectedGoals,
                     onChanged: (selected) => setState(() {
                       _selectedGoals.clear();

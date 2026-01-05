@@ -80,9 +80,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _SectionHeader(title: l10n.account),
               const SizedBox(height: GOLSpacing.space3),
               _AccountCard(
-                email: user?.email ?? 'user@example.com',
+                email: user?.email ?? l10n.defaultUserEmail,
                 name: user?.userMetadata?['full_name'] as String? ??
-                      user?.email?.split('@').first ?? 'User',
+                      user?.email?.split('@').first ?? l10n.defaultUserName,
+                defaultInitial: l10n.defaultUserInitial,
               ),
 
               const SizedBox(height: GOLSpacing.space6),
@@ -419,6 +420,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _handleLogout() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoggingOut = true);
 
     final result = await ref.read(authProvider.notifier).signOut();
@@ -431,7 +433,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       setState(() => _isLoggingOut = false);
       showGOLToast(
         context,
-        result.error ?? 'Failed to logout',
+        result.error ?? l10n.failedToLogout,
         variant: GOLToastVariant.error,
       );
     }
@@ -466,10 +468,12 @@ class _SectionHeader extends StatelessWidget {
 class _AccountCard extends StatelessWidget {
   final String email;
   final String name;
+  final String defaultInitial;
 
   const _AccountCard({
     required this.email,
     required this.name,
+    required this.defaultInitial,
   });
 
   @override
@@ -479,7 +483,7 @@ class _AccountCard extends StatelessWidget {
 
     final initials = name.isNotEmpty
         ? name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase()
-        : 'U';
+        : defaultInitial;
 
     return GOLCard(
       variant: GOLCardVariant.elevated,

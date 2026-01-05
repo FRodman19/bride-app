@@ -115,7 +115,9 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
                     ),
                   ),
                   Text(
-                    'Started ${DateFormat('MMM d, yyyy').format(tracker.startDate)}',
+                    l10n.projectStartedOn(
+                      DateFormat('MMM d, yyyy', l10n.localeName).format(tracker.startDate),
+                    ),
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -544,7 +546,7 @@ class _OverviewTab extends ConsumerWidget {
                       child: Row(
                         children: [
                           Text(
-                            DateFormat('MMM d').format(entry.entryDate),
+                            DateFormat("MMM d", l10n.localeName).format(entry.entryDate),
                             style: textTheme.bodySmall?.copyWith(
                               color: colors.textSecondary,
                             ),
@@ -1448,6 +1450,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
   Widget _buildSummaryCard(BuildContext context, _EntrySummaryStats stats) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isProfit = stats.totalProfit >= 0;
     // Use normal text color for profit, only red for loss (more professional)
@@ -1465,7 +1468,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
               Icon(Iconsax.chart_2, size: 18, color: colors.interactivePrimary),
               const SizedBox(width: GOLSpacing.space2),
               Text(
-                'SUMMARY (${_getFilterLabel()})',
+                '${l10n.summary} (${_getFilterLabel(l10n)})',
                 style: textTheme.labelSmall?.copyWith(
                   color: colors.textSecondary,
                   letterSpacing: 0.5,
@@ -1482,7 +1485,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
             children: [
               Expanded(
                 child: _SummaryStatItem(
-                  label: 'Total Entries',
+                  label: l10n.totalEntries,
                   value: '${stats.totalEntries}',
                 ),
               ),
@@ -1496,7 +1499,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
               ),
               Expanded(
                 child: _SummaryStatItem(
-                  label: 'Total Profit',
+                  label: l10n.totalProfit,
                   value: CurrencyFormatter.format(
                     stats.totalProfit.round(),
                     currencyCode: widget.tracker.currency,
@@ -1515,7 +1518,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
             children: [
               Expanded(
                 child: _SummaryStatItem(
-                  label: 'Avg Daily Profit',
+                  label: l10n.avgDailyProfit,
                   value: CurrencyFormatter.format(
                     stats.avgDailyProfit.round(),
                     currencyCode: widget.tracker.currency,
@@ -1535,7 +1538,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
               ),
               Expanded(
                 child: _SummaryStatItem(
-                  label: 'Total DMs/Leads',
+                  label: l10n.totalDmsLeads,
                   value: '${stats.totalDmsLeads}',
                 ),
               ),
@@ -1549,7 +1552,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
             const SizedBox(height: GOLSpacing.space3),
             if (stats.bestDay != null)
               _BestWorstDayRow(
-                label: 'Best Day',
+                label: l10n.bestDay,
                 date: stats.bestDay!.date,
                 profit: stats.bestDay!.profit,
                 currency: widget.tracker.currency,
@@ -1559,7 +1562,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
               const SizedBox(height: GOLSpacing.space2),
             if (stats.worstDay != null)
               _BestWorstDayRow(
-                label: 'Worst Day',
+                label: l10n.worstDay,
                 date: stats.worstDay!.date,
                 profit: stats.worstDay!.profit,
                 currency: widget.tracker.currency,
@@ -1578,24 +1581,33 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
 
     return Row(
       children: [
-        _FilterPill(
-          label: l10n.thisWeek,
-          isSelected: _selectedFilter == _EntryFilter.thisWeek,
-          onTap: () => setState(() => _selectedFilter = _EntryFilter.thisWeek),
+        Flexible(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _FilterPill(
+                  label: l10n.thisWeek,
+                  isSelected: _selectedFilter == _EntryFilter.thisWeek,
+                  onTap: () => setState(() => _selectedFilter = _EntryFilter.thisWeek),
+                ),
+                const SizedBox(width: GOLSpacing.space2),
+                _FilterPill(
+                  label: l10n.thisMonth,
+                  isSelected: _selectedFilter == _EntryFilter.thisMonth,
+                  onTap: () => setState(() => _selectedFilter = _EntryFilter.thisMonth),
+                ),
+                const SizedBox(width: GOLSpacing.space2),
+                _FilterPill(
+                  label: l10n.allTime,
+                  isSelected: _selectedFilter == _EntryFilter.allTime,
+                  onTap: () => setState(() => _selectedFilter = _EntryFilter.allTime),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(width: GOLSpacing.space2),
-        _FilterPill(
-          label: l10n.thisMonth,
-          isSelected: _selectedFilter == _EntryFilter.thisMonth,
-          onTap: () => setState(() => _selectedFilter = _EntryFilter.thisMonth),
-        ),
-        const SizedBox(width: GOLSpacing.space2),
-        _FilterPill(
-          label: l10n.allTime,
-          isSelected: _selectedFilter == _EntryFilter.allTime,
-          onTap: () => setState(() => _selectedFilter = _EntryFilter.allTime),
-        ),
-        const Spacer(),
         // View History button
         TextButton.icon(
           onPressed: () =>
@@ -1615,6 +1627,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
   Widget _buildNoEntriesForFilter(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -1628,7 +1641,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
             ),
             const SizedBox(height: GOLSpacing.space3),
             Text(
-              'No entries for ${_getFilterLabel().toLowerCase()}',
+              '${l10n.noEntriesFor} ${_getFilterLabel(l10n).toLowerCase()}',
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -1707,6 +1720,7 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
     final today = DateTime(now.year, now.month, now.day);
     final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
     final startOfLastWeek = startOfWeek.subtract(const Duration(days: 7));
+    final l10n = AppLocalizations.of(context)!;
 
     for (final entry in entries) {
       String section;
@@ -1717,17 +1731,17 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
       );
 
       if (_isSameDay(entryDate, today)) {
-        section = 'TODAY';
+        section = l10n.todaySection;
       } else if (_isSameDay(entryDate, today.subtract(const Duration(days: 1)))) {
-        section = 'YESTERDAY';
+        section = l10n.yesterdaySection;
       } else if (entryDate.isAfter(startOfWeek.subtract(const Duration(days: 1)))) {
-        section = 'THIS WEEK';
+        section = l10n.thisWeekSection;
       } else if (entryDate.isAfter(startOfLastWeek.subtract(const Duration(days: 1)))) {
-        section = 'LAST WEEK';
+        section = l10n.lastWeekSection;
       } else if (entryDate.year == now.year && entryDate.month == now.month) {
-        section = 'THIS MONTH';
+        section = l10n.thisMonthSection;
       } else {
-        section = DateFormat('MMMM yyyy').format(entryDate).toUpperCase();
+        section = DateFormat('MMMM yyyy', l10n.localeName).format(entryDate).toUpperCase();
       }
 
       grouped.putIfAbsent(section, () => []);
@@ -1792,14 +1806,15 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
     );
   }
 
-  String _getFilterLabel() {
+  String _getFilterLabel([AppLocalizations? l10n]) {
+    final localization = l10n ?? AppLocalizations.of(context)!;
     switch (_selectedFilter) {
       case _EntryFilter.thisWeek:
-        return 'This Week';
+        return localization.thisWeek;
       case _EntryFilter.thisMonth:
-        return 'This Month';
+        return localization.thisMonth;
       case _EntryFilter.allTime:
-        return 'All Time';
+        return localization.allTime;
     }
   }
 
@@ -1894,6 +1909,7 @@ class _BestWorstDayRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       children: [
@@ -1911,7 +1927,7 @@ class _BestWorstDayRow extends StatelessWidget {
         ),
         const SizedBox(width: GOLSpacing.space2),
         Text(
-          DateFormat('MMM d').format(date),
+          DateFormat("MMM d", l10n.localeName).format(date),
           style: textTheme.bodySmall?.copyWith(
             color: colors.textTertiary,
           ),
@@ -1985,6 +2001,7 @@ class _EntryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isProfit = entry.profit >= 0;
     // Use normal text color for profit, only red for loss (more professional)
@@ -2014,14 +2031,14 @@ class _EntryCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        DateFormat('d').format(entry.entryDate),
+                        DateFormat('d', l10n.localeName).format(entry.entryDate),
                         style: textTheme.titleMedium?.copyWith(
                           color: colors.textPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        DateFormat('MMM').format(entry.entryDate),
+                        DateFormat('MMM', l10n.localeName).format(entry.entryDate),
                         style: textTheme.labelSmall?.copyWith(
                           color: colors.textSecondary,
                         ),
@@ -2046,19 +2063,22 @@ class _EntryCard extends StatelessWidget {
                             color: profitColor,
                           ),
                           const SizedBox(width: GOLSpacing.space1),
-                          Text(
-                            CurrencyFormatter.format(
-                              entry.profit,
-                              currencyCode: tracker.currency,
-                            ),
-                            style: textTheme.titleSmall?.copyWith(
-                              color: profitColor,
-                              fontWeight: FontWeight.w600,
+                          Flexible(
+                            child: Text(
+                              CurrencyFormatter.format(
+                                entry.profit,
+                                currencyCode: tracker.currency,
+                              ),
+                              style: textTheme.titleSmall?.copyWith(
+                                color: profitColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: GOLSpacing.space2),
                           Text(
-                            isProfit ? 'profit' : 'loss',
+                            isProfit ? l10n.profit : l10n.loss,
                             style: textTheme.labelSmall?.copyWith(
                               color: colors.textTertiary,
                             ),
@@ -2071,7 +2091,7 @@ class _EntryCard extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              'Rev: ${CurrencyFormatter.format(entry.totalRevenue, currencyCode: tracker.currency)}',
+                              '${l10n.revenue}: ${CurrencyFormatter.format(entry.totalRevenue, currencyCode: tracker.currency)}',
                               style: textTheme.bodySmall?.copyWith(
                                 color: colors.textSecondary,
                               ),
@@ -2088,7 +2108,7 @@ class _EntryCard extends StatelessWidget {
                           ),
                           Flexible(
                             child: Text(
-                              'Spend: ${CurrencyFormatter.format(entry.totalSpend, currencyCode: tracker.currency)}',
+                              '${l10n.spend}: ${CurrencyFormatter.format(entry.totalSpend, currencyCode: tracker.currency)}',
                               style: textTheme.bodySmall?.copyWith(
                                 color: colors.textSecondary,
                               ),
@@ -2159,6 +2179,7 @@ class _ReportsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final selectedPeriod = ref.watch(selectedReportPeriodProvider);
 
     final reportsData = ref.watch(reportsProvider((
@@ -2183,7 +2204,7 @@ class _ReportsTab extends ConsumerWidget {
 
           // Period Label
           Text(
-            _getPeriodLabel(selectedPeriod, reportsData),
+            _getPeriodLabel(l10n, selectedPeriod, reportsData),
             style: textTheme.titleMedium?.copyWith(
               color: colors.textPrimary,
               fontWeight: FontWeight.w600,
@@ -2246,14 +2267,26 @@ class _ReportsTab extends ConsumerWidget {
     );
   }
 
-  String _getPeriodLabel(ReportPeriod period, ReportsData data) {
+  String _getPeriodLabel(
+    AppLocalizations l10n,
+    ReportPeriod period,
+    ReportsData data,
+  ) {
+    final now = DateTime.now();
     switch (period) {
       case ReportPeriod.daily:
-        return 'Daily Report (${DateFormat('MMMM d, yyyy').format(DateTime.now())})';
+        return l10n.dailyReportLabel(
+          DateFormat('MMMM d, yyyy', l10n.localeName).format(now),
+        );
       case ReportPeriod.weekly:
-        return 'Weekly Report (${DateFormat('MMM d').format(data.periodStart)} - ${DateFormat('MMM d').format(data.periodEnd)})';
+        return l10n.weeklyReportRange(
+          DateFormat('MMM d', l10n.localeName).format(data.periodStart),
+          DateFormat('MMM d', l10n.localeName).format(data.periodEnd),
+        );
       case ReportPeriod.monthly:
-        return 'Monthly Report (${DateFormat('MMMM yyyy').format(DateTime.now())})';
+        return l10n.monthlyReportLabel(
+          DateFormat('MMMM yyyy', l10n.localeName).format(now),
+        );
     }
   }
 }
@@ -2270,22 +2303,24 @@ class _TimePeriodSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Row(
       children: [
         _PeriodPill(
-          label: 'Daily',
+          label: l10n.daily,
           isSelected: selectedPeriod == ReportPeriod.daily,
           onTap: () => onPeriodChanged(ReportPeriod.daily),
         ),
         const SizedBox(width: GOLSpacing.space2),
         _PeriodPill(
-          label: 'Weekly',
+          label: l10n.weekly,
           isSelected: selectedPeriod == ReportPeriod.weekly,
           onTap: () => onPeriodChanged(ReportPeriod.weekly),
         ),
         const SizedBox(width: GOLSpacing.space2),
         _PeriodPill(
-          label: 'Monthly',
+          label: l10n.monthly,
           isSelected: selectedPeriod == ReportPeriod.monthly,
           onTap: () => onPeriodChanged(ReportPeriod.monthly),
         ),
@@ -2343,6 +2378,7 @@ class _ReportsEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -2365,7 +2401,7 @@ class _ReportsEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space4),
             Text(
-              'No data yet',
+              l10n.noDataYet,
               style: textTheme.titleLarge?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -2373,7 +2409,7 @@ class _ReportsEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space2),
             Text(
-              'Log your first entry to see reports',
+              l10n.logFirstEntryForReports,
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -2400,6 +2436,7 @@ class _TotalProfitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final profitResult = CurrencyFormatter.formatProfit(
       reportsData.netProfit,
@@ -2422,7 +2459,7 @@ class _TotalProfitCard extends StatelessWidget {
                 ),
                 const SizedBox(width: GOLSpacing.space2),
                 Text(
-                  'TOTAL PROFIT/LOSS',
+                  l10n.totalProfitLoss,
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.textSecondary,
                     letterSpacing: 0.5,
@@ -2449,7 +2486,7 @@ class _TotalProfitCard extends StatelessWidget {
 
             // Breakdown
             _BreakdownRow(
-              label: 'Total Revenue',
+              label: l10n.totalRevenue,
               value: CurrencyFormatter.format(
                 reportsData.totalRevenue,
                 currencyCode: currency,
@@ -2458,7 +2495,7 @@ class _TotalProfitCard extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space2),
             _BreakdownRow(
-              label: 'Total Spend',
+              label: l10n.totalSpend,
               value: '-${CurrencyFormatter.format(
                 reportsData.totalSpend,
                 currencyCode: currency,
@@ -2468,7 +2505,7 @@ class _TotalProfitCard extends StatelessWidget {
             if (reportsData.setupCost > 0) ...[
               const SizedBox(height: GOLSpacing.space2),
               _BreakdownRow(
-                label: 'Setup Costs',
+                label: l10n.setupCosts,
                 value: '-${CurrencyFormatter.format(
                   reportsData.setupCost,
                   currencyCode: currency,
@@ -2480,7 +2517,7 @@ class _TotalProfitCard extends StatelessWidget {
             const GOLDivider(),
             const SizedBox(height: GOLSpacing.space2),
             _BreakdownRow(
-              label: 'Final Profit',
+              label: l10n.finalProfitLabel,
               value: profitResult.formatted,
               valueColor: profitResult.isProfit
                   ? colors.textPrimary
@@ -2515,13 +2552,17 @@ class _BreakdownRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: textTheme.bodyMedium?.copyWith(
-            color: colors.textSecondary,
-            fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+        Flexible(
+          child: Text(
+            label,
+            style: textTheme.bodyMedium?.copyWith(
+              color: colors.textSecondary,
+              fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
+        const SizedBox(width: GOLSpacing.space2),
         Text(
           value,
           style: textTheme.bodyMedium?.copyWith(
@@ -2548,6 +2589,7 @@ class _RevenueSpendBreakdownCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return GOLCard(
       variant: GOLCardVariant.elevated,
@@ -2565,7 +2607,7 @@ class _RevenueSpendBreakdownCard extends StatelessWidget {
                 ),
                 const SizedBox(width: GOLSpacing.space2),
                 Text(
-                  'REVENUE VS SPEND OVER TIME',
+                  l10n.revenueVsSpendOverTime,
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.textSecondary,
                     letterSpacing: 0.5,
@@ -2593,7 +2635,7 @@ class _RevenueSpendBreakdownCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Revenue: ${CurrencyFormatter.format(week.revenue, currencyCode: currency)}',
+                          '${l10n.revenue}: ${CurrencyFormatter.format(week.revenue, currencyCode: currency)}',
                           style: textTheme.bodySmall?.copyWith(
                             color: colors.textSecondary,
                           ),
@@ -2605,7 +2647,7 @@ class _RevenueSpendBreakdownCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Spend: ${CurrencyFormatter.format(week.spend, currencyCode: currency)}',
+                          '${l10n.spend}: ${CurrencyFormatter.format(week.spend, currencyCode: currency)}',
                           style: textTheme.bodySmall?.copyWith(
                             color: colors.textSecondary,
                           ),
@@ -2617,7 +2659,7 @@ class _RevenueSpendBreakdownCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Profit: ${CurrencyFormatter.formatProfit(week.profit, currencyCode: currency).formatted}',
+                          '${l10n.profit}: ${CurrencyFormatter.formatProfit(week.profit, currencyCode: currency).formatted}',
                           style: textTheme.bodySmall?.copyWith(
                             color: week.profit >= 0
                                 ? colors.textPrimary
@@ -2657,6 +2699,7 @@ class _WorstPerformingDaysCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return GOLCard(
       variant: GOLCardVariant.elevated,
@@ -2674,7 +2717,7 @@ class _WorstPerformingDaysCard extends StatelessWidget {
                 ),
                 const SizedBox(width: GOLSpacing.space2),
                 Text(
-                  'WORST PERFORMING DAYS',
+                  l10n.worstPerformingDays,
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.textSecondary,
                     letterSpacing: 0.5,
@@ -2699,14 +2742,14 @@ class _WorstPerformingDaysCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: [
-                        Text(
-                          '$index. ${DateFormat('MMM d').format(day.date)}: ',
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colors.textPrimary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                    children: [
+                      Text(
+                        '$index. ${DateFormat('MMM d', l10n.localeName).format(day.date)}: ',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.w500,
                         ),
+                      ),
                         Text(
                           profitResult.formatted,
                           style: textTheme.bodyMedium?.copyWith(
@@ -2719,7 +2762,7 @@ class _WorstPerformingDaysCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      'Revenue: ${CurrencyFormatter.format(day.revenue, currencyCode: currency)}, Spend: ${CurrencyFormatter.format(day.spend, currencyCode: currency)}',
+                      '${l10n.revenue}: ${CurrencyFormatter.format(day.revenue, currencyCode: currency)}, ${l10n.spend}: ${CurrencyFormatter.format(day.spend, currencyCode: currency)}',
                       style: textTheme.bodySmall?.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -2754,6 +2797,7 @@ class _BurnRateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return GOLCard(
       variant: GOLCardVariant.elevated,
@@ -2775,14 +2819,14 @@ class _BurnRateCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'BURN RATE',
+                        l10n.burnRate,
                         style: textTheme.labelSmall?.copyWith(
                           color: colors.textSecondary,
                           letterSpacing: 0.5,
                         ),
                       ),
                       Text(
-                        'How fast you\'re spending money',
+                        l10n.burnRateDescription,
                         style: textTheme.bodySmall?.copyWith(
                           color: colors.textTertiary,
                         ),
@@ -2796,7 +2840,7 @@ class _BurnRateCard extends StatelessWidget {
 
             // Spend averages
             _BreakdownRow(
-              label: 'Average Daily Spend',
+              label: l10n.averageDailySpend,
               value: CurrencyFormatter.format(
                 reportsData.avgDailySpend,
                 currencyCode: currency,
@@ -2805,7 +2849,7 @@ class _BurnRateCard extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space2),
             _BreakdownRow(
-              label: 'Average Weekly Spend',
+              label: l10n.averageWeeklySpend,
               value: CurrencyFormatter.format(
                 reportsData.avgWeeklySpend,
                 currencyCode: currency,
@@ -2814,7 +2858,7 @@ class _BurnRateCard extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space2),
             _BreakdownRow(
-              label: 'Average Monthly Spend',
+              label: l10n.averageMonthlySpend,
               value: CurrencyFormatter.format(
                 reportsData.avgMonthlySpend,
                 currencyCode: currency,
@@ -2828,7 +2872,7 @@ class _BurnRateCard extends StatelessWidget {
 
             // Projections
             Text(
-              'Current Pace:',
+              l10n.currentPace,
               style: textTheme.labelMedium?.copyWith(
                 color: colors.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -2836,7 +2880,12 @@ class _BurnRateCard extends StatelessWidget {
             ),
             const SizedBox(height: GOLSpacing.space1),
             Text(
-              'At this rate, you\'ll spend ${CurrencyFormatter.format(reportsData.projectedYearlySpend, currencyCode: currency)} per year on ads',
+              l10n.burnRateProjection(
+                CurrencyFormatter.format(
+                  reportsData.projectedYearlySpend,
+                  currencyCode: currency,
+                ),
+              ),
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.textSecondary,
               ),
@@ -2851,7 +2900,7 @@ class _BurnRateCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'ROI',
+                  l10n.roi,
                   style: textTheme.labelMedium?.copyWith(
                     color: colors.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -2860,7 +2909,7 @@ class _BurnRateCard extends StatelessWidget {
                 Text(
                   reportsData.totalSpend > 0
                       ? '${reportsData.roi.toStringAsFixed(0)}%'
-                      : 'N/A',
+                      : l10n.notAvailable,
                   style: textTheme.titleMedium?.copyWith(
                     color: reportsData.roi >= 0
                         ? colors.textPrimary
@@ -2872,7 +2921,10 @@ class _BurnRateCard extends StatelessWidget {
             ),
             if (reportsData.totalSpend > 0 && reportsData.roi > 0)
               Text(
-                'For every 1 ${currency == 'XOF' ? 'FCFA' : currency} spent, you earn ${(reportsData.roi / 100 + 1).toStringAsFixed(2)} in revenue',
+                l10n.roiEarningsDescription(
+                  currency == "XOF" ? "FCFA" : currency,
+                  (reportsData.roi / 100 + 1).toStringAsFixed(2),
+                ),
                 style: textTheme.bodySmall?.copyWith(
                   color: colors.textTertiary,
                 ),
@@ -2898,6 +2950,7 @@ class _CumulativeProfitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     // Show last 5 data points
     final trendPoints = reportsData.cumulativeProfitTrend.length > 5
@@ -2921,7 +2974,7 @@ class _CumulativeProfitCard extends StatelessWidget {
                 ),
                 const SizedBox(width: GOLSpacing.space2),
                 Text(
-                  'CUMULATIVE PROFIT TREND',
+                  l10n.cumulativeProfitTrend,
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.textSecondary,
                     letterSpacing: 0.5,
@@ -2944,7 +2997,7 @@ class _CumulativeProfitCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      DateFormat('MMM d').format(point.date),
+                      DateFormat('MMM d', l10n.localeName).format(point.date),
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textSecondary,
                       ),
@@ -2978,7 +3031,12 @@ class _CumulativeProfitCard extends StatelessWidget {
                   const SizedBox(width: GOLSpacing.space2),
                   Expanded(
                     child: Text(
-                      'Break-even: ${DateFormat('MMM d').format(reportsData.breakEvenDate!)} (day ${reportsData.breakEvenDays})',
+                      l10n.breakEvenLabel(
+                        DateFormat('MMM d', l10n.localeName).format(
+                          reportsData.breakEvenDate!,
+                        ),
+                        reportsData.breakEvenDays!,
+                      ),
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textPrimary,
                         fontWeight: FontWeight.w500,
@@ -2988,7 +3046,11 @@ class _CumulativeProfitCard extends StatelessWidget {
                 ],
               ),
               Text(
-                'Recovered setup costs on ${DateFormat('MMM d').format(reportsData.breakEvenDate!)}',
+                l10n.recoveredSetupCosts(
+                  DateFormat('MMM d', l10n.localeName).format(
+                    reportsData.breakEvenDate!,
+                  ),
+                ),
                 style: textTheme.bodySmall?.copyWith(
                   color: colors.textTertiary,
                 ),
@@ -3020,8 +3082,10 @@ class _ExportButtonState extends ConsumerState<_ExportButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return GOLButton(
-      label: _isExporting ? 'Exporting...' : 'Export Report',
+      label: _isExporting ? l10n.exporting : l10n.exportReport,
       variant: GOLButtonVariant.secondary,
       icon: Icon(
         _isExporting ? Iconsax.refresh : Iconsax.export_1,
@@ -3033,13 +3097,14 @@ class _ExportButtonState extends ConsumerState<_ExportButton> {
   }
 
   Future<void> _exportReport(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isExporting = true);
 
     try {
       // Get entries
       final entriesState = ref.read(entriesProvider(widget.tracker.id));
       if (entriesState is! EntriesLoaded) {
-        throw Exception('Entries not loaded');
+        throw Exception(l10n.entriesNotLoaded);
       }
 
       await ExportService.exportEntriesToCsv(
@@ -3051,7 +3116,7 @@ class _ExportButtonState extends ConsumerState<_ExportButton> {
       if (mounted) {
         showGOLToast(
           context,
-          'Report exported successfully',
+          l10n.exportedSuccess,
           variant: GOLToastVariant.success,
         );
       }
@@ -3059,7 +3124,7 @@ class _ExportButtonState extends ConsumerState<_ExportButton> {
       if (mounted) {
         showGOLToast(
           context,
-          'Failed to export: ${e.toString()}',
+          '${l10n.failedToExport}: ${e.toString()}',
           variant: GOLToastVariant.error,
         );
       }
@@ -3082,12 +3147,13 @@ class _PostsSection extends ConsumerWidget {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final postsState = ref.watch(postsProvider(tracker.id));
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
-          title: 'Posts (Optional)',
+          title: '${l10n.posts} (${l10n.optional})',
           trailing: TextButton.icon(
             onPressed: () => _showAddPostModal(context, ref),
             icon: Icon(
@@ -3096,7 +3162,7 @@ class _PostsSection extends ConsumerWidget {
               color: colors.interactivePrimary,
             ),
             label: Text(
-              'Add',
+              l10n.addPost,
               style: textTheme.labelMedium?.copyWith(
                 color: colors.interactivePrimary,
               ),
@@ -3147,7 +3213,7 @@ class _PostsSection extends ConsumerWidget {
                 // Navigate to full posts list (could be a separate screen)
               },
               child: Text(
-                'View all ${postsState.count} posts',
+                l10n.viewAllPosts(postsState.count),
                 style: textTheme.bodyMedium?.copyWith(
                   color: colors.interactivePrimary,
                 ),
@@ -3179,6 +3245,7 @@ class _PostsEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return GOLCard(
       variant: GOLCardVariant.standard,
@@ -3192,14 +3259,14 @@ class _PostsEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: GOLSpacing.space3),
           Text(
-            'No Posts Yet',
+            l10n.noPostsYet,
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: GOLSpacing.space2),
           Text(
-            'Posts are optional reference links to track what content you published.',
+            l10n.postsOptionalDescription,
             textAlign: TextAlign.center,
             style: textTheme.bodySmall?.copyWith(
               color: colors.textSecondary,
@@ -3207,7 +3274,7 @@ class _PostsEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: GOLSpacing.space2),
           Text(
-            'Note: Posts don\'t affect revenue or profit calculations.',
+            l10n.postsDoNotAffectMetrics,
             textAlign: TextAlign.center,
             style: textTheme.bodySmall?.copyWith(
               color: colors.textTertiary,
@@ -3216,7 +3283,7 @@ class _PostsEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: GOLSpacing.space4),
           GOLButton(
-            label: 'Add First Post',
+            label: l10n.addYourFirstPost,
             variant: GOLButtonVariant.secondary,
             onPressed: onAddPost,
           ),
@@ -3344,6 +3411,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
@@ -3382,7 +3450,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Add Post',
+                        l10n.addPost,
                         style: textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -3398,7 +3466,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
 
                   // Title field
                   Text(
-                    'Post Title *',
+                    l10n.postTitleRequired,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3407,7 +3475,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                   TextFormField(
                     controller: _titleController,
                     decoration: InputDecoration(
-                      hintText: 'e.g., Launch Announcement',
+                      hintText: l10n.postTitleHint,
                       filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
@@ -3424,14 +3492,14 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().length < 3) {
-                        return 'Title must be at least 3 characters';
+                        return l10n.postTitleValidation;
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: GOLSpacing.space2),
                   Text(
-                    'What content did you publish?',
+                    l10n.postContentPrompt,
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.textTertiary,
                     ),
@@ -3443,7 +3511,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
 
                   // Platform dropdown
                   Text(
-                    'Platform *',
+                    l10n.platformRequired,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3491,7 +3559,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
 
                   // Publish date
                   Text(
-                    'Publish Date',
+                    l10n.publishDate,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3516,8 +3584,10 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                           const SizedBox(width: GOLSpacing.space2),
                           Text(
                             _publishedDate != null
-                                ? DateFormat('MMM d, yyyy').format(_publishedDate!)
-                                : 'Select date (optional)',
+                                ? DateFormat('MMM d, yyyy', l10n.localeName).format(
+                                    _publishedDate!,
+                                  )
+                                : l10n.selectDateOptional,
                             style: textTheme.bodyMedium?.copyWith(
                               color: _publishedDate != null
                                   ? colors.textPrimary
@@ -3541,7 +3611,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
 
                   // URL field
                   Text(
-                    'Post Link (Optional)',
+                    l10n.postLinkOptional,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3574,7 +3644,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
 
                   // Notes field
                   Text(
-                    'Description (Optional)',
+                    l10n.descriptionOptional,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3583,7 +3653,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                   TextFormField(
                     controller: _notesController,
                     decoration: InputDecoration(
-                      hintText: 'Post caption or summary...',
+                      hintText: l10n.postDescriptionHint,
                       filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
@@ -3608,7 +3678,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                     children: [
                       Expanded(
                         child: GOLButton(
-                          label: 'Cancel',
+                          label: l10n.cancel,
                           variant: GOLButtonVariant.secondary,
                           onPressed: () => Navigator.pop(context),
                         ),
@@ -3616,7 +3686,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
                       const SizedBox(width: GOLSpacing.space3),
                       Expanded(
                         child: GOLButton(
-                          label: _isSubmitting ? 'Adding...' : 'Add Post',
+                          label: _isSubmitting ? l10n.adding : l10n.addPost,
                           variant: GOLButtonVariant.primary,
                           onPressed: _isSubmitting ? null : _submitPost,
                         ),
@@ -3647,6 +3717,7 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
   }
 
   Future<void> _submitPost() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
@@ -3665,14 +3736,14 @@ class _AddPostModalState extends ConsumerState<_AddPostModal> {
       Navigator.pop(context);
       showGOLToast(
         context,
-        'Post added successfully',
+        l10n.postAddedSuccessfully,
         variant: GOLToastVariant.success,
       );
     } else {
       setState(() => _isSubmitting = false);
       showGOLToast(
         context,
-        result.error ?? 'Failed to add post',
+        result.error ?? l10n.failedToAddPost,
         variant: GOLToastVariant.error,
       );
     }
@@ -3725,6 +3796,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
@@ -3763,7 +3835,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Edit Post',
+                        l10n.editPost,
                         style: textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -3779,7 +3851,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
 
                   // Title field
                   Text(
-                    'Post Title *',
+                    l10n.postTitleRequired,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3788,7 +3860,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                   TextFormField(
                     controller: _titleController,
                     decoration: InputDecoration(
-                      hintText: 'e.g., Launch Announcement',
+                      hintText: l10n.postTitleHint,
                       filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
@@ -3805,7 +3877,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                     ),
                     validator: (value) {
                       if (value == null || value.trim().length < 3) {
-                        return 'Title must be at least 3 characters';
+                        return l10n.postTitleValidation;
                       }
                       return null;
                     },
@@ -3817,7 +3889,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
 
                   // Platform dropdown
                   Text(
-                    'Platform *',
+                    l10n.platformRequired,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3865,7 +3937,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
 
                   // Publish date
                   Text(
-                    'Publish Date',
+                    l10n.publishDate,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3890,8 +3962,10 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                           const SizedBox(width: GOLSpacing.space2),
                           Text(
                             _publishedDate != null
-                                ? DateFormat('MMM d, yyyy').format(_publishedDate!)
-                                : 'Select date (optional)',
+                                ? DateFormat('MMM d, yyyy', l10n.localeName).format(
+                                    _publishedDate!,
+                                  )
+                                : l10n.selectDateOptional,
                             style: textTheme.bodyMedium?.copyWith(
                               color: _publishedDate != null
                                   ? colors.textPrimary
@@ -3915,7 +3989,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
 
                   // URL field
                   Text(
-                    'Post Link (Optional)',
+                    l10n.postLinkOptional,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3948,7 +4022,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
 
                   // Notes field
                   Text(
-                    'Description (Optional)',
+                    l10n.descriptionOptional,
                     style: textTheme.labelMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
@@ -3957,7 +4031,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                   TextFormField(
                     controller: _notesController,
                     decoration: InputDecoration(
-                      hintText: 'Post caption or summary...',
+                      hintText: l10n.postDescriptionHint,
                       filled: false,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(GOLRadius.md),
@@ -3988,20 +4062,31 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Post Info',
+                          l10n.postInfo,
                           style: textTheme.labelSmall?.copyWith(
                             color: colors.textTertiary,
                           ),
                         ),
                         const SizedBox(height: GOLSpacing.space2),
                         Text(
-                          'Created: ${DateFormat('MMM d, yyyy').format(widget.post.createdAt)}',
+                          l10n.createdOn(
+                            DateFormat('MMM d, yyyy', l10n.localeName).format(
+                              widget.post.createdAt,
+                            ),
+                          ),
                           style: textTheme.bodySmall?.copyWith(
                             color: colors.textSecondary,
                           ),
                         ),
                         Text(
-                          'Last edited: ${DateFormat('MMM d, yyyy').format(widget.post.updatedAt)}',
+                          l10n.lastEditedOn(
+                            DateFormat('MMM d, yyyy', l10n.localeName).format(
+                              widget.post.updatedAt,
+                            ),
+                            DateFormat('h:mm a', l10n.localeName).format(
+                              widget.post.updatedAt,
+                            ),
+                          ),
                           style: textTheme.bodySmall?.copyWith(
                             color: colors.textSecondary,
                           ),
@@ -4017,7 +4102,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                     children: [
                       Expanded(
                         child: GOLButton(
-                          label: 'Delete Post',
+                          label: l10n.deletePost,
                           variant: GOLButtonVariant.destructive,
                           onPressed: _showDeleteConfirmation,
                         ),
@@ -4025,7 +4110,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
                       const SizedBox(width: GOLSpacing.space3),
                       Expanded(
                         child: GOLButton(
-                          label: _isSubmitting ? 'Saving...' : 'Save Changes',
+                          label: _isSubmitting ? l10n.saving : l10n.saveChanges,
                           variant: GOLButtonVariant.primary,
                           onPressed: _isSubmitting ? null : _submitPost,
                         ),
@@ -4056,6 +4141,7 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
   }
 
   Future<void> _submitPost() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
@@ -4076,14 +4162,14 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
       Navigator.pop(context);
       showGOLToast(
         context,
-        'Post updated successfully',
+        l10n.postUpdatedSuccessfully,
         variant: GOLToastVariant.success,
       );
     } else {
       setState(() => _isSubmitting = false);
       showGOLToast(
         context,
-        result.error ?? 'Failed to update post',
+        result.error ?? l10n.failedToUpdatePost,
         variant: GOLToastVariant.error,
       );
     }
@@ -4092,11 +4178,12 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
   void _showDeleteConfirmation() {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Post?'),
+        title: Text(l10n.deletePostQuestion),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -4108,17 +4195,21 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
             ),
             const SizedBox(height: GOLSpacing.space2),
             Text(
-              'Platform: ${widget.post.platform}',
+              '${l10n.platformLabel}: ${widget.post.platform}',
               style: textTheme.bodySmall,
             ),
             if (widget.post.publishedDate != null)
               Text(
-                'Posted: ${DateFormat('MMM d, yyyy').format(widget.post.publishedDate!)}',
+                l10n.postedOn(
+                  DateFormat('MMM d, yyyy', l10n.localeName).format(
+                    widget.post.publishedDate!,
+                  ),
+                ),
                 style: textTheme.bodySmall,
               ),
             const SizedBox(height: GOLSpacing.space3),
             Text(
-              'This action cannot be undone.',
+              l10n.actionCannotBeUndone,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.stateError,
               ),
@@ -4127,12 +4218,12 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
         ),
         actions: [
           GOLButton(
-            label: 'Cancel',
+            label: l10n.cancel,
             variant: GOLButtonVariant.tertiary,
             onPressed: () => Navigator.pop(dialogContext),
           ),
           GOLButton(
-            label: 'Delete Post',
+            label: l10n.deletePost,
             variant: GOLButtonVariant.destructive,
             onPressed: () async {
               Navigator.pop(dialogContext); // Close dialog
@@ -4146,13 +4237,13 @@ class _EditPostModalState extends ConsumerState<_EditPostModal> {
               if (result.success) {
                 showGOLToast(
                   context,
-                  'Post deleted',
+                  l10n.postDeleted,
                   variant: GOLToastVariant.success,
                 );
               } else {
                 showGOLToast(
                   context,
-                  result.error ?? 'Failed to delete post',
+                  result.error ?? l10n.failedToDeletePost,
                   variant: GOLToastVariant.error,
                 );
               }

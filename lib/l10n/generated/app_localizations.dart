@@ -1661,7 +1661,7 @@ abstract class AppLocalizations {
   /// No description provided for @logged.
   ///
   /// In en, this message translates to:
-  /// **'logged'**
+  /// **'Logged'**
   String get logged;
 
   /// No description provided for @monthlyCost.
@@ -2119,6 +2119,594 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export Report'**
   String get exportReport;
+
+  /// No description provided for @adding.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding...'**
+  String get adding;
+
+  /// No description provided for @adjustFiltersOrSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your filters or search'**
+  String get adjustFiltersOrSearch;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @allEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'All Entries'**
+  String get allEntries;
+
+  /// No description provided for @averageDailySpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Daily Spend'**
+  String get averageDailySpend;
+
+  /// No description provided for @averageMonthlySpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Monthly Spend'**
+  String get averageMonthlySpend;
+
+  /// No description provided for @averageWeeklySpend.
+  ///
+  /// In en, this message translates to:
+  /// **'Average Weekly Spend'**
+  String get averageWeeklySpend;
+
+  /// No description provided for @avgDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Daily'**
+  String get avgDaily;
+
+  /// No description provided for @breakEvenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Break-even: {date} (day {day})'**
+  String breakEvenLabel(String date, int day);
+
+  /// No description provided for @breakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakdown'**
+  String get breakdown;
+
+  /// No description provided for @burnRateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'How fast you\'re spending money'**
+  String get burnRateDescription;
+
+  /// No description provided for @burnRateProjection.
+  ///
+  /// In en, this message translates to:
+  /// **'At this rate, you\'ll spend {amount} per year on ads'**
+  String burnRateProjection(String amount);
+
+  /// No description provided for @calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation'**
+  String get calculation;
+
+  /// No description provided for @completeHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} - Complete History'**
+  String completeHistoryTitle(String name);
+
+  /// No description provided for @completeTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete timeline'**
+  String get completeTimeline;
+
+  /// No description provided for @createdOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Created: {date}'**
+  String createdOn(String date);
+
+  /// No description provided for @cumulativeProfitTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'CUMULATIVE PROFIT TREND'**
+  String get cumulativeProfitTrend;
+
+  /// No description provided for @currentPace.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Pace:'**
+  String get currentPace;
+
+  /// No description provided for @dailyEarningQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How much did you earn this day?'**
+  String get dailyEarningQuestion;
+
+  /// No description provided for @dailyLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Loss'**
+  String get dailyLoss;
+
+  /// No description provided for @dailyProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Profit'**
+  String get dailyProfit;
+
+  /// No description provided for @dailyReportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Report ({date})'**
+  String dailyReportLabel(String date);
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @dateLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Date cannot be changed when editing'**
+  String get dateLocked;
+
+  /// No description provided for @dateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Range'**
+  String get dateRange;
+
+  /// No description provided for @defaultUserEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'utilisateur@example.com'**
+  String get defaultUserEmail;
+
+  /// No description provided for @defaultUserInitial.
+  ///
+  /// In en, this message translates to:
+  /// **'U'**
+  String get defaultUserInitial;
+
+  /// No description provided for @defaultUserName.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get defaultUserName;
+
+  /// No description provided for @deletePost.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Post'**
+  String get deletePost;
+
+  /// No description provided for @deletePostQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Post?'**
+  String get deletePostQuestion;
+
+  /// No description provided for @descriptionOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (Optional)'**
+  String get descriptionOptional;
+
+  /// No description provided for @designSystemGalleryTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Design System Gallery'**
+  String get designSystemGalleryTooltip;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @editPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Post'**
+  String get editPost;
+
+  /// No description provided for @engagementMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Engagement metrics'**
+  String get engagementMetrics;
+
+  /// No description provided for @entriesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {count, plural, =1{entry} other{entries}}'**
+  String entriesCount(int count);
+
+  /// No description provided for @entriesNotLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries not loaded'**
+  String get entriesNotLoaded;
+
+  /// No description provided for @entryDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry deleted successfully'**
+  String get entryDeletedSuccessfully;
+
+  /// No description provided for @entryHistoryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry history shows all your daily performance logs in one place.'**
+  String get entryHistoryDescription;
+
+  /// No description provided for @entryHistoryHighlightsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'As you log entries, you\'ll see:'**
+  String get entryHistoryHighlightsTitle;
+
+  /// No description provided for @entryNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry not found'**
+  String get entryNotFound;
+
+  /// No description provided for @entryUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry updated successfully'**
+  String get entryUpdatedSuccessfully;
+
+  /// No description provided for @exporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting...'**
+  String get exporting;
+
+  /// No description provided for @failedToAddPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add post'**
+  String get failedToAddPost;
+
+  /// No description provided for @failedToDeleteEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete entry'**
+  String get failedToDeleteEntry;
+
+  /// No description provided for @failedToDeletePost.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete post'**
+  String get failedToDeletePost;
+
+  /// No description provided for @failedToUpdatePost.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update post'**
+  String get failedToUpdatePost;
+
+  /// No description provided for @fromAllChannelsCombined.
+  ///
+  /// In en, this message translates to:
+  /// **'From all channels combined'**
+  String get fromAllChannelsCombined;
+
+  /// No description provided for @goalBrandAwareness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brand Awareness'**
+  String get goalBrandAwareness;
+
+  /// No description provided for @goalEngagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Engagement'**
+  String get goalEngagement;
+
+  /// No description provided for @goalLeadGeneration.
+  ///
+  /// In en, this message translates to:
+  /// **'Lead Generation'**
+  String get goalLeadGeneration;
+
+  /// No description provided for @goalProductLaunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Launch'**
+  String get goalProductLaunch;
+
+  /// No description provided for @goalSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get goalSales;
+
+  /// No description provided for @lastEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Last edited'**
+  String get lastEdited;
+
+  /// No description provided for @lastEditedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last edited'**
+  String get lastEditedLabel;
+
+  /// No description provided for @lastEditedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last edited: {date} at {time}'**
+  String lastEditedOn(String date, String time);
+
+  /// No description provided for @loggedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged: {date} at {time}'**
+  String loggedOn(String date, String time);
+
+  /// No description provided for @message.
+  ///
+  /// In en, this message translates to:
+  /// **'message'**
+  String get message;
+
+  /// No description provided for @messages.
+  ///
+  /// In en, this message translates to:
+  /// **'messages'**
+  String get messages;
+
+  /// No description provided for @messagesReceivedQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How many messages or leads did you receive?'**
+  String get messagesReceivedQuestion;
+
+  /// No description provided for @metadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata'**
+  String get metadata;
+
+  /// No description provided for @monthlyReportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Report ({monthYear})'**
+  String monthlyReportLabel(String monthYear);
+
+  /// No description provided for @never.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get never;
+
+  /// No description provided for @noAdSpendRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'No ad spend recorded'**
+  String get noAdSpendRecorded;
+
+  /// No description provided for @noEntriesFor.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries for'**
+  String get noEntriesFor;
+
+  /// No description provided for @notAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get notAvailable;
+
+  /// No description provided for @platformLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform'**
+  String get platformLabel;
+
+  /// No description provided for @platformRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform *'**
+  String get platformRequired;
+
+  /// No description provided for @postAddedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Post added successfully'**
+  String get postAddedSuccessfully;
+
+  /// No description provided for @postContentPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'What content did you publish?'**
+  String get postContentPrompt;
+
+  /// No description provided for @postDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Post deleted'**
+  String get postDeleted;
+
+  /// No description provided for @postDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Post caption or summary...'**
+  String get postDescriptionHint;
+
+  /// No description provided for @postInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Info'**
+  String get postInfo;
+
+  /// No description provided for @postLinkOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Link (Optional)'**
+  String get postLinkOptional;
+
+  /// No description provided for @postTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Launch Announcement'**
+  String get postTitleHint;
+
+  /// No description provided for @postTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Title *'**
+  String get postTitleRequired;
+
+  /// No description provided for @postTitleValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Title must be at least 3 characters'**
+  String get postTitleValidation;
+
+  /// No description provided for @postUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Post updated successfully'**
+  String get postUpdatedSuccessfully;
+
+  /// No description provided for @postedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted: {date}'**
+  String postedOn(String date);
+
+  /// No description provided for @postsDoNotAffectMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: Posts don\'t affect revenue or profit calculations.'**
+  String get postsDoNotAffectMetrics;
+
+  /// No description provided for @postsOptionalDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts are optional reference links to track what content you published.'**
+  String get postsOptionalDescription;
+
+  /// No description provided for @potentialLeads.
+  ///
+  /// In en, this message translates to:
+  /// **'Potential leads'**
+  String get potentialLeads;
+
+  /// No description provided for @profitLossSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'PROFIT/LOSS SUMMARY'**
+  String get profitLossSummary;
+
+  /// No description provided for @profitTrends.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit trends'**
+  String get profitTrends;
+
+  /// No description provided for @publishDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Date'**
+  String get publishDate;
+
+  /// No description provided for @recoveredSetupCosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovered setup costs on {date}'**
+  String recoveredSetupCosts(String date);
+
+  /// No description provided for @revenuePatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue patterns'**
+  String get revenuePatterns;
+
+  /// No description provided for @roiEarningsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'For every 1 {currency} spent, you earn {multiplier} in revenue'**
+  String roiEarningsDescription(String currency, String multiplier);
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @searchByDateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by date...'**
+  String get searchByDateHint;
+
+  /// No description provided for @selectDateOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date (optional)'**
+  String get selectDateOptional;
+
+  /// No description provided for @startLoggingHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Start logging to build your performance history!'**
+  String get startLoggingHistory;
+
+  /// No description provided for @totalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get totalLabel;
+
+  /// No description provided for @totalReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Received'**
+  String get totalReceived;
+
+  /// No description provided for @viewAllPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'View all {count} posts'**
+  String viewAllPosts(int count);
+
+  /// No description provided for @weeklyReportRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Report ({start} - {end})'**
+  String weeklyReportRange(String start, String end);
+
+  /// No description provided for @projectsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get projectsHeading;
+
+  /// No description provided for @projectStartedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Started {date}'**
+  String projectStartedOn(String date);
 }
 
 class _AppLocalizationsDelegate

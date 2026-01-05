@@ -369,5 +369,165 @@
   "daysUntilBudgetDepleted": "Jours avant épuisement du budget",
   "cumulativeProfit": "PROFIT CUMULÉ",
   "exportReport": "Exporter le Rapport",
-  "logFirstEntry": "Première Entrée"
+  "logFirstEntry": "Première Entrée",
+
+  "adding": "Ajout en cours...",
+  "adjustFiltersOrSearch": "Essayez de modifier vos filtres ou votre recherche",
+  "all": "Tous",
+  "allEntries": "Toutes les entrées",
+  "averageDailySpend": "Dépense moyenne quotidienne",
+  "averageMonthlySpend": "Dépense moyenne mensuelle",
+  "averageWeeklySpend": "Dépense moyenne hebdomadaire",
+  "avgDaily": "Moyenne quotidienne",
+  "breakEvenLabel": "Point mort : {date} (jour {day})",
+  "@breakEvenLabel": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "day": {"type": "int"}
+    }
+  },
+  "breakdown": "Détails",
+  "burnRateDescription": "La vitesse à laquelle vous dépensez",
+  "burnRateProjection": "À ce rythme, vous dépenserez {amount} par an en publicité",
+  "@burnRateProjection": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "calculation": "Calcul",
+  "completeHistoryTitle": "{name} - Historique complet",
+  "@completeHistoryTitle": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "completeTimeline": "Chronologie complète",
+  "createdOn": "Créé : {date}",
+  "@createdOn": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "cumulativeProfitTrend": "TENDANCE DU PROFIT CUMULÉ",
+  "currentPace": "Rythme actuel :",
+  "dailyEarningQuestion": "Combien avez-vous gagné ce jour-là ?",
+  "dailyLoss": "Perte quotidienne",
+  "dailyProfit": "Profit quotidien",
+  "dailyReportLabel": "Rapport quotidien ({date})",
+  "@dailyReportLabel": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "dateLabel": "Date",
+  "dateLocked": "La date ne peut pas être modifiée lors de l'édition",
+  "dateRange": "Plage de dates",
+  "defaultUserEmail": "utilisateur@example.com",
+  "defaultUserInitial": "U",
+  "defaultUserName": "Utilisateur",
+  "deletePost": "Supprimer le post",
+  "deletePostQuestion": "Supprimer le post ?",
+  "descriptionOptional": "Description (facultatif)",
+  "designSystemGalleryTooltip": "Galerie du design system",
+  "edit": "Modifier",
+  "editPost": "Modifier le post",
+  "engagementMetrics": "Indicateurs d'engagement",
+  "entriesCount": "{count} {count, plural, =1{entrée} other{entrées}}",
+  "@entriesCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "entriesNotLoaded": "Entrées non chargées",
+  "entryDeletedSuccessfully": "Entrée supprimée avec succès",
+  "entryHistoryDescription": "L'historique regroupe tous vos journaux quotidiens au même endroit.",
+  "entryHistoryHighlightsTitle": "En enregistrant des entrées, vous verrez :",
+  "entryNotFound": "Entrée introuvable",
+  "entryUpdatedSuccessfully": "Entrée mise à jour avec succès",
+  "exporting": "Export en cours...",
+  "failedToAddPost": "Échec de l'ajout du post",
+  "failedToDeleteEntry": "Échec de la suppression de l'entrée",
+  "failedToDeletePost": "Échec de la suppression du post",
+  "failedToUpdatePost": "Échec de la mise à jour du post",
+  "fromAllChannelsCombined": "Depuis tous les canaux combinés",
+  "goalBrandAwareness": "Notoriété de la marque",
+  "goalEngagement": "Engagement",
+  "goalLeadGeneration": "Génération de leads",
+  "goalProductLaunch": "Lancement de produit",
+  "goalSales": "Ventes",
+  "lastEdited": "Dernière modification",
+  "lastEditedLabel": "Dernière modification",
+  "lastEditedOn": "Dernière modification : {date} à {time}",
+  "@lastEditedOn": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "logged": "Enregistré",
+  "loggedOn": "Enregistré : {date} à {time}",
+  "@loggedOn": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "time": {"type": "String"}
+    }
+  },
+  "message": "message",
+  "messages": "messages",
+  "messagesReceivedQuestion": "Combien de messages ou de leads avez-vous reçus ?",
+  "metadata": "Métadonnées",
+  "monthlyReportLabel": "Rapport mensuel ({monthYear})",
+  "@monthlyReportLabel": {
+    "placeholders": {"monthYear": {"type": "String"}}
+  },
+  "never": "Jamais",
+  "noAdSpendRecorded": "Aucune dépense publicitaire enregistrée",
+  "noEntriesFor": "Aucune entrée pour",
+  "notAvailable": "N/D",
+  "platformLabel": "Plateforme",
+  "platformRequired": "Plateforme *",
+  "postAddedSuccessfully": "Post ajouté avec succès",
+  "postContentPrompt": "Quel contenu avez-vous publié ?",
+  "postDeleted": "Post supprimé",
+  "postDescriptionHint": "Légende ou résumé du post...",
+  "postInfo": "Infos du post",
+  "postLinkOptional": "Lien du post (facultatif)",
+  "postTitleHint": "ex. Annonce de lancement",
+  "postTitleRequired": "Titre du post *",
+  "postTitleValidation": "Le titre doit comporter au moins 3 caractères",
+  "postUpdatedSuccessfully": "Post mis à jour avec succès",
+  "postedOn": "Publié : {date}",
+  "@postedOn": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "postsDoNotAffectMetrics": "Remarque : les posts n'affectent pas les calculs de revenus ou de profits.",
+  "postsOptionalDescription": "Les posts sont des liens facultatifs pour suivre le contenu publié.",
+  "potentialLeads": "Prospects potentiels",
+  "profitLossSummary": "RÉCAPITULATIF PROFIT/PERTE",
+  "profitTrends": "Tendances de profit",
+  "publishDate": "Date de publication",
+  "recoveredSetupCosts": "Coûts de configuration récupérés le {date}",
+  "@recoveredSetupCosts": {
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "revenuePatterns": "Tendances de revenus",
+  "roiEarningsDescription": "Pour chaque 1 {currency} dépensé, vous gagnez {multiplier} de revenus",
+  "@roiEarningsDescription": {
+    "placeholders": {
+      "currency": {"type": "String"},
+      "multiplier": {"type": "String"}
+    }
+  },
+  "saveChanges": "Enregistrer les modifications",
+  "searchByDateHint": "Rechercher par date...",
+  "selectDateOptional": "Sélectionner une date (facultatif)",
+  "startLoggingHistory": "Commencez à enregistrer pour constituer votre historique de performance !",
+  "totalLabel": "Total",
+  "totalReceived": "Total reçu",
+  "viewAllPosts": "Voir les {count} posts",
+  "@viewAllPosts": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "weeklyReportRange": "Rapport hebdomadaire ({start} - {end})",
+  "@weeklyReportRange": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "projectsHeading": "Projets",
+  "projectStartedOn": "Démarré le {date}",
+  "@projectStartedOn": {
+    "placeholders": {"date": {"type": "String"}}
+  }
 }
