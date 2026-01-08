@@ -85,7 +85,7 @@ All screen designs are in: `performance-section-wireframe.md`
 ## Build Progress Tracker
 
 ### Current Phase: PHASE 6 - IN PROGRESS
-### Last Updated: 2026-01-04
+### Last Updated: 2026-01-07
 
 ### Phase 1: Foundation Setup
 - [x] Dependencies added to pubspec.yaml (2026-01-02)
@@ -139,13 +139,13 @@ All screen designs are in: `performance-section-wireframe.md`
 
 ### Phase 6: Settings & Management
 - [x] Screen 34: Settings Page (2026-01-04)
-- [ ] Screen 14: Edit Tracker Settings
-- [ ] Screen 15: Delete Tracker Confirmation
+- [x] Screen 14: Edit Tracker Settings (2026-01-07)
+- [x] Screen 15: Delete Tracker Confirmation (2026-01-07) (integrated in edit screen)
 - [ ] Screen 16: Platform Management
 - [ ] Screen 19: Quick Actions Menu
 - [ ] Screen 20: Historical Data Edit
 - [ ] Screen 28: Delete Platform Confirmation
-- [ ] Screen 31: General Error State
+- [x] Screen 31: General Error State (2026-01-07) (EmptyState.error(), EmptyState.networkError())
 - [ ] Screen 32: Export Success Modal
 - [ ] Screen 33: Bulk Actions Modal
 - [ ] Screen 25: Entry History Empty State
