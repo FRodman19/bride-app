@@ -251,8 +251,8 @@ abstract class AppLocalizations {
   /// No description provided for @lastSynced.
   ///
   /// In en, this message translates to:
-  /// **'Last synced: Just now'**
-  String get lastSynced;
+  /// **'Last synced: {time}'**
+  String lastSynced(String time);
 
   /// No description provided for @itemsPendingSync.
   ///
@@ -2791,6 +2791,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please check your internet connection and try again.'**
   String get checkInternetConnection;
+
+  /// No description provided for @offlineMode.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get offlineMode;
+
+  /// No description provided for @offlineWithPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline - {count} changes pending'**
+  String offlineWithPending(int count);
+
+  /// No description provided for @syncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get syncing;
+
+  /// No description provided for @syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed - tap for details'**
+  String get syncFailed;
+
+  /// No description provided for @pendingChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} changes waiting to sync'**
+  String pendingChanges(int count);
+
+  /// No description provided for @unknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'An unknown error occurred'**
+  String get unknownError;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Now'**
+  String get syncNow;
+
+  /// No description provided for @neverSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Never synced'**
+  String get neverSynced;
+
+  /// No description provided for @syncComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync complete'**
+  String get syncComplete;
+
+  /// No description provided for @allChangesSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'All changes synced successfully'**
+  String get allChangesSynced;
 }
 
 class _AppLocalizationsDelegate

@@ -86,7 +86,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allDataSynced => 'All data synced';
 
   @override
-  String get lastSynced => 'Last synced: Just now';
+  String lastSynced(String time) {
+    return 'Last synced: $time';
+  }
 
   @override
   String itemsPendingSync(int count) {
@@ -1508,4 +1510,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get checkInternetConnection =>
       'Please check your internet connection and try again.';
+
+  @override
+  String get offlineMode => 'You\'re offline';
+
+  @override
+  String offlineWithPending(int count) {
+    return 'Offline - $count changes pending';
+  }
+
+  @override
+  String get syncing => 'Syncing...';
+
+  @override
+  String get syncFailed => 'Sync failed - tap for details';
+
+  @override
+  String pendingChanges(int count) {
+    return '$count changes waiting to sync';
+  }
+
+  @override
+  String get unknownError => 'An unknown error occurred';
+
+  @override
+  String get syncNow => 'Sync Now';
+
+  @override
+  String get neverSynced => 'Never synced';
+
+  @override
+  String get syncComplete => 'Sync complete';
+
+  @override
+  String get allChangesSynced => 'All changes synced successfully';
 }

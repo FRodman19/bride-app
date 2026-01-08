@@ -653,5 +653,27 @@
   "errorOccurredTryAgain": "An error occurred. Please try again.",
   "tryAgain": "Try Again",
   "connectionError": "Connection Error",
-  "checkInternetConnection": "Please check your internet connection and try again."
+  "checkInternetConnection": "Please check your internet connection and try again.",
+
+  "offlineMode": "You're offline",
+  "offlineWithPending": "Offline - {count} changes pending",
+  "@offlineWithPending": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "syncing": "Syncing...",
+  "syncFailed": "Sync failed - tap for details",
+  "pendingChanges": "{count} changes waiting to sync",
+  "@pendingChanges": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "unknownError": "An unknown error occurred",
+  "retry": "Retry",
+  "syncNow": "Sync Now",
+  "lastSynced": "Last synced: {time}",
+  "@lastSynced": {
+    "placeholders": {"time": {"type": "String"}}
+  },
+  "neverSynced": "Never synced",
+  "syncComplete": "Sync complete",
+  "allChangesSynced": "All changes synced successfully"
 }

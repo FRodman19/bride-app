@@ -86,7 +86,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get allDataSynced => 'Toutes les données synchronisées';
 
   @override
-  String get lastSynced => 'Dernière synchro: À l\'instant';
+  String lastSynced(String time) {
+    return 'Dernière synchronisation : $time';
+  }
 
   @override
   String itemsPendingSync(int count) {
@@ -1519,4 +1521,40 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get checkInternetConnection =>
       'Veuillez vérifier votre connexion internet et réessayer.';
+
+  @override
+  String get offlineMode => 'Vous êtes hors ligne';
+
+  @override
+  String offlineWithPending(int count) {
+    return 'Hors ligne - $count modifications en attente';
+  }
+
+  @override
+  String get syncing => 'Synchronisation...';
+
+  @override
+  String get syncFailed =>
+      'Échec de la synchronisation - appuyez pour plus de détails';
+
+  @override
+  String pendingChanges(int count) {
+    return '$count modifications en attente de synchronisation';
+  }
+
+  @override
+  String get unknownError => 'Une erreur inconnue s\'est produite';
+
+  @override
+  String get syncNow => 'Synchroniser maintenant';
+
+  @override
+  String get neverSynced => 'Jamais synchronisé';
+
+  @override
+  String get syncComplete => 'Synchronisation terminée';
+
+  @override
+  String get allChangesSynced =>
+      'Toutes les modifications ont été synchronisées';
 }

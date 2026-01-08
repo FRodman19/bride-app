@@ -10,8 +10,9 @@ import '../../../grow_out_loud/components/gol_buttons.dart';
 import '../../../grow_out_loud/components/gol_cards.dart';
 import '../../../grow_out_loud/components/gol_overlays.dart';
 import '../../../providers/auth_provider.dart';
-import '../../../providers/database_provider.dart';
 import '../../../providers/settings_provider.dart';
+import '../../../providers/sync_provider.dart';
+import '../../../providers/connectivity_provider.dart';
 import '../../../core/constants/currency_constants.dart';
 import '../../../routing/routes.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -221,16 +222,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 pendingCount: pendingSyncCount.when(
                   data: (count) => count,
                   loading: () => 0,
-                  error: (_, _) => 0,
+                  error: (e, s) => 0,
                 ),
                 l10n: l10n,
-                onSync: () {
-                  showGOLToast(
-                    context,
-                    l10n.syncComingSoon,
-                    variant: GOLToastVariant.info,
-                  );
-                },
+                onSync: () => _handleSync(),
               ),
 
               const SizedBox(height: GOLSpacing.space6),
@@ -417,6 +412,45 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleSync() async {
+    final l10n = AppLocalizations.of(context)!;
+    final isOnline = ref.read(connectivityProvider) == ConnectivityState.online;
+
+    if (!isOnline) {
+      showGOLToast(
+        context,
+        l10n.offlineMode,
+        variant: GOLToastVariant.warning,
+      );
+      return;
+    }
+
+    showGOLToast(
+      context,
+      l10n.syncing,
+      variant: GOLToastVariant.info,
+    );
+
+    await ref.read(syncProvider.notifier).processPendingSync();
+
+    if (!mounted) return;
+
+    final syncState = ref.read(syncProvider);
+    if (syncState.status == SyncStatus.error) {
+      showGOLToast(
+        context,
+        l10n.syncFailed,
+        variant: GOLToastVariant.error,
+      );
+    } else {
+      showGOLToast(
+        context,
+        l10n.allChangesSynced,
+        variant: GOLToastVariant.success,
+      );
+    }
   }
 
   Future<void> _handleLogout() async {
@@ -779,7 +813,7 @@ class _SyncStatusCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  isSynced ? l10n.lastSynced : l10n.willSyncWhenOnline,
+                  isSynced ? l10n.syncComplete : l10n.willSyncWhenOnline,
                   style: textTheme.bodySmall?.copyWith(
                     color: colors.textSecondary,
                   ),

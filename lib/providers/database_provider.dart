@@ -44,8 +44,4 @@ final syncDaoProvider = Provider<SyncDao>((ref) {
   return SyncDao(db);
 });
 
-/// Provider to watch pending sync count.
-final pendingSyncCountProvider = StreamProvider<int>((ref) {
-  final syncDao = ref.watch(syncDaoProvider);
-  return syncDao.watchPendingCount();
-});
+// Note: pendingSyncCountProvider is defined in sync_provider.dart

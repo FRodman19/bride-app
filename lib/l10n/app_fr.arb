@@ -549,5 +549,27 @@
   "errorOccurredTryAgain": "Une erreur s'est produite. Veuillez réessayer.",
   "tryAgain": "Réessayer",
   "connectionError": "Erreur de connexion",
-  "checkInternetConnection": "Veuillez vérifier votre connexion internet et réessayer."
+  "checkInternetConnection": "Veuillez vérifier votre connexion internet et réessayer.",
+
+  "offlineMode": "Vous êtes hors ligne",
+  "offlineWithPending": "Hors ligne - {count} modifications en attente",
+  "@offlineWithPending": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "syncing": "Synchronisation...",
+  "syncFailed": "Échec de la synchronisation - appuyez pour plus de détails",
+  "pendingChanges": "{count} modifications en attente de synchronisation",
+  "@pendingChanges": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "unknownError": "Une erreur inconnue s'est produite",
+  "retry": "Réessayer",
+  "syncNow": "Synchroniser maintenant",
+  "lastSynced": "Dernière synchronisation : {time}",
+  "@lastSynced": {
+    "placeholders": {"time": {"type": "String"}}
+  },
+  "neverSynced": "Jamais synchronisé",
+  "syncComplete": "Synchronisation terminée",
+  "allChangesSynced": "Toutes les modifications ont été synchronisées"
 }

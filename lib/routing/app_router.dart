@@ -256,12 +256,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 /// Main shell with bottom navigation.
-class _MainShell extends StatelessWidget {
+class _MainShell extends ConsumerWidget {
   final Widget child;
   const _MainShell({required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
