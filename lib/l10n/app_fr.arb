@@ -346,9 +346,6 @@
   "entrySingular": "entrée",
   "entriesPlural": "entrées",
 
-  "daily": "Quotidien",
-  "weekly": "Hebdomadaire",
-  "monthly": "Mensuel",
   "dailyReport": "Rapport Quotidien ({date})",
   "weeklyReport": "Rapport Hebdomadaire ({start} - {end})",
   "monthlyReport": "Rapport Mensuel ({month})",

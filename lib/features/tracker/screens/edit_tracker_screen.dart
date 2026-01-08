@@ -401,7 +401,7 @@ class _EditTrackerScreenState extends ConsumerState<EditTrackerScreen> {
 
             GOLButton(
               label: l10n.deleteProject,
-              onPressed: () => _showDeleteConfirmation(context, tracker),
+              onPressed: () => _showDeleteConfirmation(tracker),
               variant: GOLButtonVariant.destructive,
               fullWidth: true,
               icon: Icon(Iconsax.trash, size: 18),
@@ -424,9 +424,8 @@ class _EditTrackerScreenState extends ConsumerState<EditTrackerScreen> {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, Tracker tracker) {
+  void _showDeleteConfirmation(Tracker tracker) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
-    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -435,32 +434,33 @@ class _EditTrackerScreenState extends ConsumerState<EditTrackerScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => _DeleteTrackerConfirmation(
+      builder: (sheetContext) => _DeleteTrackerConfirmation(
         tracker: tracker,
         onDelete: () async {
-          Navigator.pop(context);
+          Navigator.pop(sheetContext);
           setState(() => _isLoading = true);
 
           final result = await ref.read(trackersProvider.notifier).deleteTracker(tracker.id);
 
-          if (mounted) {
-            setState(() => _isLoading = false);
+          if (!mounted) return;
+          setState(() => _isLoading = false);
+          // Use State's context after mounted check
+          final l10n = AppLocalizations.of(context)!;
 
-            if (result.success) {
-              showGOLToast(
-                context,
-                l10n.projectDeletedSuccess,
-                variant: GOLToastVariant.success,
-              );
-              // Go back to trackers list
-              context.go('/trackers');
-            } else if (result.error != null) {
-              showGOLToast(
-                context,
-                result.error!,
-                variant: GOLToastVariant.error,
-              );
-            }
+          if (result.success) {
+            showGOLToast(
+              context,
+              l10n.projectDeletedSuccess,
+              variant: GOLToastVariant.success,
+            );
+            // Go back to trackers list
+            if (mounted) context.go('/trackers');
+          } else if (result.error != null) {
+            showGOLToast(
+              context,
+              result.error!,
+              variant: GOLToastVariant.error,
+            );
           }
         },
       ),
@@ -486,14 +486,19 @@ class _DeleteTrackerConfirmationState extends State<_DeleteTrackerConfirmation> 
   final _confirmController = TextEditingController();
   bool get _canDelete => _confirmController.text.trim() == widget.tracker.name;
 
+  void _onTextChanged() {
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
-    _confirmController.addListener(() => setState(() {}));
+    _confirmController.addListener(_onTextChanged);
   }
 
   @override
   void dispose() {
+    _confirmController.removeListener(_onTextChanged);
     _confirmController.dispose();
     super.dispose();
   }

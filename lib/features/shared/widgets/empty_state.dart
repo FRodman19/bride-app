@@ -100,9 +100,9 @@ class EmptyState extends StatelessWidget {
 
   /// Screen 31: General error state - something went wrong.
   factory EmptyState.error({
-    required AppLocalizations l10n,
-    String? message,
     VoidCallback? onRetry,
+    String? message,
+    required AppLocalizations l10n,
   }) {
     return EmptyState(
       icon: Iconsax.warning_2,
@@ -115,8 +115,8 @@ class EmptyState extends StatelessWidget {
 
   /// Network error state - connection issue.
   factory EmptyState.networkError({
-    required AppLocalizations l10n,
     VoidCallback? onRetry,
+    required AppLocalizations l10n,
   }) {
     return EmptyState(
       icon: Iconsax.wifi_square,

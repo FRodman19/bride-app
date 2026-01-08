@@ -450,6 +450,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
 
       await trackerDao.updateTracker(trackerCompanion);
 
+      // Update platforms and goals in local DB
+      await trackerDao.setTrackerPlatforms(updatedTracker.id, updatedTracker.platforms);
+      await trackerDao.setTrackerGoals(updatedTracker.id, updatedTracker.goalTypes);
+
       // Sync to remote if online
       if (_isOnline) {
         try {
@@ -457,6 +461,44 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
               .from('trackers')
               .update(updatedTracker.toMap())
               .eq('id', tracker.id);
+
+          // Update platforms in Supabase - delete existing and insert new
+          await SupabaseConfig.client
+              .from('tracker_platforms')
+              .delete()
+              .eq('tracker_id', tracker.id);
+          if (updatedTracker.platforms.isNotEmpty) {
+            final platformsData = updatedTracker.platforms
+                .asMap()
+                .entries
+                .map((e) => {
+                      'tracker_id': tracker.id,
+                      'platform': e.value,
+                      'display_order': e.key,
+                    })
+                .toList();
+            await SupabaseConfig.client
+                .from('tracker_platforms')
+                .insert(platformsData);
+          }
+
+          // Update goals in Supabase - delete existing and insert new
+          await SupabaseConfig.client
+              .from('tracker_goals')
+              .delete()
+              .eq('tracker_id', tracker.id);
+          if (updatedTracker.goalTypes.isNotEmpty) {
+            final goalsData = updatedTracker.goalTypes
+                .map((g) => {
+                      'tracker_id': tracker.id,
+                      'goal_type': g,
+                    })
+                .toList();
+            await SupabaseConfig.client
+                .from('tracker_goals')
+                .insert(goalsData);
+          }
+
           await trackerDao.markAsSynced(tracker.id);
         } catch (e) {
           await syncDao.addToQueue(

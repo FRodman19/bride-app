@@ -435,9 +435,6 @@
   "entrySingular": "entry",
   "entriesPlural": "entries",
 
-  "daily": "Daily",
-  "weekly": "Weekly",
-  "monthly": "Monthly",
   "dailyReport": "Daily Report ({date})",
   "@dailyReport": {
     "placeholders": {"date": {"type": "String"}}
