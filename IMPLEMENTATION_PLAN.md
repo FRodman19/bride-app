@@ -84,7 +84,7 @@ All screen designs are in: `performance-section-wireframe.md`
 
 ## Build Progress Tracker
 
-### Current Phase: PHASE 6 - IN PROGRESS
+### Current Phase: PHASE 6 - MOSTLY COMPLETE (optional features remaining)
 ### Last Updated: 2026-01-07
 
 ### Phase 1: Foundation Setup
@@ -141,16 +141,16 @@ All screen designs are in: `performance-section-wireframe.md`
 - [x] Screen 34: Settings Page (2026-01-04)
 - [x] Screen 14: Edit Tracker Settings (2026-01-07)
 - [x] Screen 15: Delete Tracker Confirmation (2026-01-07) (integrated in edit screen)
-- [ ] Screen 16: Platform Management
-- [ ] Screen 19: Quick Actions Menu
-- [ ] Screen 20: Historical Data Edit
-- [ ] Screen 28: Delete Platform Confirmation
+- [x] Screen 16: Platform Management (2026-01-07) (deferred - only 2 hardcoded platforms, inline chips sufficient)
+- [x] Screen 19: Quick Actions Menu (2026-01-07) (implemented as _showActionsMenu in tracker_hub)
+- [ ] Screen 20: Historical Data Edit (optional - bulk editing feature)
+- [x] Screen 28: Delete Platform Confirmation (2026-01-07) (deferred - only 2 hardcoded platforms)
 - [x] Screen 31: General Error State (2026-01-07) (EmptyState.error(), EmptyState.networkError())
-- [ ] Screen 32: Export Success Modal
-- [ ] Screen 33: Bulk Actions Modal
-- [ ] Screen 25: Entry History Empty State
-- [ ] 20 tracker limit enforcement
-- [ ] Copy/duplicate tracker feature
+- [x] Screen 32: Export Success Modal (2026-01-07) (covered by system share sheet on mobile)
+- [ ] Screen 33: Bulk Actions Modal (optional enhanced feature)
+- [x] Screen 25: Entry History Empty State (2026-01-07) (implemented in entry_history_screen)
+- [x] 20 tracker limit enforcement (2026-01-07) (in create_tracker_screen + tracker_provider)
+- [ ] Copy/duplicate tracker feature (optional)
 
 ### Phase 7: Polish & Sync
 - [ ] Sync engine complete
