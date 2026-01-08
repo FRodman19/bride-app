@@ -529,5 +529,28 @@
   "projectStartedOn": "Démarré le {date}",
   "@projectStartedOn": {
     "placeholders": {"date": {"type": "String"}}
-  }
+  },
+  "projectUpdatedSuccess": "Projet mis à jour avec succès",
+  "startDateCannotBeChanged": "La date de début ne peut pas être modifiée après la création",
+  "dangerZone": "ZONE DE DANGER",
+  "deleteProject": "Supprimer le projet",
+  "thisActionCannotBeUndone": "Cette action est irréversible",
+  "whatWillBeDeleted": "Ce qui sera supprimé :",
+  "allEntriesCount": "Toutes les {count} entrées",
+  "@allEntriesCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "allPosts": "Tous les posts",
+  "allReportsData": "Toutes les données de rapports et d'analyses",
+  "completeHistory": "Historique complet du projet",
+  "typeProjectNameToConfirm": "Tapez \"{name}\" pour confirmer la suppression",
+  "@typeProjectNameToConfirm": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "projectDeletedSuccess": "Projet supprimé avec succès",
+  "somethingWentWrong": "Une erreur s'est produite",
+  "errorOccurredTryAgain": "Une erreur s'est produite. Veuillez réessayer.",
+  "tryAgain": "Réessayer",
+  "connectionError": "Erreur de connexion",
+  "checkInternetConnection": "Veuillez vérifier votre connexion internet et réessayer."
 }

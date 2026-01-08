@@ -16,6 +16,7 @@ import '../features/tracker/screens/entry_detail_screen.dart';
 import '../features/tracker/screens/edit_entry_screen.dart';
 import '../features/tracker/screens/entry_history_screen.dart';
 import '../features/tracker/screens/archive_screen.dart';
+import '../features/tracker/screens/edit_tracker_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
 import '../screens/grow_out_loud_gallery_screen.dart';
 import '../providers/auth_provider.dart';
@@ -150,7 +151,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'edit-tracker',
             builder: (context, state) {
               final trackerId = state.pathParameters['id']!;
-              return _PlaceholderScreen('Edit Tracker: $trackerId');
+              return EditTrackerScreen(trackerId: trackerId);
             },
           ),
 

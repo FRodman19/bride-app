@@ -633,5 +633,28 @@
   "projectStartedOn": "Started {date}",
   "@projectStartedOn": {
     "placeholders": {"date": {"type": "String"}}
-  }
+  },
+  "projectUpdatedSuccess": "Project updated successfully",
+  "startDateCannotBeChanged": "Start date cannot be changed after creation",
+  "dangerZone": "DANGER ZONE",
+  "deleteProject": "Delete Project",
+  "thisActionCannotBeUndone": "This action cannot be undone",
+  "whatWillBeDeleted": "What will be deleted:",
+  "allEntriesCount": "All {count} entries",
+  "@allEntriesCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "allPosts": "All posts",
+  "allReportsData": "All reports and analytics data",
+  "completeHistory": "Complete project history",
+  "typeProjectNameToConfirm": "Type \"{name}\" to confirm deletion",
+  "@typeProjectNameToConfirm": {
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "projectDeletedSuccess": "Project deleted successfully",
+  "somethingWentWrong": "Something went wrong",
+  "errorOccurredTryAgain": "An error occurred. Please try again.",
+  "tryAgain": "Try Again",
+  "connectionError": "Connection Error",
+  "checkInternetConnection": "Please check your internet connection and try again."
 }

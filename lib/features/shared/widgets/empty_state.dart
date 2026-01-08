@@ -98,6 +98,35 @@ class EmptyState extends StatelessWidget {
     );
   }
 
+  /// Screen 31: General error state - something went wrong.
+  factory EmptyState.error({
+    required AppLocalizations l10n,
+    String? message,
+    VoidCallback? onRetry,
+  }) {
+    return EmptyState(
+      icon: Iconsax.warning_2,
+      title: l10n.somethingWentWrong,
+      subtitle: message ?? l10n.errorOccurredTryAgain,
+      actionLabel: onRetry != null ? l10n.tryAgain : null,
+      onAction: onRetry,
+    );
+  }
+
+  /// Network error state - connection issue.
+  factory EmptyState.networkError({
+    required AppLocalizations l10n,
+    VoidCallback? onRetry,
+  }) {
+    return EmptyState(
+      icon: Iconsax.wifi_square,
+      title: l10n.connectionError,
+      subtitle: l10n.checkInternetConnection,
+      actionLabel: onRetry != null ? l10n.tryAgain : null,
+      onAction: onRetry,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;

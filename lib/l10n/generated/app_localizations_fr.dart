@@ -310,7 +310,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get moveToActive => 'Remettre dans les projets actifs';
 
   @override
-  String get deleteProject => 'Supprimer le Projet';
+  String get deleteProject => 'Supprimer le projet';
 
   @override
   String get deleteProjectPermanently => 'Supprimer définitivement ce projet';
@@ -425,7 +425,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get allPosts => 'Tous les posts';
 
   @override
-  String get allReportsData => 'Toutes les données de rapports';
+  String get allReportsData => 'Toutes les données de rapports et d\'analyses';
 
   @override
   String get actionCannotBeUndone => 'Cette action est irréversible.';
@@ -1470,4 +1470,53 @@ class AppLocalizationsFr extends AppLocalizations {
   String projectStartedOn(String date) {
     return 'Démarré le $date';
   }
+
+  @override
+  String get projectUpdatedSuccess => 'Projet mis à jour avec succès';
+
+  @override
+  String get startDateCannotBeChanged =>
+      'La date de début ne peut pas être modifiée après la création';
+
+  @override
+  String get dangerZone => 'ZONE DE DANGER';
+
+  @override
+  String get thisActionCannotBeUndone => 'Cette action est irréversible';
+
+  @override
+  String get whatWillBeDeleted => 'Ce qui sera supprimé :';
+
+  @override
+  String allEntriesCount(int count) {
+    return 'Toutes les $count entrées';
+  }
+
+  @override
+  String get completeHistory => 'Historique complet du projet';
+
+  @override
+  String typeProjectNameToConfirm(String name) {
+    return 'Tapez \"$name\" pour confirmer la suppression';
+  }
+
+  @override
+  String get projectDeletedSuccess => 'Projet supprimé avec succès';
+
+  @override
+  String get somethingWentWrong => 'Une erreur s\'est produite';
+
+  @override
+  String get errorOccurredTryAgain =>
+      'Une erreur s\'est produite. Veuillez réessayer.';
+
+  @override
+  String get tryAgain => 'Réessayer';
+
+  @override
+  String get connectionError => 'Erreur de connexion';
+
+  @override
+  String get checkInternetConnection =>
+      'Veuillez vérifier votre connexion internet et réessayer.';
 }

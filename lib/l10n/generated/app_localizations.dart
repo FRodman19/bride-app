@@ -875,7 +875,7 @@ abstract class AppLocalizations {
   /// No description provided for @allReportsData.
   ///
   /// In en, this message translates to:
-  /// **'All reports data'**
+  /// **'All reports and analytics data'**
   String get allReportsData;
 
   /// No description provided for @actionCannotBeUndone.
@@ -2707,6 +2707,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Started {date}'**
   String projectStartedOn(String date);
+
+  /// No description provided for @projectUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Project updated successfully'**
+  String get projectUpdatedSuccess;
+
+  /// No description provided for @startDateCannotBeChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date cannot be changed after creation'**
+  String get startDateCannotBeChanged;
+
+  /// No description provided for @dangerZone.
+  ///
+  /// In en, this message translates to:
+  /// **'DANGER ZONE'**
+  String get dangerZone;
+
+  /// No description provided for @thisActionCannotBeUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone'**
+  String get thisActionCannotBeUndone;
+
+  /// No description provided for @whatWillBeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'What will be deleted:'**
+  String get whatWillBeDeleted;
+
+  /// No description provided for @allEntriesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count} entries'**
+  String allEntriesCount(int count);
+
+  /// No description provided for @completeHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete project history'**
+  String get completeHistory;
+
+  /// No description provided for @typeProjectNameToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Type \"{name}\" to confirm deletion'**
+  String typeProjectNameToConfirm(String name);
+
+  /// No description provided for @projectDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Project deleted successfully'**
+  String get projectDeletedSuccess;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get somethingWentWrong;
+
+  /// No description provided for @errorOccurredTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get errorOccurredTryAgain;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get tryAgain;
+
+  /// No description provided for @connectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Error'**
+  String get connectionError;
+
+  /// No description provided for @checkInternetConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your internet connection and try again.'**
+  String get checkInternetConnection;
 }
 
 class _AppLocalizationsDelegate

@@ -424,7 +424,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allPosts => 'All posts';
 
   @override
-  String get allReportsData => 'All reports data';
+  String get allReportsData => 'All reports and analytics data';
 
   @override
   String get actionCannotBeUndone => 'This action cannot be undone.';
@@ -1460,4 +1460,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String projectStartedOn(String date) {
     return 'Started $date';
   }
+
+  @override
+  String get projectUpdatedSuccess => 'Project updated successfully';
+
+  @override
+  String get startDateCannotBeChanged =>
+      'Start date cannot be changed after creation';
+
+  @override
+  String get dangerZone => 'DANGER ZONE';
+
+  @override
+  String get thisActionCannotBeUndone => 'This action cannot be undone';
+
+  @override
+  String get whatWillBeDeleted => 'What will be deleted:';
+
+  @override
+  String allEntriesCount(int count) {
+    return 'All $count entries';
+  }
+
+  @override
+  String get completeHistory => 'Complete project history';
+
+  @override
+  String typeProjectNameToConfirm(String name) {
+    return 'Type \"$name\" to confirm deletion';
+  }
+
+  @override
+  String get projectDeletedSuccess => 'Project deleted successfully';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get errorOccurredTryAgain => 'An error occurred. Please try again.';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get connectionError => 'Connection Error';
+
+  @override
+  String get checkInternetConnection =>
+      'Please check your internet connection and try again.';
 }
