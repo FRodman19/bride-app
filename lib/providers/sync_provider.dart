@@ -1,13 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/config/supabase_config.dart';
 import '../data/local/database.dart';
 import '../data/local/daos/entry_dao.dart';
+import '../data/local/daos/post_dao.dart';
 import '../data/local/daos/tracker_dao.dart';
+
 import 'connectivity_provider.dart';
 import 'database_provider.dart';
+
+/// Generate a deterministic UUID from entry_id and platform.
+String _generateSpendId(String entryId, String platform) {
+  final bytes = utf8.encode('$entryId:$platform');
+  final hash = md5.convert(bytes);
+  final hex = hash.toString();
+  return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}';
+}
 
 /// Sync status for UI display.
 enum SyncStatus {
@@ -254,6 +265,9 @@ class SyncNotifier extends StateNotifier<SyncState> {
       case 'entry_platform_spends':
         await _syncSpend(item);
         break;
+      case 'posts':
+        await _syncPost(item);
+        break;
       default:
         // Unknown table, skip
         break;
@@ -286,7 +300,7 @@ class SyncNotifier extends StateNotifier<SyncState> {
           if (spendsMap.isNotEmpty) {
             final spendsData = spendsMap.entries
                 .map((e) => {
-                      'id': '${entry.id}_${e.key}',
+                      'id': _generateSpendId(entry.id, e.key),
                       'entry_id': entry.id,
                       'platform': e.key,
                       'amount': e.value,
@@ -337,7 +351,7 @@ class SyncNotifier extends StateNotifier<SyncState> {
           if (spendsMap.isNotEmpty) {
             final spendsData = spendsMap.entries
                 .map((e) => {
-                      'id': '${entry.id}_${e.key}',
+                      'id': _generateSpendId(entry.id, e.key),
                       'entry_id': entry.id,
                       'platform': e.key,
                       'amount': e.value,
@@ -368,6 +382,53 @@ class SyncNotifier extends StateNotifier<SyncState> {
         break;
       case 'delete':
         await SupabaseConfig.client.from('entry_platform_spends').delete().eq('id', item.recordId);
+        break;
+    }
+  }
+
+  /// Sync a post to Supabase.
+  Future<void> _syncPost(SyncQueueData item) async {
+    final postDao = _ref.read(postDaoProvider);
+
+    switch (item.operation) {
+      case 'insert':
+        final post = await postDao.getPost(item.recordId);
+        if (post != null) {
+          await SupabaseConfig.client.from('posts').insert({
+            'id': post.id,
+            'tracker_id': post.trackerId,
+            'title': post.title,
+            'platform': post.platform,
+            'url': post.url,
+            'published_date': post.publishedDate?.toIso8601String(),
+            'notes': post.notes,
+            'created_at': post.createdAt.toIso8601String(),
+            'updated_at': post.updatedAt.toIso8601String(),
+          });
+          await postDao.markAsSynced(post.id);
+        }
+        break;
+
+      case 'update':
+        final post = await postDao.getPost(item.recordId);
+        if (post != null) {
+          await SupabaseConfig.client
+              .from('posts')
+              .update({
+                'title': post.title,
+                'platform': post.platform,
+                'url': post.url,
+                'published_date': post.publishedDate?.toIso8601String(),
+                'notes': post.notes,
+                'updated_at': post.updatedAt.toIso8601String(),
+              })
+              .eq('id', post.id);
+          await postDao.markAsSynced(post.id);
+        }
+        break;
+
+      case 'delete':
+        await SupabaseConfig.client.from('posts').delete().eq('id', item.recordId);
         break;
     }
   }

@@ -272,18 +272,42 @@ class _MainShell extends ConsumerWidget {
         enableFeedback: false, // No fancy animations per design system
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Iconsax.category),
-            activeIcon: const Icon(Iconsax.category5),
+            icon: const SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(child: Icon(Iconsax.category)),
+            ),
+            activeIcon: const SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(child: Icon(Iconsax.category5)),
+            ),
             label: l10n.dashboard,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Iconsax.folder_2),
-            activeIcon: const Icon(Iconsax.folder_25),
+            icon: const SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(child: Icon(Iconsax.folder_2)),
+            ),
+            activeIcon: const SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(child: Icon(Iconsax.folder_25)),
+            ),
             label: l10n.projects,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Iconsax.setting_2),
-            activeIcon: const Icon(Iconsax.setting_25),
+            icon: const SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(child: Icon(Iconsax.setting_2)),
+            ),
+            activeIcon: const SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(child: Icon(Iconsax.setting_25)),
+            ),
             label: l10n.settings,
           ),
         ],

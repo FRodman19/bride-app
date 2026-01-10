@@ -186,8 +186,52 @@ class PostsNotifier extends StateNotifier<PostsState> {
       if (mounted) {
         state = PostsLoaded(domainPosts, trackerId: trackerId);
       }
+
+      // Sync from remote if online
+      if (_isOnline) {
+        await _syncFromRemote();
+      }
     } catch (e) {
       if (mounted) state = PostsError('Failed to load posts: $e');
+    }
+  }
+
+  /// Sync posts from Supabase to local database.
+  Future<void> _syncFromRemote() async {
+    try {
+      final response = await SupabaseConfig.client
+          .from('posts')
+          .select('*')
+          .eq('tracker_id', trackerId)
+          .order('published_date', ascending: false);
+
+      for (final data in (response as List)) {
+        final postCompanion = PostsCompanion(
+          id: Value(data['id'] as String),
+          trackerId: Value(data['tracker_id'] as String),
+          title: Value(data['title'] as String),
+          platform: Value(data['platform'] as String),
+          url: Value(data['url'] as String?),
+          publishedDate: Value(data['published_date'] != null
+              ? DateTime.parse(data['published_date'] as String)
+              : null),
+          notes: Value(data['notes'] as String?),
+          createdAt: Value(DateTime.parse(data['created_at'] as String)),
+          updatedAt: Value(DateTime.parse(data['updated_at'] as String)),
+          syncStatus: const Value('synced'),
+        );
+        await _postDao.insertPost(postCompanion);
+      }
+
+      // Reload from local to update UI
+      final posts = await _postDao.getPostsForTracker(trackerId);
+      final domainPosts = posts.map((p) => PostModel.fromDb(p)).toList();
+
+      if (mounted) {
+        state = PostsLoaded(domainPosts, trackerId: trackerId);
+      }
+    } catch (e) {
+      // Sync failed but local data is still shown - silent fail
     }
   }
 

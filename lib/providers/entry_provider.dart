@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -7,6 +8,16 @@ import '../core/config/supabase_config.dart';
 import '../data/local/database.dart';
 import 'connectivity_provider.dart';
 import 'database_provider.dart';
+
+/// Generate a deterministic UUID from entry_id and platform.
+/// This ensures the same spend always gets the same ID.
+String _generateSpendId(String entryId, String platform) {
+  final bytes = utf8.encode('$entryId:$platform');
+  final hash = md5.convert(bytes);
+  // Format as UUID (8-4-4-4-12)
+  final hex = hash.toString();
+  return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}';
+}
 
 /// Domain model for a daily entry with calculated profit.
 class Entry {
@@ -281,7 +292,7 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
           if (platformSpends.isNotEmpty) {
             final spendsData = platformSpends.entries
                 .map((e) => {
-                      'id': '${entry.id}_${e.key}',
+                      'id': _generateSpendId(entry.id, e.key),
                       'entry_id': entry.id,
                       'platform': e.key,
                       'amount': e.value,
@@ -355,7 +366,7 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
           if (updatedEntry.platformSpends.isNotEmpty) {
             final spendsData = updatedEntry.platformSpends.entries
                 .map((e) => {
-                      'id': '${entry.id}_${e.key}',
+                      'id': _generateSpendId(entry.id, e.key),
                       'entry_id': entry.id,
                       'platform': e.key,
                       'amount': e.value,

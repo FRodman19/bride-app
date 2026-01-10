@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "308216823840",
+    "project_id": "bride-578de",
+    "storage_bucket": "bride-578de.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308216823840:android:88d2734f356bf9c9e2bc45",
+        "android_client_info": {
+          "package_name": "com.growoutloud.brideapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRLb9Mlg0cOIegPQzF9JpkwEx0nmWypYw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

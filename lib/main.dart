@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'l10n/generated/app_localizations.dart';
 
 import 'core/config/app_config.dart';
@@ -12,12 +14,18 @@ import 'providers/settings_provider.dart';
 import 'routing/app_router.dart';
 import 'screens/design_system_home.dart';
 import 'screens/grow_out_loud_gallery_screen.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
   await AppConfig.init();
+
+  // Initialize Firebase with platform-specific options
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Initialize Supabase
   await SupabaseConfig.init();
@@ -34,6 +42,9 @@ class MyApp extends ConsumerWidget {
 
     // Initialize sync provider to listen for connectivity changes
     ref.watch(syncProvider);
+
+    // Initialize notification service (auto-handles auth state changes)
+    ref.watch(notificationServiceProvider);
 
     // Get theme mode from settings
     final settings = ref.watch(settingsProvider);

@@ -292,11 +292,14 @@ Future<bool> showDeleteEntryConfirmation({
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _DetailItem(
-                          label: 'Revenue',
-                          value: revenue,
-                          textTheme: textTheme,
-                          colors: colors,
+                        Expanded(
+                          child: _DetailItem(
+                            label: 'Revenue',
+                            value: revenue,
+                            textTheme: textTheme,
+                            colors: colors,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                         Container(
                           width: 1,
@@ -306,11 +309,14 @@ Future<bool> showDeleteEntryConfirmation({
                           ),
                           color: colors.borderDefault,
                         ),
-                        _DetailItem(
-                          label: 'Spend',
-                          value: spend,
-                          textTheme: textTheme,
-                          colors: colors,
+                        Expanded(
+                          child: _DetailItem(
+                            label: 'Spend',
+                            value: spend,
+                            textTheme: textTheme,
+                            colors: colors,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                         Container(
                           width: 1,
@@ -320,14 +326,17 @@ Future<bool> showDeleteEntryConfirmation({
                           ),
                           color: colors.borderDefault,
                         ),
-                        _DetailItem(
-                          label: 'Profit',
-                          value: profit,
-                          valueColor: isProfit
-                              ? colors.stateSuccess
-                              : colors.stateError,
-                          textTheme: textTheme,
-                          colors: colors,
+                        Expanded(
+                          child: _DetailItem(
+                            label: 'Profit',
+                            value: profit,
+                            valueColor: isProfit
+                                ? colors.stateSuccess
+                                : colors.stateError,
+                            textTheme: textTheme,
+                            colors: colors,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ],
                     ),
@@ -421,6 +430,7 @@ class _DetailItem extends StatelessWidget {
   final Color? valueColor;
   final TextTheme textTheme;
   final GOLSemanticColors colors;
+  final TextAlign textAlign;
 
   const _DetailItem({
     required this.label,
@@ -428,6 +438,7 @@ class _DetailItem extends StatelessWidget {
     this.valueColor,
     required this.textTheme,
     required this.colors,
+    this.textAlign = TextAlign.center,
   });
 
   @override
@@ -439,6 +450,7 @@ class _DetailItem extends StatelessWidget {
           style: textTheme.labelSmall?.copyWith(
             color: colors.textTertiary,
           ),
+          textAlign: textAlign,
         ),
         const SizedBox(height: 2),
         Text(
@@ -447,6 +459,7 @@ class _DetailItem extends StatelessWidget {
             color: valueColor ?? colors.textPrimary,
             fontWeight: FontWeight.w600,
           ),
+          textAlign: textAlign,
         ),
       ],
     );

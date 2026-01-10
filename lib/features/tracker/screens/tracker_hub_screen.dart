@@ -498,7 +498,7 @@ class _OverviewTab extends ConsumerWidget {
                       color: colors.interactivePrimary,
                     ),
                   ),
-                  backgroundColor: colors.surfaceRaised,
+                  backgroundColor: colors.backgroundTertiary,
                   side: BorderSide.none,
                 );
               }).toList(),

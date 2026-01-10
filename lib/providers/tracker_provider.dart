@@ -181,25 +181,45 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   /// Sync trackers from remote Supabase to local.
   Future<void> _syncFromRemote(String userId) async {
     try {
+      // Fetch trackers with full entry data including platform spends and posts
       final response = await SupabaseConfig.client
           .from('trackers')
           .select('''
             *,
-            tracker_platforms(platform),
+            tracker_platforms(platform, display_order),
             tracker_goals(goal_type),
             daily_entries(
+              id,
+              entry_date,
               total_revenue,
-              entry_platform_spends(amount)
+              total_dms_leads,
+              notes,
+              created_at,
+              updated_at,
+              entry_platform_spends(id, platform, amount)
+            ),
+            posts(
+              id,
+              title,
+              platform,
+              url,
+              published_date,
+              notes,
+              created_at,
+              updated_at
             )
           ''')
           .eq('user_id', userId)
           .order('created_at', ascending: false);
 
       final trackerDao = _ref.read(trackerDaoProvider);
+      final entryDao = _ref.read(entryDaoProvider);
 
       final domainTrackers = <domain.Tracker>[];
 
       for (final data in (response as List)) {
+        final trackerId = data['id'] as String;
+
         // Extract platforms
         final platforms = (data['tracker_platforms'] as List?)
                 ?.map((p) => p['platform'] as String)
@@ -218,19 +238,63 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         int entryCount = 0;
 
         final entries = data['daily_entries'] as List? ?? [];
-        for (final entry in entries) {
+        for (final entryData in entries) {
           entryCount++;
-          totalRevenue += (entry['total_revenue'] as num?)?.toDouble() ?? 0;
+          final entryRevenue = (entryData['total_revenue'] as num?)?.toInt() ?? 0;
+          totalRevenue += entryRevenue;
 
-          final spends = entry['entry_platform_spends'] as List? ?? [];
+          // Sync entry to local database
+          final entryId = entryData['id'] as String;
+          final entryCompanion = DailyEntriesCompanion(
+            id: Value(entryId),
+            trackerId: Value(trackerId),
+            entryDate: Value(DateTime.parse(entryData['entry_date'] as String)),
+            totalRevenue: Value(entryRevenue),
+            totalDmsLeads: Value((entryData['total_dms_leads'] as num?)?.toInt() ?? 0),
+            notes: Value(entryData['notes'] as String?),
+            createdAt: Value(DateTime.parse(entryData['created_at'] as String)),
+            updatedAt: Value(DateTime.parse(entryData['updated_at'] as String)),
+            syncStatus: const Value('synced'),
+          );
+          await entryDao.insertEntry(entryCompanion);
+
+          // Sync platform spends to local database
+          final spends = entryData['entry_platform_spends'] as List? ?? [];
+          final spendsMap = <String, int>{};
           for (final spend in spends) {
-            totalSpend += (spend['amount'] as num?)?.toDouble() ?? 0;
+            final amount = (spend['amount'] as num?)?.toInt() ?? 0;
+            final platform = spend['platform'] as String;
+            spendsMap[platform] = amount;
+            totalSpend += amount;
           }
+          // Save spends to local database
+          await entryDao.setSpends(entryId, spendsMap);
         }
 
-        // Upsert to local database
+        // Sync posts to local database
+        final posts = data['posts'] as List? ?? [];
+        final postDao = _ref.read(postDaoProvider);
+        for (final postData in posts) {
+          final postCompanion = PostsCompanion(
+            id: Value(postData['id'] as String),
+            trackerId: Value(trackerId),
+            title: Value(postData['title'] as String),
+            platform: Value(postData['platform'] as String),
+            url: Value(postData['url'] as String?),
+            publishedDate: Value(postData['published_date'] != null
+                ? DateTime.parse(postData['published_date'] as String)
+                : null),
+            notes: Value(postData['notes'] as String?),
+            createdAt: Value(DateTime.parse(postData['created_at'] as String)),
+            updatedAt: Value(DateTime.parse(postData['updated_at'] as String)),
+            syncStatus: const Value('synced'),
+          );
+          await postDao.insertPost(postCompanion);
+        }
+
+        // Upsert tracker to local database
         final trackerCompanion = TrackersCompanion(
-          id: Value(data['id'] as String),
+          id: Value(trackerId),
           userId: Value(data['user_id'] as String),
           name: Value(data['name'] as String),
           startDate: Value(DateTime.parse(data['start_date'] as String)),
@@ -247,8 +311,8 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         );
 
         await trackerDao.insertTracker(trackerCompanion);
-        await trackerDao.setTrackerPlatforms(data['id'] as String, platforms);
-        await trackerDao.setTrackerGoals(data['id'] as String, goalTypes);
+        await trackerDao.setTrackerPlatforms(trackerId, platforms);
+        await trackerDao.setTrackerGoals(trackerId, goalTypes);
 
         // Create domain tracker
         domainTrackers.add(domain.Tracker.fromMap(
