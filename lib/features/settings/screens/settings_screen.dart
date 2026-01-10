@@ -321,60 +321,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 },
               ),
 
-              // TEST NOTIFICATION BUTTONS (Debug only)
-              const SizedBox(height: GOLSpacing.space4),
-              Row(
-                children: [
-                  Expanded(
-                    child: GOLButton(
-                      label: 'Test Now',
-                      variant: GOLButtonVariant.secondary,
-                      size: GOLButtonSize.small,
-                      onPressed: () async {
-                        final notificationService = ref.read(notificationServiceProvider);
-                        final success = await notificationService.showTestNotification();
-                        if (!mounted) return;
-                        showGOLToast(
-                          context,
-                          success ? 'Notification sent!' : 'Failed to send',
-                          variant: success ? GOLToastVariant.success : GOLToastVariant.error,
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: GOLSpacing.space3),
-                  Expanded(
-                    child: GOLButton(
-                      label: 'Test 1m',
-                      variant: GOLButtonVariant.secondary,
-                      size: GOLButtonSize.small,
-                      onPressed: () async {
-                        final notificationService = ref.read(notificationServiceProvider);
-                        final (success, usedExactMode) = await notificationService.scheduleTestNotification();
-                        if (!mounted) return;
-                        if (success) {
-                          showGOLToast(
-                            context,
-                            usedExactMode
-                                ? 'Scheduled for 1 minute (exact mode)'
-                                : 'Scheduled for 1 minute (may be delayed)',
-                            variant: usedExactMode
-                                ? GOLToastVariant.success
-                                : GOLToastVariant.warning,
-                          );
-                        } else {
-                          showGOLToast(
-                            context,
-                            'Failed to schedule',
-                            variant: GOLToastVariant.error,
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
               const SizedBox(height: GOLSpacing.space6),
 
               // DATA & STORAGE SECTION
