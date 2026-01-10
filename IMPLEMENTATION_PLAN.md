@@ -85,7 +85,7 @@ All screen designs are in: `performance-section-wireframe.md`
 ## Build Progress Tracker
 
 ### Current Phase: PHASE 7 - IN PROGRESS
-### Last Updated: 2026-01-07
+### Last Updated: 2026-01-11
 
 ### Phase 1: Foundation Setup
 - [x] Dependencies added to pubspec.yaml (2026-01-02)
@@ -166,8 +166,9 @@ All screen designs are in: `performance-section-wireframe.md`
 - [x] Data sync fixes (2026-01-10) (platform spends UUID, posts sync from Supabase)
 - [x] Firebase SDK configured (2026-01-10) (firebase_core, firebase_messaging, flutter_local_notifications)
 - [x] NotificationService created (2026-01-10) (FCM token storage, background handling)
-- [ ] Notification settings functional in Settings page (IN PROGRESS)
-- [ ] Daily reminder local scheduling working
+- [x] FCM push notifications working (2026-01-11) (FCMService, Supabase sync, Edge Functions)
+- [x] Notification settings functional (2026-01-11) (settings sync to user_preferences table)
+- [x] Daily reminder scheduling working (2026-01-11) (hourly cron + daily-reminder Edge Function)
 - [ ] Performance optimization
 - [ ] Testing complete
 
