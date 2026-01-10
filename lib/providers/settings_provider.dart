@@ -8,24 +8,46 @@ class AppSettings {
   final String currencyCode;
   final ThemeMode themeMode;
 
+  // Notification settings
+  final bool dailyReminderEnabled;
+  final int dailyReminderHour;
+  final int dailyReminderMinute;
+  final bool weeklySummaryEnabled;
+
   const AppSettings({
     this.language = 'English',
     this.currencyCode = 'XOF',
     this.themeMode = ThemeMode.system,
+    this.dailyReminderEnabled = true,
+    this.dailyReminderHour = 21,
+    this.dailyReminderMinute = 0,
+    this.weeklySummaryEnabled = true,
   });
 
   /// Get the current locale based on language setting
   Locale get locale => Locale(AppLanguages.getLocaleCode(language));
 
+  /// Get the daily reminder time as TimeOfDay
+  TimeOfDay get dailyReminderTime =>
+      TimeOfDay(hour: dailyReminderHour, minute: dailyReminderMinute);
+
   AppSettings copyWith({
     String? language,
     String? currencyCode,
     ThemeMode? themeMode,
+    bool? dailyReminderEnabled,
+    int? dailyReminderHour,
+    int? dailyReminderMinute,
+    bool? weeklySummaryEnabled,
   }) {
     return AppSettings(
       language: language ?? this.language,
       currencyCode: currencyCode ?? this.currencyCode,
       themeMode: themeMode ?? this.themeMode,
+      dailyReminderEnabled: dailyReminderEnabled ?? this.dailyReminderEnabled,
+      dailyReminderHour: dailyReminderHour ?? this.dailyReminderHour,
+      dailyReminderMinute: dailyReminderMinute ?? this.dailyReminderMinute,
+      weeklySummaryEnabled: weeklySummaryEnabled ?? this.weeklySummaryEnabled,
     );
   }
 }
@@ -44,6 +66,10 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   static const String _languageKey = 'app_language';
   static const String _currencyKey = 'app_currency';
   static const String _themeKey = 'app_theme';
+  static const String _dailyReminderKey = 'daily_reminder_enabled';
+  static const String _dailyReminderHourKey = 'daily_reminder_hour';
+  static const String _dailyReminderMinuteKey = 'daily_reminder_minute';
+  static const String _weeklySummaryKey = 'weekly_summary_enabled';
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -58,10 +84,20 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
       _ => ThemeMode.system,
     };
 
+    // Load notification settings with validation
+    final dailyReminderEnabled = prefs.getBool(_dailyReminderKey) ?? true;
+    final dailyReminderHour = (prefs.getInt(_dailyReminderHourKey) ?? 21).clamp(0, 23);
+    final dailyReminderMinute = (prefs.getInt(_dailyReminderMinuteKey) ?? 0).clamp(0, 59);
+    final weeklySummaryEnabled = prefs.getBool(_weeklySummaryKey) ?? true;
+
     state = AppSettings(
       language: language,
       currencyCode: currencyCode,
       themeMode: themeMode,
+      dailyReminderEnabled: dailyReminderEnabled,
+      dailyReminderHour: dailyReminderHour,
+      dailyReminderMinute: dailyReminderMinute,
+      weeklySummaryEnabled: weeklySummaryEnabled,
     );
   }
 
@@ -86,6 +122,31 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     };
     await prefs.setString(_themeKey, themeString);
     state = state.copyWith(themeMode: mode);
+  }
+
+  /// Set daily reminder enabled/disabled.
+  Future<void> setDailyReminderEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_dailyReminderKey, enabled);
+    state = state.copyWith(dailyReminderEnabled: enabled);
+  }
+
+  /// Set daily reminder time.
+  Future<void> setDailyReminderTime(TimeOfDay time) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_dailyReminderHourKey, time.hour);
+    await prefs.setInt(_dailyReminderMinuteKey, time.minute);
+    state = state.copyWith(
+      dailyReminderHour: time.hour,
+      dailyReminderMinute: time.minute,
+    );
+  }
+
+  /// Set weekly summary enabled/disabled.
+  Future<void> setWeeklySummaryEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_weeklySummaryKey, enabled);
+    state = state.copyWith(weeklySummaryEnabled: enabled);
   }
 }
 

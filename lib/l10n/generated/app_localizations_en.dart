@@ -74,10 +74,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pushNotifications => 'Push Notifications';
 
   @override
+  String get pushNotificationsDescription =>
+      'Receive important updates and alerts';
+
+  @override
+  String get pushNotificationsEnabled => 'Push notifications enabled';
+
+  @override
+  String get pushNotificationsDisabled => 'Push notifications disabled';
+
+  @override
   String get dailyReminder => 'Daily Reminder';
 
   @override
+  String get dailyReminderDescription =>
+      'Get reminded to log your daily entries';
+
+  @override
+  String get dailyReminderEnabled => 'Daily reminder enabled';
+
+  @override
+  String get dailyReminderDisabled => 'Daily reminder disabled';
+
+  @override
+  String get reminderTime => 'Reminder Time';
+
+  @override
+  String get reminderTimeUpdated => 'Reminder time updated';
+
+  @override
   String get weeklySummary => 'Weekly Summary';
+
+  @override
+  String get weeklySummaryDescription =>
+      'Get a summary of your weekly performance';
+
+  @override
+  String get weeklySummaryEnabled => 'Weekly summary enabled';
+
+  @override
+  String get weeklySummaryDisabled => 'Weekly summary disabled';
 
   @override
   String get comingSoon => 'Coming soon';

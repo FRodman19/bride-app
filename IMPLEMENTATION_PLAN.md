@@ -163,8 +163,11 @@ All screen designs are in: `performance-section-wireframe.md`
 - [x] Sync progress indicator (2026-01-07) (shows "X / Y" during sync)
 - [x] Tap-to-sync on pending banner (2026-01-07) (InkWell with refresh icon)
 - [x] Tracker sync support (2026-01-07) (syncs trackers, platforms, goals to Supabase)
-- [ ] Push notifications configured (requires Firebase setup)
-- [ ] Daily reminder notifications working (requires Firebase)
+- [x] Data sync fixes (2026-01-10) (platform spends UUID, posts sync from Supabase)
+- [x] Firebase SDK configured (2026-01-10) (firebase_core, firebase_messaging, flutter_local_notifications)
+- [x] NotificationService created (2026-01-10) (FCM token storage, background handling)
+- [ ] Notification settings functional in Settings page (IN PROGRESS)
+- [ ] Daily reminder local scheduling working
 - [ ] Performance optimization
 - [ ] Testing complete
 

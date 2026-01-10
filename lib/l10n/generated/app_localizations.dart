@@ -224,17 +224,83 @@ abstract class AppLocalizations {
   /// **'Push Notifications'**
   String get pushNotifications;
 
+  /// No description provided for @pushNotificationsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive important updates and alerts'**
+  String get pushNotificationsDescription;
+
+  /// No description provided for @pushNotificationsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications enabled'**
+  String get pushNotificationsEnabled;
+
+  /// No description provided for @pushNotificationsDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications disabled'**
+  String get pushNotificationsDisabled;
+
   /// No description provided for @dailyReminder.
   ///
   /// In en, this message translates to:
   /// **'Daily Reminder'**
   String get dailyReminder;
 
+  /// No description provided for @dailyReminderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Get reminded to log your daily entries'**
+  String get dailyReminderDescription;
+
+  /// No description provided for @dailyReminderEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder enabled'**
+  String get dailyReminderEnabled;
+
+  /// No description provided for @dailyReminderDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder disabled'**
+  String get dailyReminderDisabled;
+
+  /// No description provided for @reminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder Time'**
+  String get reminderTime;
+
+  /// No description provided for @reminderTimeUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time updated'**
+  String get reminderTimeUpdated;
+
   /// No description provided for @weeklySummary.
   ///
   /// In en, this message translates to:
   /// **'Weekly Summary'**
   String get weeklySummary;
+
+  /// No description provided for @weeklySummaryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a summary of your weekly performance'**
+  String get weeklySummaryDescription;
+
+  /// No description provided for @weeklySummaryEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly summary enabled'**
+  String get weeklySummaryEnabled;
+
+  /// No description provided for @weeklySummaryDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly summary disabled'**
+  String get weeklySummaryDisabled;
 
   /// No description provided for @comingSoon.
   ///

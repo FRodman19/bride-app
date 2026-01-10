@@ -74,10 +74,46 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pushNotifications => 'Notifications Push';
 
   @override
+  String get pushNotificationsDescription =>
+      'Recevez les mises à jour et alertes importantes';
+
+  @override
+  String get pushNotificationsEnabled => 'Notifications push activées';
+
+  @override
+  String get pushNotificationsDisabled => 'Notifications push désactivées';
+
+  @override
   String get dailyReminder => 'Rappel Quotidien';
 
   @override
+  String get dailyReminderDescription =>
+      'Soyez rappelé de saisir vos entrées quotidiennes';
+
+  @override
+  String get dailyReminderEnabled => 'Rappel quotidien activé';
+
+  @override
+  String get dailyReminderDisabled => 'Rappel quotidien désactivé';
+
+  @override
+  String get reminderTime => 'Heure du Rappel';
+
+  @override
+  String get reminderTimeUpdated => 'Heure du rappel mise à jour';
+
+  @override
   String get weeklySummary => 'Résumé Hebdomadaire';
+
+  @override
+  String get weeklySummaryDescription =>
+      'Recevez un résumé de votre performance hebdomadaire';
+
+  @override
+  String get weeklySummaryEnabled => 'Résumé hebdomadaire activé';
+
+  @override
+  String get weeklySummaryDisabled => 'Résumé hebdomadaire désactivé';
 
   @override
   String get comingSoon => 'Bientôt disponible';
