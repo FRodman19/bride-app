@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/config/supabase_config.dart';
 
 /// App settings state
 class AppSettings {
@@ -19,7 +22,7 @@ class AppSettings {
     this.currencyCode = 'XOF',
     this.themeMode = ThemeMode.system,
     this.dailyReminderEnabled = true,
-    this.dailyReminderHour = 21,
+    this.dailyReminderHour = 20, // 8 PM default
     this.dailyReminderMinute = 0,
     this.weeklySummaryEnabled = true,
   });
@@ -84,9 +87,9 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
       _ => ThemeMode.system,
     };
 
-    // Load notification settings with validation
+    // Load notification settings with validation (default 8 PM)
     final dailyReminderEnabled = prefs.getBool(_dailyReminderKey) ?? true;
-    final dailyReminderHour = (prefs.getInt(_dailyReminderHourKey) ?? 21).clamp(0, 23);
+    final dailyReminderHour = (prefs.getInt(_dailyReminderHourKey) ?? 20).clamp(0, 23);
     final dailyReminderMinute = (prefs.getInt(_dailyReminderMinuteKey) ?? 0).clamp(0, 59);
     final weeklySummaryEnabled = prefs.getBool(_weeklySummaryKey) ?? true;
 
@@ -129,6 +132,7 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_dailyReminderKey, enabled);
     state = state.copyWith(dailyReminderEnabled: enabled);
+    await _syncToSupabase();
   }
 
   /// Set daily reminder time.
@@ -140,6 +144,7 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
       dailyReminderHour: time.hour,
       dailyReminderMinute: time.minute,
     );
+    await _syncToSupabase();
   }
 
   /// Set weekly summary enabled/disabled.
@@ -147,6 +152,51 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_weeklySummaryKey, enabled);
     state = state.copyWith(weeklySummaryEnabled: enabled);
+    await _syncToSupabase();
+  }
+
+  /// Sync notification settings to Supabase user_preferences table.
+  /// This enables the server-side cron job to send FCM notifications.
+  Future<void> _syncToSupabase() async {
+    final user = SupabaseConfig.currentUser;
+    if (user == null) {
+      debugPrint('SettingsNotifier: Not syncing - user not logged in');
+      return;
+    }
+
+    try {
+      // Get device timezone
+      String timezone;
+      try {
+        timezone = await FlutterTimezone.getLocalTimezone();
+      } catch (e) {
+        timezone = 'UTC';
+      }
+
+      // Format reminder time as HH:MM:SS for Supabase time column
+      final reminderTime =
+          '${state.dailyReminderHour.toString().padLeft(2, '0')}:${state.dailyReminderMinute.toString().padLeft(2, '0')}:00';
+
+      await SupabaseConfig.client.from('user_preferences').upsert(
+        {
+          'user_id': user.id,
+          'reminder_enabled': state.dailyReminderEnabled,
+          'reminder_time': reminderTime,
+          'timezone': timezone,
+        },
+        onConflict: 'user_id',
+      );
+
+      debugPrint('SettingsNotifier: Synced to Supabase (reminder=$reminderTime, tz=$timezone)');
+    } catch (e) {
+      debugPrint('SettingsNotifier: Failed to sync to Supabase: $e');
+    }
+  }
+
+  /// Sync settings to Supabase when user logs in.
+  /// Call this after successful authentication.
+  Future<void> syncOnLogin() async {
+    await _syncToSupabase();
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,7 @@ import 'routing/app_router.dart';
 import 'routing/routes.dart';
 import 'screens/design_system_home.dart';
 import 'screens/grow_out_loud_gallery_screen.dart';
+import 'services/fcm_service.dart';
 import 'services/notification_service.dart';
 
 void main() async {
@@ -28,6 +30,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Set up FCM background message handler (must be after Firebase.initializeApp)
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   // Initialize timezone for local notification scheduling
   await NotificationService.initializeTimezone();
@@ -49,12 +54,14 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    // Set up notification tap handler
-    NotificationService.onNotificationTap = _handleNotificationTap;
+    // Set up local notification tap handler
+    NotificationService.onNotificationTap = _handleLocalNotificationTap;
+    // Set up FCM notification tap handler
+    FCMService.onNotificationTap = _handleFCMNotificationTap;
   }
 
-  /// Handle notification tap - navigate to appropriate screen
-  void _handleNotificationTap(String? payload) {
+  /// Handle local notification tap - navigate to appropriate screen
+  void _handleLocalNotificationTap(String? payload) {
     // Check if user is authenticated before navigating
     final authState = ref.read(authProvider);
     if (authState is! AuthAuthenticated) {
@@ -66,16 +73,31 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     switch (payload) {
       case 'daily_reminder':
-        // Navigate to dashboard where user can select a tracker to log
-        router.go(Routes.dashboard);
-        break;
       case 'weekly_summary':
-        // Navigate to dashboard to see weekly summary
-        router.go(Routes.dashboard);
-        break;
       default:
-        // Default to dashboard
         router.go(Routes.dashboard);
+    }
+  }
+
+  /// Handle FCM notification tap - navigate to appropriate screen
+  void _handleFCMNotificationTap(RemoteMessage message) {
+    // Check if user is authenticated before navigating
+    final authState = ref.read(authProvider);
+    if (authState is! AuthAuthenticated) {
+      debugPrint('FCMNotificationTap: Ignoring - user not authenticated');
+      return;
+    }
+
+    final router = ref.read(routerProvider);
+    final data = message.data;
+
+    // Navigate based on notification type
+    if (data['type'] == 'daily_reminder' && data['tracker_id'] != null) {
+      // Navigate to the specific tracker
+      router.go('/trackers/${data['tracker_id']}');
+    } else {
+      // Default to dashboard
+      router.go(Routes.dashboard);
     }
   }
 
@@ -88,6 +110,9 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     // Initialize notification service (auto-handles auth state changes)
     ref.watch(notificationServiceProvider);
+
+    // Initialize FCM service (auto-handles auth state changes)
+    ref.watch(fcmServiceProvider);
 
     // Get theme mode from settings
     final settings = ref.watch(settingsProvider);
