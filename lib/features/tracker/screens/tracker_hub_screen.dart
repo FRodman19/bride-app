@@ -512,7 +512,7 @@ class _OverviewTab extends ConsumerWidget {
             trailing: entryCount > 0
                 ? TextButton(
                     onPressed: () {
-                      // Switch to entries tab
+                      context.go(Routes.entryHistoryPath(tracker.id));
                     },
                     child: Text(
                       l10n.viewAll,

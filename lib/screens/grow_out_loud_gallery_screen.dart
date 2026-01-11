@@ -812,23 +812,30 @@ class _GrowOutLoudGalleryScreenState extends State<GrowOutLoudGalleryScreen>
           children: [
             _toastPreview(
               context,
-              icon: Iconsax.tick_circle,
+              icon: Iconsax.tick_circle5,
               message: 'Project saved',
-              background: colors.stateSuccess,
+              iconColor: colors.stateSuccess,
             ),
             const SizedBox(height: GOLSpacing.space3),
             _toastPreview(
               context,
-              icon: Iconsax.close_circle,
+              icon: Iconsax.close_circle5,
               message: 'Failed to sync',
-              background: colors.stateError,
+              iconColor: colors.stateError,
             ),
             const SizedBox(height: GOLSpacing.space3),
             _toastPreview(
               context,
-              icon: Iconsax.info_circle,
+              icon: Iconsax.warning_25,
+              message: 'Connection unstable',
+              iconColor: colors.stateWarning,
+            ),
+            const SizedBox(height: GOLSpacing.space3),
+            _toastPreview(
+              context,
+              icon: Iconsax.info_circle5,
               message: 'New update available',
-              background: colors.stateInfo,
+              iconColor: colors.interactivePrimary,
             ),
           ],
         ),
@@ -1066,26 +1073,32 @@ class _GrowOutLoudGalleryScreenState extends State<GrowOutLoudGalleryScreen>
     BuildContext context, {
     required IconData icon,
     required String message,
-    required Color background,
+    required Color iconColor,
   }) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(GOLSpacing.space3),
       decoration: BoxDecoration(
-        color: background,
+        color: colors.surfaceDefault,
         borderRadius: BorderRadius.circular(GOLRadius.sm),
+        border: Border.all(
+          color: colors.borderDefault,
+          width: 1.5,
+        ),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white, size: 20),
-          const SizedBox(width: GOLSpacing.space3),
+          Icon(icon, color: iconColor, size: 22),
+          const SizedBox(width: GOLSpacing.space4),
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
         ],

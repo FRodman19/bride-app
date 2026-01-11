@@ -100,12 +100,13 @@ enum GOLToastVariant {
   error,
 }
 
-/// Shows a toast/snackbar message.
+/// Shows a toast/snackbar message from the top.
 ///
 /// Screen 29: Success Toast
 /// - Auto-dismiss after 2-3 seconds
 /// - Tap to dismiss early
-/// - Overlays on current screen
+/// - Appears from top of screen
+/// - Outlined design with colored icons (no solid backgrounds)
 ///
 /// Usage:
 /// ```dart
@@ -120,73 +121,105 @@ void showGOLToast(
   VoidCallback? onTap,
 }) {
   final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+  final textTheme = Theme.of(context).textTheme;
 
-  // Get icon and background color based on variant
+  // Get icon color based on variant
   final IconData icon;
-  final Color backgroundColor;
   final Color iconColor;
 
   switch (variant) {
     case GOLToastVariant.success:
-      icon = Iconsax.tick_circle;
-      backgroundColor = colors.stateSuccess;
-      iconColor = Colors.white;
+      icon = Iconsax.tick_circle5;
+      iconColor = colors.stateSuccess;
     case GOLToastVariant.warning:
-      icon = Iconsax.warning_2;
-      backgroundColor = colors.stateWarning;
-      iconColor = Colors.white;
+      icon = Iconsax.warning_25;
+      iconColor = colors.stateWarning;
     case GOLToastVariant.error:
-      icon = Iconsax.close_circle;
-      backgroundColor = colors.stateError;
-      iconColor = Colors.white;
+      icon = Iconsax.close_circle5;
+      iconColor = colors.stateError;
     case GOLToastVariant.info:
-      icon = Iconsax.info_circle;
-      backgroundColor = colors.surfaceRaised;
+      icon = Iconsax.info_circle5;
       iconColor = colors.interactivePrimary;
   }
 
-  ScaffoldMessenger.of(context).clearSnackBars();
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          onTap?.call();
-        },
-        child: Row(
-          children: [
-            Icon(icon, color: iconColor, size: 20),
-            const SizedBox(width: GOLSpacing.space3),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(
-                  color: variant == GOLToastVariant.info
-                      ? colors.textPrimary
-                      : Colors.white,
+  final overlayState = Overlay.of(context);
+  late OverlayEntry overlayEntry;
+
+  overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      top: MediaQuery.of(context).padding.top + GOLSpacing.space4,
+      left: GOLSpacing.screenPaddingHorizontal,
+      right: GOLSpacing.screenPaddingHorizontal,
+      child: Material(
+        color: Colors.transparent,
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.0, end: 1.0),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          builder: (context, value, child) {
+            return Transform.translate(
+              offset: Offset(0, -20 * (1 - value)),
+              child: Opacity(
+                opacity: value,
+                child: child,
+              ),
+            );
+          },
+          child: GestureDetector(
+            onTap: () {
+              overlayEntry.remove();
+              onTap?.call();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: GOLSpacing.space4,
+                vertical: GOLSpacing.space3,
+              ),
+              decoration: BoxDecoration(
+                color: colors.surfaceDefault,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colors.borderDefault,
+                  width: 1.5,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(icon, color: iconColor, size: 22),
+                  const SizedBox(width: GOLSpacing.space4),
+                  Expanded(
+                    child: Text(
+                      message,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
-      backgroundColor: backgroundColor,
-      duration: duration,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: const EdgeInsets.symmetric(
-        horizontal: GOLSpacing.screenPaddingHorizontal,
-        vertical: GOLSpacing.space4,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: GOLSpacing.space4,
-        vertical: GOLSpacing.space3,
-      ),
-      dismissDirection: DismissDirection.horizontal,
     ),
   );
+
+  overlayState.insert(overlayEntry);
+
+  // Auto-dismiss after duration
+  Future.delayed(duration, () {
+    if (overlayEntry.mounted) {
+      overlayEntry.remove();
+    }
+  });
 }
 
 /// Shows a success toast - convenience wrapper.
