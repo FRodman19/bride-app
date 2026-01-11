@@ -41,6 +41,74 @@ class GOLBottomNavPreview extends StatelessWidget {
   }
 }
 
+class GOLBottomNavItem {
+  final String label;
+  final IconData icon;
+  final IconData? activeIcon;
+
+  const GOLBottomNavItem({
+    required this.label,
+    required this.icon,
+    this.activeIcon,
+  });
+}
+
+class GOLBottomNavBar extends StatelessWidget {
+  final List<GOLBottomNavItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const GOLBottomNavBar({
+    super.key,
+    required this.items,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+
+    return Container(
+      height: 64,
+      decoration: BoxDecoration(
+        color: colors.backgroundPrimary,
+        border: Border(top: BorderSide(color: colors.borderDefault)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            offset: Offset(0, -1),
+            blurRadius: 3,
+          ),
+        ],
+      ),
+      child: Row(
+        children: List.generate(items.length, (index) {
+          final item = items[index];
+          final isActive = index == currentIndex;
+          final color = isActive ? colors.textAccent : colors.textSecondary;
+          final iconData =
+              isActive && item.activeIcon != null ? item.activeIcon : item.icon;
+
+          return Expanded(
+            child: InkWell(
+              onTap: () => onTap(index),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(iconData, size: 24, color: color),
+                  const SizedBox(height: 4),
+                  Text(item.label, style: GOLTypography.micro(color)),
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
 class GOLAppBarPreview extends StatelessWidget {
   const GOLAppBarPreview({super.key});
 

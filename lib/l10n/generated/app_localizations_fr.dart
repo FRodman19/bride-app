@@ -173,6 +173,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get failedToLogout => 'Échec de la déconnexion';
 
   @override
+  String get home => 'Accueil';
+
+  @override
   String get dashboard => 'Tableau de bord';
 
   @override

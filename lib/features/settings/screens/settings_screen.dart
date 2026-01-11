@@ -136,8 +136,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               const SizedBox(height: GOLSpacing.space3),
               _AccountCard(
                 email: user?.email ?? l10n.defaultUserEmail,
-                name: user?.userMetadata?['full_name'] as String? ??
-                      user?.email?.split('@').first ?? l10n.defaultUserName,
+                name:
+                    user?.userMetadata?['full_name'] as String? ??
+                    user?.email?.split('@').first ??
+                    l10n.defaultUserName,
                 defaultInitial: l10n.defaultUserInitial,
               ),
 
@@ -162,8 +164,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 onOptionSelected: (value) async {
                   setState(() => _languageExpanded = false);
                   // Map display name back to storage value
-                  final languageValue = value == l10n.languageFrench ? 'French' : 'English';
-                  await ref.read(settingsProvider.notifier).setLanguage(languageValue);
+                  final languageValue = value == l10n.languageFrench
+                      ? 'French'
+                      : 'English';
+                  await ref
+                      .read(settingsProvider.notifier)
+                      .setLanguage(languageValue);
                   if (!mounted) return;
                   showGOLToast(
                     context,
@@ -248,14 +254,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 isEnabled: settings.dailyReminderEnabled,
                 reminderTime: settings.dailyReminderTime,
                 onEnabledChanged: (value) async {
-                  await ref.read(settingsProvider.notifier).setDailyReminderEnabled(value);
+                  await ref
+                      .read(settingsProvider.notifier)
+                      .setDailyReminderEnabled(value);
                   if (!mounted) return;
 
                   // Re-read settings to get current state after async update
                   final currentSettings = ref.read(settingsProvider);
 
                   // Schedule or cancel the daily reminder
-                  final notificationService = ref.read(notificationServiceProvider);
+                  final notificationService = ref.read(
+                    notificationServiceProvider,
+                  );
                   if (value) {
                     await notificationService.scheduleDailyReminder(
                       time: currentSettings.dailyReminderTime,
@@ -266,12 +276,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
                   showGOLToast(
                     context,
-                    value ? l10n.dailyReminderEnabled : l10n.dailyReminderDisabled,
+                    value
+                        ? l10n.dailyReminderEnabled
+                        : l10n.dailyReminderDisabled,
                     variant: GOLToastVariant.success,
                   );
                 },
                 onTimeChanged: (time) async {
-                  await ref.read(settingsProvider.notifier).setDailyReminderTime(time);
+                  await ref
+                      .read(settingsProvider.notifier)
+                      .setDailyReminderTime(time);
                   if (!mounted) return;
 
                   // Re-read settings to get current state after async update
@@ -279,7 +293,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
                   // Reschedule the daily reminder with new time
                   if (currentSettings.dailyReminderEnabled) {
-                    final notificationService = ref.read(notificationServiceProvider);
+                    final notificationService = ref.read(
+                      notificationServiceProvider,
+                    );
                     await notificationService.scheduleDailyReminder(time: time);
                   }
 
@@ -300,11 +316,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 subtitle: l10n.weeklySummaryDescription,
                 value: settings.weeklySummaryEnabled,
                 onChanged: (value) async {
-                  await ref.read(settingsProvider.notifier).setWeeklySummaryEnabled(value);
+                  await ref
+                      .read(settingsProvider.notifier)
+                      .setWeeklySummaryEnabled(value);
                   if (!mounted) return;
 
                   // Schedule or cancel the weekly summary
-                  final notificationService = ref.read(notificationServiceProvider);
+                  final notificationService = ref.read(
+                    notificationServiceProvider,
+                  );
                   if (value) {
                     await notificationService.scheduleWeeklySummary(
                       time: const TimeOfDay(hour: 18, minute: 0), // Sunday 6 PM
@@ -315,7 +335,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
                   showGOLToast(
                     context,
-                    value ? l10n.weeklySummaryEnabled : l10n.weeklySummaryDisabled,
+                    value
+                        ? l10n.weeklySummaryEnabled
+                        : l10n.weeklySummaryDisabled,
                     variant: GOLToastVariant.success,
                   );
                 },
@@ -356,7 +378,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 icon: Iconsax.shield_tick,
                 title: l10n.privacyPolicy,
                 onTap: () {
-                  showGOLToast(context, l10n.comingSoon, variant: GOLToastVariant.info);
+                  showGOLToast(
+                    context,
+                    l10n.comingSoon,
+                    variant: GOLToastVariant.info,
+                  );
                 },
               ),
 
@@ -366,7 +392,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 icon: Iconsax.document_text,
                 title: l10n.termsOfService,
                 onTap: () {
-                  showGOLToast(context, l10n.comingSoon, variant: GOLToastVariant.info);
+                  showGOLToast(
+                    context,
+                    l10n.comingSoon,
+                    variant: GOLToastVariant.info,
+                  );
                 },
               ),
 
@@ -378,7 +408,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 child: GOLButton(
                   label: _isLoggingOut ? l10n.loggingOut : l10n.logout,
                   variant: GOLButtonVariant.destructive,
-                  onPressed: _isLoggingOut ? null : () => _showLogoutConfirmation(l10n),
+                  onPressed: _isLoggingOut
+                      ? null
+                      : () => _showLogoutConfirmation(l10n),
                 ),
               ),
 
@@ -410,7 +442,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     };
   }
 
-  ThemeMode _getThemeModeFromLocalizedLabel(String label, AppLocalizations l10n) {
+  ThemeMode _getThemeModeFromLocalizedLabel(
+    String label,
+    AppLocalizations l10n,
+  ) {
     if (label == l10n.themeLight) return ThemeMode.light;
     if (label == l10n.themeDark) return ThemeMode.dark;
     return ThemeMode.system;
@@ -437,11 +472,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 color: colors.stateError.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Iconsax.logout,
-                size: 32,
-                color: colors.stateError,
-              ),
+              child: Icon(Iconsax.logout, size: 32, color: colors.stateError),
             ),
             const SizedBox(height: GOLSpacing.space4),
             Text(
@@ -462,9 +493,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             const SizedBox(height: GOLSpacing.space2),
             Text(
               l10n.logoutConfirmSubtext,
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.textTertiary,
-              ),
+              style: textTheme.bodySmall?.copyWith(color: colors.textTertiary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: GOLSpacing.space3),
@@ -528,19 +557,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     final isOnline = ref.read(connectivityProvider) == ConnectivityState.online;
 
     if (!isOnline) {
-      showGOLToast(
-        context,
-        l10n.offlineMode,
-        variant: GOLToastVariant.warning,
-      );
+      showGOLToast(context, l10n.offlineMode, variant: GOLToastVariant.warning);
       return;
     }
 
-    showGOLToast(
-      context,
-      l10n.syncing,
-      variant: GOLToastVariant.info,
-    );
+    showGOLToast(context, l10n.syncing, variant: GOLToastVariant.info);
 
     await ref.read(syncProvider.notifier).processPendingSync();
 
@@ -548,11 +569,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
     final syncState = ref.read(syncProvider);
     if (syncState.status == SyncStatus.error) {
-      showGOLToast(
-        context,
-        l10n.syncFailed,
-        variant: GOLToastVariant.error,
-      );
+      showGOLToast(context, l10n.syncFailed, variant: GOLToastVariant.error);
     } else {
       showGOLToast(
         context,
@@ -625,7 +642,12 @@ class _AccountCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final initials = name.isNotEmpty
-        ? name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase()
+        ? name
+              .split(' ')
+              .map((e) => e.isNotEmpty ? e[0] : '')
+              .take(2)
+              .join()
+              .toUpperCase()
         : defaultInitial;
 
     return GOLCard(
@@ -637,15 +659,16 @@ class _AccountCard extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: colors.interactivePrimary.withValues(alpha: 0.1),
+              color: colors.interactivePrimary,
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 initials,
-                style: textTheme.titleLarge?.copyWith(
-                  color: colors.interactivePrimary,
-                  fontWeight: FontWeight.bold,
+                style: textTheme.headlineMedium?.copyWith(
+                  color: colors.textInverse,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 36,
                 ),
               ),
             ),
@@ -749,13 +772,13 @@ class _DropdownTile extends StatelessWidget {
           if (isExpanded)
             Container(
               decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: colors.borderDefault),
-                ),
+                border: Border(top: BorderSide(color: colors.borderDefault)),
               ),
               child: Column(
                 children: options.map((option) {
-                  final isSelected = value == option || value.startsWith(option.split(' ').first);
+                  final isSelected =
+                      value == option ||
+                      value.startsWith(option.split(' ').first);
                   return InkWell(
                     onTap: () => onOptionSelected(option),
                     child: Container(
@@ -764,35 +787,31 @@ class _DropdownTile extends StatelessWidget {
                         vertical: GOLSpacing.space3,
                       ),
                       decoration: BoxDecoration(
-                        border: Border(
-                          left: BorderSide(
-                            color: isSelected
-                                ? colors.interactivePrimary
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                        ),
+                        color: isSelected
+                            ? colors.interactivePrimary.withValues(alpha: 0.15)
+                            : Colors.transparent,
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            isSelected
-                                ? Iconsax.tick_circle5
-                                : Iconsax.record,
+                            isSelected ? Iconsax.tick_circle5 : Iconsax.record,
                             size: 18,
                             color: isSelected
                                 ? colors.interactivePrimary
                                 : colors.textTertiary,
                           ),
                           const SizedBox(width: GOLSpacing.space3),
-                          Text(
-                            option,
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: isSelected
-                                  ? colors.interactivePrimary
-                                  : colors.textPrimary,
-                              fontWeight:
-                                  isSelected ? FontWeight.w600 : FontWeight.normal,
+                          Expanded(
+                            child: Text(
+                              option,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: isSelected
+                                    ? colors.interactivePrimary
+                                    : colors.textPrimary,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
                             ),
                           ),
                         ],
@@ -847,7 +866,9 @@ class _ToggleTile extends StatelessWidget {
                 Text(
                   title,
                   style: textTheme.bodyMedium?.copyWith(
-                    color: isDisabled ? colors.textTertiary : colors.textPrimary,
+                    color: isDisabled
+                        ? colors.textTertiary
+                        : colors.textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -915,7 +936,9 @@ class _SyncStatusCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isSynced ? l10n.allDataSynced : l10n.itemsPendingSync(pendingCount),
+                  isSynced
+                      ? l10n.allDataSynced
+                      : l10n.itemsPendingSync(pendingCount),
                   style: textTheme.bodyMedium?.copyWith(
                     color: colors.textPrimary,
                     fontWeight: FontWeight.w500,
@@ -932,10 +955,7 @@ class _SyncStatusCard extends StatelessWidget {
           ),
           IconButton(
             onPressed: onSync,
-            icon: Icon(
-              Iconsax.refresh,
-              color: colors.interactivePrimary,
-            ),
+            icon: Icon(Iconsax.refresh, color: colors.interactivePrimary),
           ),
         ],
       ),
@@ -991,9 +1011,7 @@ class _InfoTile extends StatelessWidget {
           ),
           Text(
             value,
-            style: textTheme.bodyMedium?.copyWith(
-              color: colors.textSecondary,
-            ),
+            style: textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
           ),
         ],
       ),
@@ -1038,11 +1056,7 @@ class _LinkTile extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(
-                Iconsax.arrow_right_3,
-                size: 16,
-                color: colors.textTertiary,
-              ),
+              Icon(Iconsax.arrow_right_3, size: 16, color: colors.textTertiary),
             ],
           ),
         ),
@@ -1069,10 +1083,7 @@ class _ExactAlarmPermissionCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           border: Border(
-            left: BorderSide(
-              color: colors.stateWarning,
-              width: 3,
-            ),
+            left: BorderSide(color: colors.stateWarning, width: 3),
           ),
         ),
         padding: const EdgeInsets.only(left: GOLSpacing.space3),
@@ -1081,11 +1092,7 @@ class _ExactAlarmPermissionCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  Iconsax.warning_2,
-                  size: 20,
-                  color: colors.stateWarning,
-                ),
+                Icon(Iconsax.warning_2, size: 20, color: colors.stateWarning),
                 const SizedBox(width: GOLSpacing.space2),
                 Expanded(
                   child: Text(
@@ -1101,9 +1108,7 @@ class _ExactAlarmPermissionCard extends StatelessWidget {
             const SizedBox(height: GOLSpacing.space2),
             Text(
               'To receive notifications at exact times (even when the app is closed), please enable "Alarms & reminders" permission.',
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.textSecondary,
-              ),
+              style: textTheme.bodySmall?.copyWith(color: colors.textSecondary),
             ),
             const SizedBox(height: GOLSpacing.space3),
             SizedBox(
@@ -1152,11 +1157,7 @@ class _DailyReminderTile extends StatelessWidget {
             padding: const EdgeInsets.all(GOLSpacing.cardPadding),
             child: Row(
               children: [
-                Icon(
-                  Iconsax.clock,
-                  size: 20,
-                  color: colors.textSecondary,
-                ),
+                Icon(Iconsax.clock, size: 20, color: colors.textSecondary),
                 const SizedBox(width: GOLSpacing.space3),
                 Expanded(
                   child: Column(
@@ -1191,9 +1192,7 @@ class _DailyReminderTile extends StatelessWidget {
           if (isEnabled) ...[
             Container(
               decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: colors.borderDefault),
-                ),
+                border: Border(top: BorderSide(color: colors.borderDefault)),
               ),
               child: InkWell(
                 onTap: () => _showTimePicker(context),
@@ -1221,7 +1220,9 @@ class _DailyReminderTile extends StatelessWidget {
                           vertical: GOLSpacing.space2,
                         ),
                         decoration: BoxDecoration(
-                          color: colors.interactivePrimary.withValues(alpha: 0.1),
+                          color: colors.interactivePrimary.withValues(
+                            alpha: 0.1,
+                          ),
                           borderRadius: BorderRadius.circular(GOLRadius.sm),
                         ),
                         child: Text(
@@ -1280,4 +1281,3 @@ class _DailyReminderTile extends StatelessWidget {
     }
   }
 }
-

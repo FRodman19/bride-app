@@ -19,6 +19,7 @@ import '../features/tracker/screens/archive_screen.dart';
 import '../features/tracker/screens/edit_tracker_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
 import '../screens/grow_out_loud_gallery_screen.dart';
+import '../grow_out_loud/foundation/gol_colors.dart';
 import '../providers/auth_provider.dart';
 import 'routes.dart';
 
@@ -55,7 +56,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isLoading = authState is AuthLoading;
       final isAuthenticated = authState is AuthAuthenticated;
-      final isAuthRoute = state.matchedLocation == Routes.login ||
+      final isAuthRoute =
+          state.matchedLocation == Routes.login ||
           state.matchedLocation == Routes.signUp ||
           state.matchedLocation == Routes.forgotPassword;
 
@@ -122,7 +124,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'platforms',
                 name: 'platform-management',
-                builder: (context, state) => const _PlaceholderScreen('Platform Management'),
+                builder: (context, state) =>
+                    const _PlaceholderScreen('Platform Management'),
               ),
             ],
           ),
@@ -195,7 +198,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final trackerId = state.pathParameters['id']!;
                   final entryId = state.pathParameters['entryId']!;
-                  return EditEntryScreen(trackerId: trackerId, entryId: entryId);
+                  return EditEntryScreen(
+                    trackerId: trackerId,
+                    entryId: entryId,
+                  );
                 },
               ),
             ],
@@ -224,7 +230,9 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final trackerId = state.pathParameters['id']!;
                   final postId = state.pathParameters['postId']!;
-                  return _PlaceholderScreen('Edit Post: $postId (Tracker: $trackerId)');
+                  return _PlaceholderScreen(
+                    'Edit Post: $postId (Tracker: $trackerId)',
+                  );
                 },
               ),
             ],
@@ -248,9 +256,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
 
     errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Page not found: ${state.matchedLocation}'),
-      ),
+      body: Center(child: Text('Page not found: ${state.matchedLocation}')),
     ),
   );
 });
@@ -263,6 +269,7 @@ class _MainShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
 
     return Scaffold(
       body: child,
@@ -277,12 +284,18 @@ class _MainShell extends ConsumerWidget {
               height: 32,
               child: Center(child: Icon(Iconsax.category)),
             ),
-            activeIcon: const SizedBox(
-              width: 32,
+            activeIcon: Container(
+              width: 64,
               height: 32,
-              child: Center(child: Icon(Iconsax.category5)),
+              decoration: BoxDecoration(
+                color: colors.interactivePrimary,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Icon(Iconsax.category5, color: colors.textInverse),
+              ),
             ),
-            label: l10n.dashboard,
+            label: l10n.home,
           ),
           BottomNavigationBarItem(
             icon: const SizedBox(
@@ -290,10 +303,16 @@ class _MainShell extends ConsumerWidget {
               height: 32,
               child: Center(child: Icon(Iconsax.folder_2)),
             ),
-            activeIcon: const SizedBox(
-              width: 32,
+            activeIcon: Container(
+              width: 64,
               height: 32,
-              child: Center(child: Icon(Iconsax.folder_25)),
+              decoration: BoxDecoration(
+                color: colors.interactivePrimary,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Icon(Iconsax.folder_25, color: colors.textInverse),
+              ),
             ),
             label: l10n.projects,
           ),
@@ -301,12 +320,18 @@ class _MainShell extends ConsumerWidget {
             icon: const SizedBox(
               width: 32,
               height: 32,
-              child: Center(child: Icon(Iconsax.setting_2)),
+              child: Center(child: Icon(Iconsax.profile_circle)),
             ),
-            activeIcon: const SizedBox(
-              width: 32,
+            activeIcon: Container(
+              width: 64,
               height: 32,
-              child: Center(child: Icon(Iconsax.setting_25)),
+              decoration: BoxDecoration(
+                color: colors.interactivePrimary,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Icon(Iconsax.profile_circle5, color: colors.textInverse),
+              ),
             ),
             label: l10n.settings,
           ),

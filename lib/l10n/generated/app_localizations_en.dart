@@ -173,6 +173,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedToLogout => 'Failed to logout';
 
   @override
+  String get home => 'Home';
+
+  @override
   String get dashboard => 'Dashboard';
 
   @override

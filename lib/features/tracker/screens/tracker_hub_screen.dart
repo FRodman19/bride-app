@@ -607,39 +607,20 @@ class _OverviewTab extends ConsumerWidget {
             const SizedBox(height: GOLSpacing.space5),
           ],
 
-          // Targets section
-          if (tracker.revenueTarget != null ||
-              tracker.engagementTarget != null) ...[
+          // Engagement target (if exists)
+          if (tracker.engagementTarget != null) ...[
             _SectionHeader(
-              title: l10n.targets,
+              title: l10n.engagementTarget,
             ),
             const SizedBox(height: GOLSpacing.space3),
             GOLCard(
               variant: GOLCardVariant.standard,
               padding: const EdgeInsets.all(GOLSpacing.cardPadding),
-              child: Column(
-                children: [
-                  if (tracker.revenueTarget != null)
-                    _TargetRow(
-                      label: l10n.revenueTarget,
-                      value: CurrencyFormatter.format(
-                        tracker.revenueTarget!.round(),
-                        currencyCode: tracker.currency,
-                      ),
-                      current: totalRevenue.toDouble(),
-                      target: tracker.revenueTarget!,
-                    ),
-                  if (tracker.revenueTarget != null &&
-                      tracker.engagementTarget != null)
-                    const SizedBox(height: GOLSpacing.space3),
-                  if (tracker.engagementTarget != null)
-                    _TargetRow(
-                      label: l10n.engagementTarget,
-                      value: '${tracker.engagementTarget} ${l10n.dmsLeads}',
-                      current: totalDmsLeads.toDouble(),
-                      target: tracker.engagementTarget!.toDouble(),
-                    ),
-                ],
+              child: _TargetRow(
+                label: l10n.engagementTarget,
+                value: '${tracker.engagementTarget} ${l10n.dmsLeads}',
+                current: totalDmsLeads.toDouble(),
+                target: tracker.engagementTarget!.toDouble(),
               ),
             ),
             const SizedBox(height: GOLSpacing.space5),
@@ -776,18 +757,55 @@ class _PerformanceCard extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    CurrencyFormatter.format(
-                      totalProfit,
-                      currencyCode: tracker.currency,
-                    ),
-                    style: textTheme.displaySmall?.copyWith(
-                      color: profitColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        CurrencyFormatter.format(
+                          totalProfit,
+                          currencyCode: tracker.currency,
+                        ),
+                        style: textTheme.displaySmall?.copyWith(
+                          color: profitColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (tracker.revenueTarget != null)
+                        Text(
+                          ' /${CurrencyFormatter.format(
+                            tracker.revenueTarget!.round(),
+                            currencyCode: tracker.currency,
+                          )}',
+                          style: textTheme.titleMedium?.copyWith(
+                            color: colors.textTertiary,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
+              if (tracker.revenueTarget != null && tracker.revenueTarget! > 0) ...[
+                const SizedBox(width: GOLSpacing.space3),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: GOLSpacing.space3,
+                    vertical: GOLSpacing.space1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.interactivePrimary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(GOLRadius.sm),
+                  ),
+                  child: Text(
+                    '${((totalRevenue / tracker.revenueTarget!) * 100).toStringAsFixed(0)}%',
+                    style: textTheme.titleMedium?.copyWith(
+                      color: colors.interactivePrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
 

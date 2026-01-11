@@ -70,6 +70,7 @@
   "cancel": "Cancel",
   "failedToLogout": "Failed to logout",
 
+  "home": "Home",
   "dashboard": "Dashboard",
   "performance": "Performance",
   "activeProjectsCount": "{count} active project",

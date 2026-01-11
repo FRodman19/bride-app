@@ -62,6 +62,7 @@
   "cancel": "Annuler",
   "failedToLogout": "Échec de la déconnexion",
 
+  "home": "Accueil",
   "dashboard": "Tableau de bord",
   "performance": "Performance",
   "activeProjectsCount": "{count} projet actif",

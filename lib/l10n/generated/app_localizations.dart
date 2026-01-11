@@ -404,6 +404,12 @@ abstract class AppLocalizations {
   /// **'Failed to logout'**
   String get failedToLogout;
 
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
   /// No description provided for @dashboard.
   ///
   /// In en, this message translates to:
