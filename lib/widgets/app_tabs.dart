@@ -8,11 +8,7 @@ class AppTabItem {
   final IconData? icon;
   final Widget? badge;
 
-  const AppTabItem({
-    required this.label,
-    this.icon,
-    this.badge,
-  });
+  const AppTabItem({required this.label, this.icon, this.badge});
 }
 
 /// TAB BAR - Horizontal tab navigation
@@ -42,8 +38,8 @@ class AppTabs extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final activeCol = activeColor ?? AppColors.teal500;
-    final inactiveCol = inactiveColor ??
-        (isDark ? AppColors.neutral400 : AppColors.neutral600);
+    final inactiveCol =
+        inactiveColor ?? (isDark ? AppColors.neutral400 : AppColors.neutral600);
     final indicatorCol = indicatorColor ?? AppColors.teal500;
 
     return Container(
@@ -68,10 +64,7 @@ class AppTabs extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: showIndicator && isActive
                       ? Border(
-                          bottom: BorderSide(
-                            color: indicatorCol,
-                            width: 3,
-                          ),
+                          bottom: BorderSide(color: indicatorCol, width: 3),
                         )
                       : null,
                 ),
@@ -93,8 +86,9 @@ class AppTabs extends StatelessWidget {
                           tab.label,
                           style: TextStyles.labelMedium(brightness).copyWith(
                             color: isActive ? activeCol : inactiveCol,
-                            fontWeight:
-                                isActive ? FontWeight.w600 : FontWeight.w500,
+                            fontWeight: isActive
+                                ? FontWeight.w600
+                                : FontWeight.w500,
                           ),
                         ),
                         if (tab.badge != null) ...[
@@ -143,7 +137,8 @@ class AppTabsPill extends StatelessWidget {
     final activeCol = activeColor ?? AppColors.teal500;
     final inactiveCol = inactiveColor ?? Colors.transparent;
     final activeTxtCol = activeTextColor ?? AppColors.black;
-    final inactiveTxtCol = inactiveTextColor ??
+    final inactiveTxtCol =
+        inactiveTextColor ??
         (isDark ? AppColors.neutral400 : AppColors.neutral600);
 
     return Container(
@@ -161,8 +156,10 @@ class AppTabsPill extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onTabChanged(index),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: isActive ? activeCol : inactiveCol,
                   borderRadius: BorderRadius.circular(16), // 16px radius
@@ -182,8 +179,9 @@ class AppTabsPill extends StatelessWidget {
                       tab.label,
                       style: TextStyles.labelMedium(brightness).copyWith(
                         color: isActive ? activeTxtCol : inactiveTxtCol,
-                        fontWeight:
-                            isActive ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: isActive
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -231,10 +229,11 @@ class AppTabsButton extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final activeCol = activeColor ?? AppColors.teal500;
-    final inactiveCol = inactiveColor ??
-        (isDark ? AppColors.neutral800 : AppColors.neutral200);
+    final inactiveCol =
+        inactiveColor ?? (isDark ? AppColors.neutral800 : AppColors.neutral200);
     final activeTxtCol = activeTextColor ?? AppColors.black;
-    final inactiveTxtCol = inactiveTextColor ??
+    final inactiveTxtCol =
+        inactiveTextColor ??
         (isDark ? AppColors.neutral400 : AppColors.neutral600);
 
     return Row(
@@ -243,7 +242,9 @@ class AppTabsButton extends StatelessWidget {
         final isActive = index == currentIndex;
 
         return Padding(
-          padding: EdgeInsets.only(right: index < tabs.length - 1 ? spacing : 0),
+          padding: EdgeInsets.only(
+            right: index < tabs.length - 1 ? spacing : 0,
+          ),
           child: GestureDetector(
             onTap: () => onTabChanged(index),
             child: Container(
@@ -309,8 +310,8 @@ class AppTabsVertical extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final activeCol = activeColor ?? AppColors.teal500;
-    final inactiveCol = inactiveColor ??
-        (isDark ? AppColors.neutral400 : AppColors.neutral600);
+    final inactiveCol =
+        inactiveColor ?? (isDark ? AppColors.neutral400 : AppColors.neutral600);
     final indicatorCol = indicatorColor ?? AppColors.teal500;
 
     return Column(
@@ -384,8 +385,8 @@ class AppTabsScrollable extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final activeCol = activeColor ?? AppColors.teal500;
-    final inactiveCol = inactiveColor ??
-        (isDark ? AppColors.neutral400 : AppColors.neutral600);
+    final inactiveCol =
+        inactiveColor ?? (isDark ? AppColors.neutral400 : AppColors.neutral600);
     final indicatorCol = indicatorColor ?? AppColors.teal500;
 
     return Container(
@@ -414,10 +415,7 @@ class AppTabsScrollable extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: isActive
                       ? Border(
-                          bottom: BorderSide(
-                            color: indicatorCol,
-                            width: 3,
-                          ),
+                          bottom: BorderSide(color: indicatorCol, width: 3),
                         )
                       : null,
                 ),
@@ -436,8 +434,9 @@ class AppTabsScrollable extends StatelessWidget {
                       tab.label,
                       style: TextStyles.labelMedium(brightness).copyWith(
                         color: isActive ? activeCol : inactiveCol,
-                        fontWeight:
-                            isActive ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: isActive
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
                     ),
                     if (tab.badge != null) ...[

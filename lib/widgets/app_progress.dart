@@ -3,11 +3,7 @@ import '../theme/colors.dart';
 import '../theme/text_styles.dart';
 
 /// Progress bar size variants
-enum ProgressSize {
-  small,
-  medium,
-  large,
-}
+enum ProgressSize { small, medium, large }
 
 /// LINEAR PROGRESS BAR - Teal colored with rounded ends
 /// Flat design, no shadow, fully rounded
@@ -45,7 +41,8 @@ class AppProgressLinear extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final progressColor = color ?? AppColors.teal500;
-    final bgColor = backgroundColor ??
+    final bgColor =
+        backgroundColor ??
         (isDark ? AppColors.neutral700 : AppColors.neutral300);
 
     return Column(
@@ -61,8 +58,9 @@ class AppProgressLinear extends StatelessWidget {
               ),
               Text(
                 '${(value * 100).toInt()}%',
-                style: TextStyles.bodySmall(brightness)
-                    .copyWith(fontWeight: FontWeight.w600),
+                style: TextStyles.bodySmall(
+                  brightness,
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -135,7 +133,8 @@ class AppProgressCircular extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final progressColor = color ?? AppColors.teal500;
-    final bgColor = backgroundColor ??
+    final bgColor =
+        backgroundColor ??
         (isDark ? AppColors.neutral700 : AppColors.neutral300);
 
     return SizedBox(
@@ -197,41 +196,38 @@ class AppProgressSteps extends StatelessWidget {
     final isDark = brightness == Brightness.dark;
     final activeCol = activeColor ?? AppColors.teal500;
     final completedCol = completedColor ?? AppColors.success500;
-    final inactiveCol = inactiveColor ??
-        (isDark ? AppColors.neutral700 : AppColors.neutral300);
+    final inactiveCol =
+        inactiveColor ?? (isDark ? AppColors.neutral700 : AppColors.neutral300);
 
     return Column(
       children: [
         Row(
-          children: List.generate(
-            totalSteps,
-            (index) {
-              final isCompleted = index < currentStep;
-              final isActive = index == currentStep;
-              final color = isCompleted
-                  ? completedCol
-                  : isActive
-                      ? activeCol
-                      : inactiveCol;
+          children: List.generate(totalSteps, (index) {
+            final isCompleted = index < currentStep;
+            final isActive = index == currentStep;
+            final color = isCompleted
+                ? completedCol
+                : isActive
+                ? activeCol
+                : inactiveCol;
 
-              return Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
+            return Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(999),
                       ),
                     ),
-                    if (index < totalSteps - 1) const SizedBox(width: 4),
-                  ],
-                ),
-              );
-            },
-          ),
+                  ),
+                  if (index < totalSteps - 1) const SizedBox(width: 4),
+                ],
+              ),
+            );
+          }),
         ),
         if (stepLabels != null && stepLabels!.length == totalSteps) ...[
           const SizedBox(height: 8),
@@ -243,8 +239,9 @@ class AppProgressSteps extends StatelessWidget {
                 child: Text(
                   stepLabels![index],
                   style: TextStyles.bodySmall(brightness).copyWith(
-                    fontWeight:
-                        index == currentStep ? FontWeight.w600 : FontWeight.w400,
+                    fontWeight: index == currentStep
+                        ? FontWeight.w600
+                        : FontWeight.w400,
                     color: index <= currentStep
                         ? AppColors.primaryTextColor(brightness)
                         : AppColors.secondaryTextColor(brightness),
@@ -252,8 +249,8 @@ class AppProgressSteps extends StatelessWidget {
                   textAlign: index == 0
                       ? TextAlign.left
                       : index == totalSteps - 1
-                          ? TextAlign.right
-                          : TextAlign.center,
+                      ? TextAlign.right
+                      : TextAlign.center,
                 ),
               ),
             ),
@@ -299,17 +296,11 @@ class _AppProgressAnimatedState extends State<AppProgressAnimated>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration);
     _animation = Tween<double>(
       begin: 0.0,
       end: widget.value,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.forward();
   }
 
@@ -321,10 +312,7 @@ class _AppProgressAnimatedState extends State<AppProgressAnimated>
       _animation = Tween<double>(
         begin: _previousValue,
         end: widget.value,
-      ).animate(CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ));
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
       _controller
         ..reset()
         ..forward();

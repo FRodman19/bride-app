@@ -6,11 +6,14 @@ import 'package:iconsax/iconsax.dart';
 import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_buttons.dart';
+import '../../../grow_out_loud/components/gol_overlays.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../routing/routes.dart';
 import '../../../core/utils/validators.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../widgets/auth_text_field.dart';
 
+/// Simple sign-up screen with all fields visible immediately and centered.
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
 
@@ -23,11 +26,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  bool _isGoogleLoading = false;
+  bool _isSignUpLoading = false;
+
   String? _emailError;
   String? _passwordError;
   String? _confirmPasswordError;
-  bool _isLoading = false;
-  bool _emailConfirmationSent = false;
 
   @override
   void dispose() {
@@ -37,14 +41,37 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     super.dispose();
   }
 
-  Future<void> _handleSignup() async {
-    // Clear previous errors and validate
+  /// Handle Google sign-in (also handles sign-up automatically)
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isGoogleLoading = true);
+
+    final result = await ref.read(authProvider.notifier).signInWithGoogle();
+
+    if (mounted) {
+      setState(() => _isGoogleLoading = false);
+
+      if (!result.success && result.error != null) {
+        showGOLToast(
+          context,
+          result.error!,
+          variant: GOLToastVariant.error,
+        );
+      }
+    }
+  }
+
+  /// Handle email/password sign-up
+  Future<void> _handleSignUp() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
     setState(() {
-      _emailError = Validators.email(_emailController.text);
-      _passwordError = Validators.password(_passwordController.text);
+      _emailError = Validators.email(email);
+      _passwordError = Validators.password(password);
       _confirmPasswordError = Validators.confirmPassword(
-        _confirmPasswordController.text,
-        _passwordController.text,
+        confirmPassword,
+        password,
       );
     });
 
@@ -54,27 +81,31 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() => _isSignUpLoading = true);
 
     final result = await ref.read(authProvider.notifier).signUp(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+      email: email,
+      password: password,
+    );
 
     if (mounted) {
-      setState(() => _isLoading = false);
+      setState(() => _isSignUpLoading = false);
 
       if (result.requiresEmailConfirmation) {
-        // Show email confirmation message
-        setState(() {
-          _emailConfirmationSent = true;
-        });
+        showGOLToast(
+          context,
+          'Check your email to confirm your account',
+          variant: GOLToastVariant.success,
+        );
+        // Navigate back to sign in
+        context.go(Routes.auth);
       } else if (!result.success && result.error != null) {
-        setState(() {
-          _emailError = result.error;
-        });
+        showGOLToast(
+          context,
+          result.error!,
+          variant: GOLToastVariant.error,
+        );
       }
-      // If success without email confirmation, router will redirect
     }
   }
 
@@ -85,91 +116,77 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Iconsax.arrow_left, color: colors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: GOLSpacing.space4),
-
-              // Header
-              Text(
-                l10n.createAccount,
-                style: textTheme.displaySmall?.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: GOLSpacing.space2),
-              Text(
-                _emailConfirmationSent
-                    ? l10n.almostThereCheckEmail
-                    : l10n.joinToStartTracking,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colors.textSecondary,
-                ),
-              ),
-
-              const SizedBox(height: GOLSpacing.space7),
-
-              if (_emailConfirmationSent) ...[
-                // Email confirmation sent state
-                Container(
-                  padding: const EdgeInsets.all(GOLSpacing.space4),
-                  decoration: BoxDecoration(
-                    color: GOLPrimitives.success50,
-                    borderRadius: BorderRadius.circular(12),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                Text(
+                  'Create Account',
+                  style: textTheme.displaySmall?.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.bold,
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Iconsax.tick_circle,
-                        color: colors.stateSuccess,
-                      ),
-                      const SizedBox(width: GOLSpacing.space3),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.checkYourEmail,
-                              style: textTheme.titleSmall?.copyWith(
-                                color: colors.stateSuccess,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: GOLSpacing.space1),
-                            Text(
-                              l10n.emailConfirmationSent(_emailController.text),
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: GOLSpacing.space2),
+                Text(
+                  'Sign up to get started',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colors.textSecondary,
                   ),
+                  textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: GOLSpacing.space6),
+                const SizedBox(height: GOLSpacing.space7),
 
+                // Google Sign-In Button
                 GOLButton(
-                  label: l10n.backToSignIn,
-                  onPressed: () => context.pop(),
+                  label: 'Continue with Google',
+                  onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
+                  isLoading: _isGoogleLoading,
                   fullWidth: true,
                   size: GOLButtonSize.large,
+                  variant: GOLButtonVariant.secondary,
                 ),
-              ] else ...[
+
+                const SizedBox(height: GOLSpacing.space5),
+
+                // Divider with "OR"
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: colors.borderDefault,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: GOLSpacing.space3,
+                      ),
+                      child: Text(
+                        'OR',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colors.textTertiary,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: colors.borderDefault,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: GOLSpacing.space5),
+
                 // Email field
                 AuthTextField(
                   label: l10n.email,
@@ -178,6 +195,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   errorText: _emailError,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
+                  onChanged: (_) {
+                    if (_emailError != null) {
+                      setState(() => _emailError = null);
+                    }
+                  },
                   prefixIcon: Icon(
                     Iconsax.sms,
                     color: colors.textTertiary,
@@ -194,6 +216,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   errorText: _passwordError,
                   isPassword: true,
                   textInputAction: TextInputAction.next,
+                  onChanged: (_) {
+                    if (_passwordError != null) {
+                      setState(() => _passwordError = null);
+                    }
+                  },
                   prefixIcon: Icon(
                     Iconsax.lock,
                     color: colors.textTertiary,
@@ -202,7 +229,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 const SizedBox(height: GOLSpacing.space4),
 
-                // Confirm password field
+                // Confirm Password field
                 AuthTextField(
                   label: l10n.confirmPassword,
                   hintText: l10n.reEnterPassword,
@@ -210,7 +237,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   errorText: _confirmPasswordError,
                   isPassword: true,
                   textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _handleSignup(),
+                  onChanged: (_) {
+                    if (_confirmPasswordError != null) {
+                      setState(() => _confirmPasswordError = null);
+                    }
+                  },
+                  onSubmitted: (_) => _handleSignUp(),
                   prefixIcon: Icon(
                     Iconsax.lock,
                     color: colors.textTertiary,
@@ -219,31 +251,36 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 const SizedBox(height: GOLSpacing.space6),
 
-                // Sign up button
+                // Sign Up button
                 GOLButton(
                   label: l10n.createAccount,
-                  onPressed: _isLoading ? null : _handleSignup,
-                  isLoading: _isLoading,
+                  onPressed: _isSignUpLoading ? null : _handleSignUp,
+                  isLoading: _isSignUpLoading,
                   fullWidth: true,
                   size: GOLButtonSize.large,
                 ),
 
-                const SizedBox(height: GOLSpacing.space6),
+                const SizedBox(height: GOLSpacing.space5),
 
-                // Login link
+                // Sign in link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      l10n.alreadyHaveAccount,
+                      'Already have an account? ',
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textSecondary,
                       ),
                     ),
                     TextButton(
-                      onPressed: () => context.pop(),
+                      onPressed: () => context.go(Routes.auth),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
                       child: Text(
-                        l10n.signIn,
+                        'Sign In',
                         style: textTheme.bodyMedium?.copyWith(
                           color: colors.interactivePrimary,
                           fontWeight: FontWeight.w600,
@@ -253,7 +290,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   ],
                 ),
               ],
-            ],
+            ),
           ),
         ),
       ),

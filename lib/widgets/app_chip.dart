@@ -3,11 +3,7 @@ import '../theme/colors.dart';
 import '../theme/text_styles.dart';
 
 /// Chip/Tag size variants
-enum ChipSize {
-  small,
-  medium,
-  large,
-}
+enum ChipSize { small, medium, large }
 
 /// Get chip specs based on size
 class _ChipSpecs {
@@ -88,10 +84,7 @@ class AppChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
-                icon!,
-                const SizedBox(width: 6),
-              ],
+              if (icon != null) ...[icon!, const SizedBox(width: 6)],
               Text(
                 label,
                 style: specs.textStyle.copyWith(color: AppColors.black),
@@ -160,10 +153,7 @@ class AppChipOutlined extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
-                icon!,
-                const SizedBox(width: 6),
-              ],
+              if (icon != null) ...[icon!, const SizedBox(width: 6)],
               Text(
                 label,
                 style: specs.textStyle.copyWith(
@@ -228,10 +218,7 @@ class AppChipNeutral extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
-                icon!,
-                const SizedBox(width: 6),
-              ],
+              if (icon != null) ...[icon!, const SizedBox(width: 6)],
               Text(
                 label,
                 style: specs.textStyle.copyWith(color: AppColors.black),
@@ -293,10 +280,7 @@ class AppChipSuccess extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
-                icon!,
-                const SizedBox(width: 6),
-              ],
+              if (icon != null) ...[icon!, const SizedBox(width: 6)],
               Text(
                 label,
                 style: specs.textStyle.copyWith(color: AppColors.white),
@@ -358,10 +342,7 @@ class AppChipError extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
-                icon!,
-                const SizedBox(width: 6),
-              ],
+              if (icon != null) ...[icon!, const SizedBox(width: 6)],
               Text(
                 label,
                 style: specs.textStyle.copyWith(color: AppColors.white),

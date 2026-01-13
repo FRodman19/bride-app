@@ -5,8 +5,8 @@ class Routes {
   Routes._();
 
   // Auth routes
-  static const String login = '/login';
-  static const String signUp = '/signup';
+  static const String auth = '/auth'; // Sign-in screen (Phase 9)
+  static const String signUp = '/signup'; // Sign-up screen (Phase 9)
   static const String forgotPassword = '/forgot-password';
 
   // Main app routes (with bottom nav)

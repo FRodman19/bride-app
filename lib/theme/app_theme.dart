@@ -27,14 +27,14 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.neutral950,
       colorScheme: ColorScheme.light(
         primary: AppColors.teal500,
-        onPrimary: AppColors.black,  // Black text on teal
+        onPrimary: AppColors.black, // Black text on teal
         secondary: AppColors.teal400,
         onSecondary: AppColors.black,
         surface: AppColors.white,
         onSurface: AppColors.neutral300,
         error: AppColors.error500,
         onError: AppColors.white,
-        outline: AppColors.black,  // Black outline for secondary buttons
+        outline: AppColors.black, // Black outline for secondary buttons
       ),
 
       // Typography - Sora for headings, Open Sans for body/UI
@@ -122,7 +122,7 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.neutral950,
         foregroundColor: AppColors.neutral300,
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
         centerTitle: false,
         titleTextStyle: GoogleFonts.sora(
           fontSize: 20,
@@ -137,23 +137,26 @@ class AppTheme {
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return AppColors.teal700;  // Darker when pressed (teal700)
+              return AppColors.teal700; // Darker when pressed (teal700)
             }
-            return AppColors.teal500;  // Default teal
+            return AppColors.teal500; // Default teal
           }),
-          foregroundColor: const WidgetStatePropertyAll(AppColors.black),  // Black text
-          elevation: const WidgetStatePropertyAll(0),  // NO shadow
+          foregroundColor: const WidgetStatePropertyAll(
+            AppColors.black,
+          ), // Black text
+          elevation: const WidgetStatePropertyAll(0), // NO shadow
           shadowColor: const WidgetStatePropertyAll(Colors.transparent),
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 16, vertical: 8),  // 16px H, 8px V
+            EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 16px H, 8px V
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),  // 16px radius
+              borderRadius: BorderRadius.circular(16), // 16px radius
             ),
           ),
           textStyle: WidgetStatePropertyAll(
-            GoogleFonts.openSans(  // Open Sans font
+            GoogleFonts.openSans(
+              // Open Sans font
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.black,
@@ -167,21 +170,24 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-          foregroundColor: const WidgetStatePropertyAll(AppColors.black),  // Black text
-          elevation: const WidgetStatePropertyAll(0),  // NO shadow
+          foregroundColor: const WidgetStatePropertyAll(
+            AppColors.black,
+          ), // Black text
+          elevation: const WidgetStatePropertyAll(0), // NO shadow
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 16, vertical: 8),  // 16px H, 8px V
+            EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 16px H, 8px V
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),  // 16px radius
+              borderRadius: BorderRadius.circular(16), // 16px radius
             ),
           ),
           side: const WidgetStatePropertyAll(
-            BorderSide(color: AppColors.black, width: 1),  // Black outline
+            BorderSide(color: AppColors.black, width: 1), // Black outline
           ),
           textStyle: WidgetStatePropertyAll(
-            GoogleFonts.openSans(  // Open Sans font
+            GoogleFonts.openSans(
+              // Open Sans font
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.black,
@@ -194,19 +200,24 @@ class AppTheme {
       // 16px radius, no shadow, 16px horizontal padding, 8px vertical padding
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: const WidgetStatePropertyAll(AppColors.neutral300),  // Grey background
-          foregroundColor: const WidgetStatePropertyAll(AppColors.black),  // Black text
-          elevation: const WidgetStatePropertyAll(0),  // NO shadow
+          backgroundColor: const WidgetStatePropertyAll(
+            AppColors.neutral300,
+          ), // Grey background
+          foregroundColor: const WidgetStatePropertyAll(
+            AppColors.black,
+          ), // Black text
+          elevation: const WidgetStatePropertyAll(0), // NO shadow
           padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 16, vertical: 8),  // 16px H, 8px V
+            EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 16px H, 8px V
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),  // 16px radius
+              borderRadius: BorderRadius.circular(16), // 16px radius
             ),
           ),
           textStyle: WidgetStatePropertyAll(
-            GoogleFonts.openSans(  // Open Sans font
+            GoogleFonts.openSans(
+              // Open Sans font
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.black,
@@ -219,18 +230,18 @@ class AppTheme {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.teal500,
         foregroundColor: AppColors.black,
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
         ),
       ),
 
       // CARDS - 16px radius, no shadow
       cardTheme: CardThemeData(
         color: AppColors.neutral900,
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
         ),
         margin: const EdgeInsets.all(16),
       ),
@@ -239,25 +250,28 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.neutral900,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.neutral600, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.neutral600, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.teal500, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.error500, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.error500, width: 2),
         ),
       ),
@@ -266,24 +280,24 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.neutral300,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
         ),
-        side: BorderSide.none,  // NO outline
+        side: BorderSide.none, // NO outline
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         labelStyle: GoogleFonts.openSans(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: AppColors.black,
         ),
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
       ),
 
       // Bottom Navigation - No shadow
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.neutral950,
-        selectedItemColor: AppColors.teal500,
-        unselectedItemColor: AppColors.neutral500,
-        elevation: 0,  // NO shadow
+        backgroundColor: Color(0xFFFFD300),
+        selectedItemColor: AppColors.black,
+        unselectedItemColor: AppColors.black,
+        elevation: 0, // NO shadow
         type: BottomNavigationBarType.fixed,
       ),
 
@@ -294,10 +308,7 @@ class AppTheme {
       ),
 
       // Icons
-      iconTheme: const IconThemeData(
-        color: AppColors.neutral400,
-        size: 24,
-      ),
+      iconTheme: const IconThemeData(color: AppColors.neutral400, size: 24),
     );
   }
 
@@ -308,17 +319,18 @@ class AppTheme {
       brightness: Brightness.dark,
 
       // Colors
-      scaffoldBackgroundColor: AppColors.neutral100,  // Pure black
+      scaffoldBackgroundColor: AppColors.neutral100, // Pure black
       colorScheme: ColorScheme.dark(
         primary: AppColors.teal500,
-        onPrimary: AppColors.black,  // Black text on teal
+        onPrimary: AppColors.black, // Black text on teal
         secondary: AppColors.teal400,
         onSecondary: AppColors.black,
         surface: AppColors.neutral200,
         onSurface: AppColors.neutral700,
         error: AppColors.error500,
         onError: AppColors.white,
-        outline: AppColors.white,  // White outline for secondary buttons in dark mode
+        outline:
+            AppColors.white, // White outline for secondary buttons in dark mode
       ),
 
       // Typography - Sora for headings, Open Sans for body/UI
@@ -406,7 +418,7 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.neutral100,
         foregroundColor: AppColors.neutral700,
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
         centerTitle: false,
         titleTextStyle: GoogleFonts.sora(
           fontSize: 20,
@@ -420,23 +432,26 @@ class AppTheme {
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return AppColors.teal700;  // Darker when pressed (teal700)
+              return AppColors.teal700; // Darker when pressed (teal700)
             }
-            return AppColors.teal500;  // Default teal
+            return AppColors.teal500; // Default teal
           }),
-          foregroundColor: const WidgetStatePropertyAll(AppColors.black),  // Black text
-          elevation: const WidgetStatePropertyAll(0),  // NO shadow
+          foregroundColor: const WidgetStatePropertyAll(
+            AppColors.black,
+          ), // Black text
+          elevation: const WidgetStatePropertyAll(0), // NO shadow
           shadowColor: const WidgetStatePropertyAll(Colors.transparent),
           padding: const WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),  // 16px radius
+              borderRadius: BorderRadius.circular(16), // 16px radius
             ),
           ),
           textStyle: WidgetStatePropertyAll(
-            GoogleFonts.openSans(  // Open Sans font
+            GoogleFonts.openSans(
+              // Open Sans font
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.black,
@@ -455,18 +470,23 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-          foregroundColor: const WidgetStatePropertyAll(AppColors.white),  // White text in dark mode
+          foregroundColor: const WidgetStatePropertyAll(
+            AppColors.white,
+          ), // White text in dark mode
           elevation: const WidgetStatePropertyAll(0),
           padding: const WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),  // 16px radius
+              borderRadius: BorderRadius.circular(16), // 16px radius
             ),
           ),
           side: const WidgetStatePropertyAll(
-            BorderSide(color: AppColors.white, width: 1),  // White outline in dark mode
+            BorderSide(
+              color: AppColors.white,
+              width: 1,
+            ), // White outline in dark mode
           ),
           textStyle: WidgetStatePropertyAll(
             GoogleFonts.openSans(
@@ -481,15 +501,19 @@ class AppTheme {
       // TERTIARY BUTTON - Grey background + Black text + NO outline (dark mode: black text, grey background, no outline)
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: const WidgetStatePropertyAll(AppColors.neutral200),  // Grey background in dark mode
-          foregroundColor: const WidgetStatePropertyAll(AppColors.black),  // Black text (specified for dark mode)
+          backgroundColor: const WidgetStatePropertyAll(
+            AppColors.neutral200,
+          ), // Grey background in dark mode
+          foregroundColor: const WidgetStatePropertyAll(
+            AppColors.black,
+          ), // Black text (specified for dark mode)
           elevation: const WidgetStatePropertyAll(0),
           padding: const WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),  // 16px radius
+              borderRadius: BorderRadius.circular(16), // 16px radius
             ),
           ),
           textStyle: WidgetStatePropertyAll(
@@ -506,18 +530,18 @@ class AppTheme {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.teal500,
         foregroundColor: AppColors.black,
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
         ),
       ),
 
       // CARDS - 16px radius, no shadow
       cardTheme: CardThemeData(
         color: AppColors.neutral200,
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
         ),
         margin: const EdgeInsets.all(16),
       ),
@@ -526,25 +550,28 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.neutral200,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.neutral300, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.neutral300, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.teal500, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.error500, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
           borderSide: const BorderSide(color: AppColors.error500, width: 2),
         ),
       ),
@@ -553,16 +580,16 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.neutral200,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),  // 16px radius
+          borderRadius: BorderRadius.circular(16), // 16px radius
         ),
-        side: BorderSide.none,  // NO outline
+        side: BorderSide.none, // NO outline
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         labelStyle: GoogleFonts.openSans(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: AppColors.white,
         ),
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
       ),
 
       // Bottom Navigation - No shadow
@@ -570,7 +597,7 @@ class AppTheme {
         backgroundColor: AppColors.neutral100.withValues(alpha: 0.95),
         selectedItemColor: AppColors.teal500,
         unselectedItemColor: AppColors.neutral500,
-        elevation: 0,  // NO shadow
+        elevation: 0, // NO shadow
         type: BottomNavigationBarType.fixed,
       ),
 
@@ -581,10 +608,7 @@ class AppTheme {
       ),
 
       // Icons
-      iconTheme: const IconThemeData(
-        color: AppColors.neutral700,
-        size: 24,
-      ),
+      iconTheme: const IconThemeData(color: AppColors.neutral700, size: 24),
     );
   }
 }

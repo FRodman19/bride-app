@@ -6,27 +6,30 @@ import 'package:iconsax/iconsax.dart';
 import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/components/gol_buttons.dart';
+import '../../../grow_out_loud/components/gol_overlays.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../routing/routes.dart';
 import '../../../core/utils/validators.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../widgets/auth_text_field.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+/// Simple sign-in screen with all fields visible immediately and centered.
+class AuthScreen extends ConsumerStatefulWidget {
+  const AuthScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
+class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  bool _isGoogleLoading = false;
+  bool _isSignInLoading = false;
+
   String? _emailError;
   String? _passwordError;
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -35,33 +38,56 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
-    // Clear previous errors and validate
+  /// Handle Google sign-in
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isGoogleLoading = true);
+
+    final result = await ref.read(authProvider.notifier).signInWithGoogle();
+
+    if (mounted) {
+      setState(() => _isGoogleLoading = false);
+
+      if (!result.success && result.error != null) {
+        showGOLToast(
+          context,
+          result.error!,
+          variant: GOLToastVariant.error,
+        );
+      }
+    }
+  }
+
+  /// Handle email/password sign-in
+  Future<void> _handleSignIn() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
     setState(() {
-      _emailError = Validators.email(_emailController.text);
-      _passwordError = Validators.password(_passwordController.text);
+      _emailError = Validators.email(email);
+      _passwordError = Validators.password(password);
     });
 
     if (_emailError != null || _passwordError != null) {
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() => _isSignInLoading = true);
 
     final result = await ref.read(authProvider.notifier).signIn(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+      email: email,
+      password: password,
+    );
 
     if (mounted) {
-      setState(() => _isLoading = false);
+      setState(() => _isSignInLoading = false);
 
       if (!result.success && result.error != null) {
-        setState(() {
-          _passwordError = result.error;
-        });
+        showGOLToast(
+          context,
+          result.error!,
+          variant: GOLToastVariant.error,
+        );
       }
-      // If success, the router will automatically redirect to dashboard
     }
   }
 
@@ -73,32 +99,75 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
-          child: Form(
-            key: _formKey,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: GOLSpacing.space7),
-
                 // Header
                 Text(
-                  l10n.welcomeBack,
+                  'Welcome Back',
                   style: textTheme.displaySmall?.copyWith(
                     color: colors.textPrimary,
                     fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: GOLSpacing.space2),
                 Text(
-                  l10n.signInToContinue,
+                  'Sign in to continue',
                   style: textTheme.bodyMedium?.copyWith(
                     color: colors.textSecondary,
                   ),
+                  textAlign: TextAlign.center,
                 ),
 
                 const SizedBox(height: GOLSpacing.space7),
+
+                // Google Sign-In Button
+                GOLButton(
+                  label: 'Continue with Google',
+                  onPressed: _isGoogleLoading ? null : _handleGoogleSignIn,
+                  isLoading: _isGoogleLoading,
+                  fullWidth: true,
+                  size: GOLButtonSize.large,
+                  variant: GOLButtonVariant.secondary,
+                ),
+
+                const SizedBox(height: GOLSpacing.space5),
+
+                // Divider with "OR"
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: colors.borderDefault,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: GOLSpacing.space3,
+                      ),
+                      child: Text(
+                        'OR',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colors.textTertiary,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: colors.borderDefault,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: GOLSpacing.space5),
 
                 // Email field
                 AuthTextField(
@@ -108,6 +177,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   errorText: _emailError,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
+                  onChanged: (_) {
+                    if (_emailError != null) {
+                      setState(() => _emailError = null);
+                    }
+                  },
                   prefixIcon: Icon(
                     Iconsax.sms,
                     color: colors.textTertiary,
@@ -124,7 +198,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   errorText: _passwordError,
                   isPassword: true,
                   textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _handleLogin(),
+                  onChanged: (_) {
+                    if (_passwordError != null) {
+                      setState(() => _passwordError = null);
+                    }
+                  },
+                  onSubmitted: (_) => _handleSignIn(),
                   prefixIcon: Icon(
                     Iconsax.lock,
                     color: colors.textTertiary,
@@ -147,33 +226,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: GOLSpacing.space6),
+                const SizedBox(height: GOLSpacing.space5),
 
-                // Login button
+                // Sign In button
                 GOLButton(
-                  label: l10n.signIn,
-                  onPressed: _isLoading ? null : _handleLogin,
-                  isLoading: _isLoading,
+                  label: 'Sign In',
+                  onPressed: _isSignInLoading ? null : _handleSignIn,
+                  isLoading: _isSignInLoading,
                   fullWidth: true,
                   size: GOLButtonSize.large,
                 ),
 
-                const SizedBox(height: GOLSpacing.space6),
+                const SizedBox(height: GOLSpacing.space5),
 
                 // Sign up link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      l10n.dontHaveAccount,
+                      "Don't have an account? ",
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textSecondary,
                       ),
                     ),
                     TextButton(
                       onPressed: () => context.push(Routes.signUp),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
                       child: Text(
-                        l10n.signUp,
+                        'Sign Up',
                         style: textTheme.bodyMedium?.copyWith(
                           color: colors.interactivePrimary,
                           fontWeight: FontWeight.w600,

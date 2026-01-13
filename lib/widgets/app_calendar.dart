@@ -34,19 +34,27 @@ class _AppCalendarState extends State<AppCalendar> {
   void initState() {
     super.initState();
     _selectedDate = widget.selectedDate;
-    _displayedMonth =
-        DateTime(_selectedDate?.year ?? DateTime.now().year, _selectedDate?.month ?? DateTime.now().month);
+    _displayedMonth = DateTime(
+      _selectedDate?.year ?? DateTime.now().year,
+      _selectedDate?.month ?? DateTime.now().month,
+    );
   }
 
   void _previousMonth() {
     setState(() {
-      _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month - 1);
+      _displayedMonth = DateTime(
+        _displayedMonth.year,
+        _displayedMonth.month - 1,
+      );
     });
   }
 
   void _nextMonth() {
     setState(() {
-      _displayedMonth = DateTime(_displayedMonth.year, _displayedMonth.month + 1);
+      _displayedMonth = DateTime(
+        _displayedMonth.year,
+        _displayedMonth.month + 1,
+      );
     });
   }
 
@@ -86,7 +94,8 @@ class _AppCalendarState extends State<AppCalendar> {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final selectedCol = widget.selectedColor ?? AppColors.teal500;
-    final todayCol = widget.todayColor ??
+    final todayCol =
+        widget.todayColor ??
         (isDark ? AppColors.neutral600 : AppColors.neutral300);
     final today = DateTime.now();
     final days = _getDaysInMonth(_displayedMonth);
@@ -128,16 +137,18 @@ class _AppCalendarState extends State<AppCalendar> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                .map((day) => Expanded(
-                      child: Center(
-                        child: Text(
-                          day,
-                          style: TextStyles.labelSmall(brightness).copyWith(
-                            color: AppColors.secondaryTextColor(brightness),
-                          ),
+                .map(
+                  (day) => Expanded(
+                    child: Center(
+                      child: Text(
+                        day,
+                        style: TextStyles.labelSmall(brightness).copyWith(
+                          color: AppColors.secondaryTextColor(brightness),
                         ),
                       ),
-                    ))
+                    ),
+                  ),
+                )
                 .toList(),
           ),
           const SizedBox(height: 8),
@@ -156,7 +167,8 @@ class _AppCalendarState extends State<AppCalendar> {
               final isSelected = _isSameDay(date, _selectedDate);
               final isToday = _isSameDay(date, today);
               final isCurrentMonth = date.month == _displayedMonth.month;
-              final isDisabled = (widget.firstDate != null &&
+              final isDisabled =
+                  (widget.firstDate != null &&
                       date.isBefore(widget.firstDate!)) ||
                   (widget.lastDate != null && date.isAfter(widget.lastDate!));
 
@@ -169,8 +181,8 @@ class _AppCalendarState extends State<AppCalendar> {
                     color: isSelected
                         ? selectedCol
                         : isToday
-                            ? todayCol
-                            : null,
+                        ? todayCol
+                        : null,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
@@ -180,14 +192,17 @@ class _AppCalendarState extends State<AppCalendar> {
                         color: isSelected
                             ? AppColors.black
                             : !isCurrentMonth
-                                ? AppColors.secondaryTextColor(brightness)
-                                    .withValues(alpha: 0.3)
-                                : isDisabled
-                                    ? AppColors.secondaryTextColor(brightness)
-                                        .withValues(alpha: 0.5)
-                                    : AppColors.primaryTextColor(brightness),
-                        fontWeight:
-                            isSelected || isToday ? FontWeight.w600 : FontWeight.w400,
+                            ? AppColors.secondaryTextColor(
+                                brightness,
+                              ).withValues(alpha: 0.3)
+                            : isDisabled
+                            ? AppColors.secondaryTextColor(
+                                brightness,
+                              ).withValues(alpha: 0.5)
+                            : AppColors.primaryTextColor(brightness),
+                        fontWeight: isSelected || isToday
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
                     ),
                   ),
@@ -213,7 +228,7 @@ class _AppCalendarState extends State<AppCalendar> {
       'September',
       'October',
       'November',
-      'December'
+      'December',
     ];
     return months[month - 1];
   }
@@ -274,9 +289,7 @@ class _AppDatePickerFieldState extends State<AppDatePickerField> {
               backgroundColor: isDark ? AppColors.neutral900 : AppColors.white,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.teal500,
-              ),
+              style: TextButton.styleFrom(foregroundColor: AppColors.teal500),
             ),
           ),
           child: child!,
@@ -299,17 +312,13 @@ class _AppDatePickerFieldState extends State<AppDatePickerField> {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final bgColor = isDark ? AppColors.neutral900 : AppColors.white;
-    final borderColor =
-        isDark ? AppColors.neutral600 : AppColors.neutral400;
+    final borderColor = isDark ? AppColors.neutral600 : AppColors.neutral400;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: TextStyles.labelMedium(brightness),
-          ),
+          Text(widget.label!, style: TextStyles.labelMedium(brightness)),
           const SizedBox(height: 8),
         ],
         GestureDetector(
@@ -405,9 +414,7 @@ class _AppDateRangePickerFieldState extends State<AppDateRangePickerField> {
               backgroundColor: isDark ? AppColors.neutral900 : AppColors.white,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.teal500,
-              ),
+              style: TextButton.styleFrom(foregroundColor: AppColors.teal500),
             ),
           ),
           child: child!,
@@ -430,17 +437,13 @@ class _AppDateRangePickerFieldState extends State<AppDateRangePickerField> {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final bgColor = isDark ? AppColors.neutral900 : AppColors.white;
-    final borderColor =
-        isDark ? AppColors.neutral600 : AppColors.neutral400;
+    final borderColor = isDark ? AppColors.neutral600 : AppColors.neutral400;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: TextStyles.labelMedium(brightness),
-          ),
+          Text(widget.label!, style: TextStyles.labelMedium(brightness)),
           const SizedBox(height: 8),
         ],
         GestureDetector(

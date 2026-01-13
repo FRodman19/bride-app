@@ -5,7 +5,9 @@ import 'progress.dart';
 import 'theme.dart';
 
 enum DSButtonVariant { primary, secondary, tertiary, text }
+
 enum DSButtonSize { small, medium, large }
+
 enum DSButtonState { normal, hover, pressed, disabled, loading }
 
 class DSButton extends StatelessWidget {
@@ -33,7 +35,8 @@ class DSButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final disabled = onPressed == null ||
+    final disabled =
+        onPressed == null ||
         stateOverride == DSButtonState.disabled ||
         isLoading ||
         stateOverride == DSButtonState.loading;
@@ -51,7 +54,9 @@ class DSButton extends StatelessWidget {
 
     final style = ButtonStyle(
       padding: MaterialStateProperty.all(padding),
-      minimumSize: MaterialStateProperty.all(Size(fullWidth ? double.infinity : 0, height)),
+      minimumSize: MaterialStateProperty.all(
+        Size(fullWidth ? double.infinity : 0, height),
+      ),
       backgroundColor: MaterialStateProperty.all(colors.background),
       foregroundColor: MaterialStateProperty.all(colors.foreground),
       overlayColor: MaterialStateProperty.all(colors.overlay),
@@ -143,8 +148,8 @@ class DSButton extends StatelessWidget {
           foreground: state == DSButtonState.disabled
               ? DSColors.neutral500
               : (state == DSButtonState.pressed
-                  ? DSColors.teal600
-                  : DSColors.teal500),
+                    ? DSColors.teal600
+                    : DSColors.teal500),
           overlay: DSColors.teal600.withOpacity(0.08),
           border: BorderSide.none,
         );
@@ -188,11 +193,7 @@ class DSButton extends StatelessWidget {
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 18),
-        const SizedBox(width: 8),
-        Text(label),
-      ],
+      children: [Icon(icon, size: 18), const SizedBox(width: 8), Text(label)],
     );
   }
 }

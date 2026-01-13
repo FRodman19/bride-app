@@ -84,7 +84,7 @@ All screen designs are in: `performance-section-wireframe.md`
 
 ## Build Progress Tracker
 
-### Current Phase: PHASE 7 - IN PROGRESS
+### Current Phase: PHASE 9 - Google Authentication
 ### Last Updated: 2026-01-11
 
 ### Phase 1: Foundation Setup
@@ -177,6 +177,17 @@ All screen designs are in: `performance-section-wireframe.md`
 - [ ] Screen 18: AI Quick Start Modal
 - [ ] Screen 30: AI Loading State
 - [ ] AI form pre-fill working
+
+### Phase 9: Enhanced Authentication with Google OAuth
+- [ ] Google Cloud Console project configured
+- [ ] Supabase Google OAuth provider enabled
+- [ ] Unified AuthScreen created
+- [ ] Google sign-in working on Android
+- [ ] Silent registration implemented
+- [ ] Email/password on unified screen
+- [ ] Deep links configured
+- [ ] Old screens removed
+- [ ] Testing complete
 
 ---
 
@@ -914,6 +925,131 @@ GOOD: Test full offline flow: create entry offline, turn on Wi-Fi, verify sync
 
 ---
 
+### Phase 9: Enhanced Authentication with Google OAuth
+**Goal:** Implement Google authentication with seamless sign-in/sign-up and modernize auth UI to unified screen
+
+**User Requirements:**
+- Unified authentication screen (replace separate login/signup screens)
+- Google "Continue with Google" button + email/password option
+- Silent sign-up handling: If user tries Google sign-in without account, automatically create account
+- Clean, industry-standard UX with no error states for "account doesn't exist"
+- Both authentication methods available (Google + Email/Password)
+- Android only initially (iOS can be added later)
+
+**UI/UX Pattern: Progressive Disclosure**
+
+Initial State (Clean) → Only Google button and "Sign in with Email" button visible
+After clicking "Sign in with Email" → Email field appears with animation
+After valid email entered → Password field auto-appears, "Forgot password?" link shows, "Continue" button appears
+
+**Implementation Notes - What NOT To Do:**
+```
+BAD: Showing all fields (email, password) immediately on screen load
+GOOD: Progressive disclosure - show "Continue with Google" and "Sign in with Email" button only initially
+     → Cleaner UI, less overwhelming, modern UX pattern
+
+BAD: "Sign in with Email" button opens a new screen or modal with email/password fields
+GOOD: Fields appear inline on same screen with smooth animation (slide down + fade in)
+     → Keeps user in context, no jarring navigation
+
+BAD: Showing both email AND password fields after clicking "Sign in with Email"
+GOOD: Show email field first, then auto-reveal password field when email is valid
+     → Progressive disclosure reduces cognitive load, feels conversational
+
+BAD: Requiring user to click "Next" button after entering email to see password field
+GOOD: Auto-detect valid email format (regex), automatically show password field
+     → Fewer clicks, smoother flow, less friction
+
+BAD: Having separate "Sign In" and "Sign Up" buttons on initial screen
+GOOD: Single "Sign in with Email" - system handles new vs existing user automatically
+     → If email exists: verify password and sign in
+     → If email new: treat as sign-up, ask for password confirmation in next step
+
+BAD: Showing "Account doesn't exist, please sign up" error when user clicks Google sign-in
+GOOD: Automatically create account on first Google sign-in (silent registration)
+     → Seamless experience, no confusion about sign-in vs sign-up
+
+BAD: Hardcoding Google client IDs directly in Dart code
+GOOD: Store in .env file, load via AppConfig, use different IDs for debug/release builds
+     → Security best practice, easy environment management
+
+BAD: Using separate google_sign_in + supabase packages with manual token exchange
+GOOD: Use Supabase's built-in OAuth flow with signInWithOAuth()
+     → Simpler code, more secure, Supabase handles tokens automatically
+
+BAD: Creating custom Google button that doesn't follow brand guidelines
+GOOD: Use GOLButton with official Google "G" logo, proper colors (white bg, subtle border)
+     → Follows Google brand guidelines and GOL design system
+
+BAD: Email validation only checks for "@" symbol
+GOOD: Proper email regex: user@domain.tld format, show subtle error for invalid
+     → Better UX, prevents submission errors
+
+BAD: Transition from button → email field is instant/jarring
+GOOD: Smooth animation (300ms slide down + fade in) using AnimatedSwitcher or similar
+     → Polished, professional feel
+
+BAD: Creating new custom widgets for auth instead of using GOL components
+GOOD: Use GOLButton, GOLTextField, GOLSpacing, GOLColors throughout
+     → Consistent with app design system, maintainable
+```
+
+**Screens to Build/Modify:**
+- **NEW:** `auth_screen.dart` - Unified authentication screen (replaces login/signup)
+- **MODIFY:** `app_router.dart` - Update routes to point to unified auth screen
+- **MODIFY:** `auth_provider.dart` - Add Google sign-in method
+- **REMOVE:** `login_screen.dart` - Deprecated by unified screen
+- **REMOVE:** `signup_screen.dart` - Deprecated by unified screen
+- **KEEP:** `forgot_password_screen.dart` - Still needed for email/password users
+
+**Tasks:**
+1. Add dependencies to pubspec.yaml:
+   - `google_sign_in: ^6.2.1` - Google OAuth for Android
+   - `sign_in_with_apple: ^6.1.0` - For future iOS compliance
+
+2. Configure environment variables in .env:
+   - `GOOGLE_CLIENT_ID_WEB` - For Supabase OAuth callback
+   - `GOOGLE_CLIENT_ID_ANDROID` - For Android app
+
+3. Update AppConfig to load Google client IDs from environment
+
+4. Implement `signInWithGoogle()` method in AuthProvider using Supabase's signInWithOAuth()
+
+5. Create unified AuthScreen with:
+   - Progressive disclosure pattern
+   - Google sign-in button
+   - Email/password fields (appearing on demand)
+   - Smooth animations (300ms)
+   - GOL design system components only
+
+6. Configure Android deep links in AndroidManifest.xml:
+   - Scheme: `performancetracker`
+   - Host: `callback`
+
+7. Update router to use /auth route instead of /login and /signup
+
+8. Configure Google Cloud Console:
+   - Create OAuth consent screen
+   - Create Web Application client (for Supabase)
+   - Create Android client (with SHA-1 certificate)
+
+9. Enable Google provider in Supabase dashboard with Web client credentials
+
+10. Test on physical Android device (emulator won't work for OAuth)
+
+**Deliverables:**
+- Google Cloud Console project configured with OAuth
+- Supabase Google OAuth provider enabled
+- Unified AuthScreen with progressive disclosure UX
+- Google sign-in working on Android
+- Silent registration (no "account doesn't exist" errors)
+- Email/password auth working on same screen
+- Deep link OAuth callback configured
+- Old login/signup screens removed
+- Testing complete on physical device
+
+---
+
 ## Push Notifications (Daily Reminders)
 
 ### Implementation Strategy
@@ -1270,6 +1406,17 @@ FirebaseApp.configure()
 ---
 
 ## Edge Cases & Business Rules
+
+### Authentication
+| Rule | Decision |
+|------|----------|
+| Google first-time sign-in | Auto-create account (silent registration) |
+| Email already used (Google vs email) | Supabase links or errors appropriately |
+| Auth screen | Unified - both Google and email options |
+| Separate login/signup | DEPRECATED - removed in Phase 9 |
+| OAuth callback timeout | Show error, allow retry |
+| Network failure during OAuth | User-friendly error message |
+| Progressive disclosure | Email field appears after button click, password after valid email |
 
 ### Currency & Amounts
 | Rule | Decision |

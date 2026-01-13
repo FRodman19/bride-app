@@ -30,11 +30,7 @@ class DSGridLoader extends StatelessWidget {
   final double size;
   final Color? color;
 
-  const DSGridLoader({
-    super.key,
-    this.size = 48,
-    this.color,
-  });
+  const DSGridLoader({super.key, this.size = 48, this.color});
 
   @override
   Widget build(BuildContext context) {

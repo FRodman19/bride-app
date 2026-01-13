@@ -46,6 +46,28 @@ class AppConfig {
     return key != null && key.isNotEmpty && !key.startsWith('your-');
   }
 
+  /// Google OAuth client ID for Web (used by Supabase OAuth callback)
+  static String get googleClientIdWeb {
+    return dotenv.env['GOOGLE_CLIENT_ID_WEB'] ?? '';
+  }
+
+  /// Google OAuth client ID for Android
+  static String get googleClientIdAndroid {
+    return dotenv.env['GOOGLE_CLIENT_ID_ANDROID'] ?? '';
+  }
+
+  /// Check if Google OAuth is configured
+  static bool get hasGoogleOAuthConfig {
+    final webId = dotenv.env['GOOGLE_CLIENT_ID_WEB'];
+    final androidId = dotenv.env['GOOGLE_CLIENT_ID_ANDROID'];
+    return webId != null &&
+           androidId != null &&
+           webId.isNotEmpty &&
+           androidId.isNotEmpty &&
+           !webId.startsWith('your-') &&
+           !androidId.startsWith('your-');
+  }
+
   /// Check if Supabase is configured (not using placeholder values)
   static bool get hasSupabaseConfig {
     final url = dotenv.env['SUPABASE_URL'];

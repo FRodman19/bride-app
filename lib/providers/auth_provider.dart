@@ -157,6 +157,38 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Sign in with Google OAuth.
+  /// Uses Supabase's built-in OAuth flow for seamless integration.
+  /// Automatically creates account if user doesn't exist (silent registration).
+  Future<AuthResult> signInWithGoogle() async {
+    try {
+      // Initiate Supabase OAuth flow for Google
+      // This will:
+      // 1. Open browser/WebView for Google sign-in
+      // 2. Handle OAuth consent
+      // 3. Exchange authorization code for tokens
+      // 4. Create/retrieve user in Supabase
+      // 5. Establish session automatically
+      final response = await SupabaseConfig.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'performancetracker://callback', // Deep link for mobile
+        scopes: 'email profile', // Request email and profile access
+      );
+
+      if (response) {
+        // Success - Supabase will emit auth state change automatically
+        // The user will be signed in when the OAuth callback completes
+        return AuthResult.success();
+      }
+
+      return AuthResult.error('Google sign-in was cancelled');
+    } on AuthException catch (e) {
+      return AuthResult.error(_mapAuthError(e.message));
+    } catch (e) {
+      return AuthResult.error('Failed to sign in with Google: $e');
+    }
+  }
+
   /// Sign out the current user.
   Future<AuthResult> signOut() async {
     try {

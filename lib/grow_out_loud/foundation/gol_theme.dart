@@ -16,10 +16,7 @@ class GOLThemeData {
     return _baseTheme(GOLSemanticColors.dark, Brightness.dark);
   }
 
-  static ThemeData _baseTheme(
-    GOLSemanticColors colors,
-    Brightness brightness,
-  ) {
+  static ThemeData _baseTheme(GOLSemanticColors colors, Brightness brightness) {
     final textTheme = GOLTypography.baseTextTheme().apply(
       displayColor: colors.textPrimary,
       bodyColor: colors.textPrimary,
@@ -90,7 +87,10 @@ class GOLThemeData {
         hintStyle: textTheme.bodyMedium?.copyWith(color: colors.textTertiary),
         labelStyle: textTheme.labelSmall?.copyWith(color: colors.textSecondary),
         enabledBorder: _outline(colors.borderDefault, 1.5),
-        focusedBorder: _outline(colors.borderStrong, 2),  // Keep grey on focus, cursor has accent
+        focusedBorder: _outline(
+          colors.borderStrong,
+          2,
+        ), // Keep grey on focus, cursor has accent
         errorBorder: _outline(colors.stateError, 2),
         focusedErrorBorder: _outline(colors.stateError, 2),
       ),
@@ -117,8 +117,9 @@ class GOLThemeData {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: colors.backgroundInverse,
-        contentTextStyle:
-            textTheme.bodySmall?.copyWith(color: colors.textInverse),
+        contentTextStyle: textTheme.bodySmall?.copyWith(
+          color: colors.textInverse,
+        ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(GOLRadius.sm),
@@ -130,8 +131,9 @@ class GOLThemeData {
           borderRadius: BorderRadius.circular(GOLRadius.modal),
         ),
         titleTextStyle: textTheme.headlineMedium,
-        contentTextStyle:
-            textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: colors.textSecondary,
+        ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colors.surfaceRaised,

@@ -3,12 +3,7 @@ import '../theme/colors.dart';
 import '../theme/text_styles.dart';
 
 /// Tooltip position relative to the child widget
-enum TooltipPosition {
-  top,
-  bottom,
-  left,
-  right,
-}
+enum TooltipPosition { top, bottom, left, right }
 
 /// APP TOOLTIP - Custom tooltip with design system styling
 /// Flat design, no shadow, 16px radius
@@ -56,7 +51,8 @@ class _AppTooltipState extends State<AppTooltip> {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final bgColor = widget.backgroundColor ??
+    final bgColor =
+        widget.backgroundColor ??
         (isDark ? AppColors.neutral800 : AppColors.neutral900);
     final txtColor = widget.textColor ?? AppColors.white;
 
@@ -110,9 +106,7 @@ class _TooltipContent extends StatelessWidget {
       ),
       child: Text(
         message,
-        style: TextStyles.bodySmall(brightness).copyWith(
-          color: textColor,
-        ),
+        style: TextStyles.bodySmall(brightness).copyWith(color: textColor),
       ),
     );
   }
@@ -138,7 +132,8 @@ class AppTooltipSimple extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final bgColor = backgroundColor ??
+    final bgColor =
+        backgroundColor ??
         (isDark ? AppColors.neutral800 : AppColors.neutral900);
     final txtColor = textColor ?? AppColors.white;
 
@@ -148,9 +143,7 @@ class AppTooltipSimple extends StatelessWidget {
         color: bgColor,
         borderRadius: BorderRadius.circular(16), // 16px radius
       ),
-      textStyle: TextStyles.bodySmall(brightness).copyWith(
-        color: txtColor,
-      ),
+      textStyle: TextStyles.bodySmall(brightness).copyWith(color: txtColor),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       waitDuration: const Duration(milliseconds: 500),
       showDuration: const Duration(seconds: 2),
@@ -196,18 +189,14 @@ class AppTooltipRich extends StatelessWidget {
               if (icon != null)
                 Row(
                   children: [
-                    Icon(
-                      icon,
-                      size: 16,
-                      color: AppColors.teal500,
-                    ),
+                    Icon(icon, size: 16, color: AppColors.teal500),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         title,
-                        style: TextStyles.labelMedium(brightness).copyWith(
-                          color: AppColors.white,
-                        ),
+                        style: TextStyles.labelMedium(
+                          brightness,
+                        ).copyWith(color: AppColors.white),
                       ),
                     ),
                   ],
@@ -215,17 +204,17 @@ class AppTooltipRich extends StatelessWidget {
               else
                 Text(
                   title,
-                  style: TextStyles.labelMedium(brightness).copyWith(
-                    color: AppColors.white,
-                  ),
+                  style: TextStyles.labelMedium(
+                    brightness,
+                  ).copyWith(color: AppColors.white),
                 ),
               if (description != null) ...[
                 const SizedBox(height: 4),
                 Text(
                   description!,
-                  style: TextStyles.bodySmall(brightness).copyWith(
-                    color: AppColors.white,
-                  ),
+                  style: TextStyles.bodySmall(
+                    brightness,
+                  ).copyWith(color: AppColors.white),
                 ),
               ],
               if (onActionPressed != null && actionLabel != null) ...[
@@ -275,16 +264,12 @@ class AppTooltipInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final color = iconColor ??
-        (isDark ? AppColors.neutral400 : AppColors.neutral600);
+    final color =
+        iconColor ?? (isDark ? AppColors.neutral400 : AppColors.neutral600);
 
     return AppTooltipSimple(
       message: message,
-      child: Icon(
-        Icons.info_outline,
-        size: iconSize,
-        color: color,
-      ),
+      child: Icon(Icons.info_outline, size: iconSize, color: color),
     );
   }
 }

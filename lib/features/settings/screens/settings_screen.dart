@@ -588,7 +588,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     if (!mounted) return;
 
     if (result.success) {
-      context.go(Routes.login);
+      context.go(Routes.auth);
     } else {
       setState(() => _isLoggingOut = false);
       showGOLToast(
