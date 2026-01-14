@@ -44,11 +44,7 @@ class PerformanceOverviewCard extends StatelessWidget {
           // Header row
           Row(
             children: [
-              Icon(
-                Iconsax.chart_2,
-                size: 20,
-                color: colors.interactivePrimary,
-              ),
+              Icon(Iconsax.chart_2, size: 20, color: colors.interactivePrimary),
               const SizedBox(width: GOLSpacing.space2),
               Text(
                 l10n.performanceOverview,
@@ -71,15 +67,15 @@ class PerformanceOverviewCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Iconsax.folder_2,
+                      Iconsax.flash_1,
                       size: 14,
-                      color: colors.interactivePrimary,
+                      color: colors.textPrimary,
                     ),
                     const SizedBox(width: GOLSpacing.space1),
                     Text(
                       l10n.activeCount(activeProjectsCount),
                       style: textTheme.labelSmall?.copyWith(
-                        color: colors.interactivePrimary,
+                        color: colors.textPrimary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -121,9 +117,7 @@ class PerformanceOverviewCard extends StatelessWidget {
 
           Text(
             isProfit ? l10n.netProfit : l10n.netLoss,
-            style: textTheme.bodySmall?.copyWith(
-              color: colors.textSecondary,
-            ),
+            style: textTheme.bodySmall?.copyWith(color: colors.textSecondary),
           ),
 
           const SizedBox(height: GOLSpacing.space4),

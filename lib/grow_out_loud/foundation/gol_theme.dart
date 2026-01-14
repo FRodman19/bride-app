@@ -55,7 +55,9 @@ class GOLThemeData {
     return ThemeData(
       brightness: brightness,
       useMaterial3: true,
-      scaffoldBackgroundColor: colors.backgroundPrimary,
+      scaffoldBackgroundColor: brightness == Brightness.light
+          ? colors.backgroundSecondary
+          : colors.backgroundPrimary,
       colorScheme: colorScheme,
       textTheme: textTheme,
       // Cursor and text selection use accent color
@@ -71,6 +73,41 @@ class GOLThemeData {
         surfaceTintColor: Colors.transparent, // Remove orange/yellow tint
         foregroundColor: colors.textPrimary,
         titleTextStyle: textTheme.headlineSmall,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: colors.backgroundPrimary,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: colors.interactivePrimary.withValues(alpha: 0.2),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final isSelected = states.contains(WidgetState.selected);
+          return textTheme.labelMedium?.copyWith(
+            color: isSelected
+                ? (brightness == Brightness.light
+                      ? colors.textPrimary
+                      : colors.interactivePrimary)
+                : colors.textSecondary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final isSelected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            color: isSelected
+                ? colors.interactivePrimary
+                : colors.textSecondary,
+          );
+        }),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: colors.backgroundPrimary,
+        selectedItemColor: brightness == Brightness.light
+            ? colors
+                  .textPrimary // Black in light mode
+            : colors.interactivePrimary, // Accent in dark mode
+        unselectedItemColor: colors.textSecondary,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
       ),
       dividerColor: colors.borderDefault,
       dividerTheme: DividerThemeData(

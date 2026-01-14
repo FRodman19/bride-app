@@ -50,7 +50,19 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     if (mounted) {
       setState(() => _isGoogleLoading = false);
 
-      if (!result.success && result.error != null) {
+      if (result.success) {
+        // Show welcome message for all users
+        final message = result.isNewUser
+            ? 'Welcome to Rhydle! 👋'
+            : 'Welcome back! 😊';
+
+        showGOLToast(
+          context,
+          message,
+          variant: GOLToastVariant.info,
+        );
+        // Router will automatically redirect to dashboard
+      } else if (result.error != null) {
         showGOLToast(
           context,
           result.error!,
@@ -91,15 +103,25 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     if (mounted) {
       setState(() => _isSignUpLoading = false);
 
-      if (result.requiresEmailConfirmation) {
-        showGOLToast(
-          context,
-          'Check your email to confirm your account',
-          variant: GOLToastVariant.success,
-        );
-        // Navigate back to sign in
-        context.go(Routes.auth);
-      } else if (!result.success && result.error != null) {
+      if (result.success) {
+        if (result.requiresEmailConfirmation) {
+          showGOLToast(
+            context,
+            'Check your email to confirm your account',
+            variant: GOLToastVariant.success,
+          );
+          // Navigate back to sign in
+          context.go(Routes.auth);
+        } else {
+          // Show welcome message for new users
+          showGOLToast(
+            context,
+            'Welcome to Rhydle! 👋',
+            variant: GOLToastVariant.info,
+          );
+          // Router will automatically redirect to dashboard
+        }
+      } else if (result.error != null) {
         showGOLToast(
           context,
           result.error!,

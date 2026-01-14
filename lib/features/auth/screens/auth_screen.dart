@@ -47,7 +47,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (mounted) {
       setState(() => _isGoogleLoading = false);
 
-      if (!result.success && result.error != null) {
+      if (result.success) {
+        // Show welcome message for all users
+        final message = result.isNewUser
+            ? 'Welcome to Rhydle! 👋'
+            : 'Welcome back! 😊';
+
+        showGOLToast(
+          context,
+          message,
+          variant: GOLToastVariant.info,
+        );
+        // Router will automatically redirect to dashboard
+      } else if (result.error != null) {
         showGOLToast(
           context,
           result.error!,
@@ -81,7 +93,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (mounted) {
       setState(() => _isSignInLoading = false);
 
-      if (!result.success && result.error != null) {
+      if (result.success) {
+        // Show welcome back message for returning users
+        showGOLToast(
+          context,
+          'Welcome back! 😊',
+          variant: GOLToastVariant.info,
+        );
+        // Router will automatically redirect to dashboard
+      } else if (result.error != null) {
         showGOLToast(
           context,
           result.error!,

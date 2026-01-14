@@ -135,9 +135,9 @@ class GOLSemanticColors extends ThemeExtension<GOLSemanticColors> {
   });
 
   static const GOLSemanticColors light = GOLSemanticColors(
-    backgroundPrimary: GOLPrimitives.neutral0,
-    backgroundSecondary: GOLPrimitives.neutral50,
-    backgroundTertiary: GOLPrimitives.neutral100,
+    backgroundPrimary: GOLPrimitives.neutral50,
+    backgroundSecondary: GOLPrimitives.neutral100,
+    backgroundTertiary: GOLPrimitives.neutral200,
     backgroundElevated: GOLPrimitives.neutral0,
     backgroundInverse: GOLPrimitives.neutral900,
     surfaceDefault: GOLPrimitives.neutral0,

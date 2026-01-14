@@ -46,7 +46,7 @@ class TrackerCard extends StatelessWidget {
     final profitColor = isProfit ? colors.textPrimary : colors.stateError;
 
     return GOLCard(
-      variant: GOLCardVariant.interactive,
+      variant: GOLCardVariant.standard,
       onTap: onTap,
       padding: const EdgeInsets.all(GOLSpacing.cardPadding),
       child: Row(
