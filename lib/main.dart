@@ -76,19 +76,24 @@ class _MyAppState extends ConsumerState<MyApp> {
         final payload = launchDetails.notificationResponse?.payload;
         debugPrint('ColdStart: App launched from notification with payload: $payload');
 
-        // Listen for auth state to be ready, then navigate
-        ref.listen<AuthState>(
-          authProvider,
-          (previous, next) {
-            if (next is AuthAuthenticated) {
-              debugPrint('ColdStart: Auth ready, navigating with payload: $payload');
-              _handleLocalNotificationTap(payload);
-            } else {
-              debugPrint('ColdStart: User not authenticated, ignoring notification');
-            }
-          },
-          fireImmediately: true,
-        );
+        // Check current auth state immediately
+        final currentAuthState = ref.read(authProvider);
+        if (currentAuthState is AuthAuthenticated) {
+          debugPrint('ColdStart: Auth ready, navigating with payload: $payload');
+          _handleLocalNotificationTap(payload);
+        } else {
+          // If not authenticated yet, listen for auth state changes
+          debugPrint('ColdStart: Waiting for authentication...');
+          ref.listen<AuthState>(
+            authProvider,
+            (previous, next) {
+              if (next is AuthAuthenticated && previous is! AuthAuthenticated) {
+                debugPrint('ColdStart: Auth ready, navigating with payload: $payload');
+                _handleLocalNotificationTap(payload);
+              }
+            },
+          );
+        }
       }
     } catch (e) {
       debugPrint('ColdStart: Error checking launch details: $e');
