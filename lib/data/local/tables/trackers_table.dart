@@ -46,6 +46,18 @@ class Trackers extends Table {
   /// Sync status: 'synced', 'pending', 'error'
   TextColumn get syncStatus => text().withDefault(const Constant('pending')).named('sync_status')();
 
+  /// Whether reminder notifications are enabled
+  BoolColumn get reminderEnabled => boolean().withDefault(const Constant(false)).named('reminder_enabled')();
+
+  /// Reminder frequency: 'none', 'daily', 'weekly'
+  TextColumn get reminderFrequency => text().withDefault(const Constant('none')).named('reminder_frequency')();
+
+  /// Reminder time in HH:MM format (e.g., "09:00")
+  TextColumn get reminderTime => text().nullable().named('reminder_time')();
+
+  /// Day of week for weekly reminders (1=Monday, 7=Sunday)
+  IntColumn get reminderDayOfWeek => integer().nullable().named('reminder_day_of_week')();
+
   @override
   Set<Column> get primaryKey => {id};
 }

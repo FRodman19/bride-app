@@ -18,6 +18,12 @@ class Tracker {
   final List<String> platforms;
   final List<String> goalTypes;
 
+  // Notification settings
+  final bool reminderEnabled;
+  final String reminderFrequency; // 'none', 'daily', 'weekly'
+  final String? reminderTime; // "HH:MM" format
+  final int? reminderDayOfWeek; // 1-7 (Monday-Sunday)
+
   // Calculated fields (populated from entries)
   final double totalRevenue;
   final double totalSpend;
@@ -40,6 +46,10 @@ class Tracker {
     required this.updatedAt,
     this.platforms = const [],
     this.goalTypes = const [],
+    this.reminderEnabled = false,
+    this.reminderFrequency = 'none',
+    this.reminderTime,
+    this.reminderDayOfWeek,
     this.totalRevenue = 0,
     this.totalSpend = 0,
     this.totalProfit = 0,
@@ -59,6 +69,10 @@ class Tracker {
     String? notes,
     List<String> platforms = const [],
     List<String> goalTypes = const [],
+    bool reminderEnabled = false,
+    String reminderFrequency = 'none',
+    String? reminderTime,
+    int? reminderDayOfWeek,
   }) {
     final now = DateTime.now();
     return Tracker(
@@ -74,6 +88,10 @@ class Tracker {
       notes: notes,
       platforms: platforms,
       goalTypes: goalTypes,
+      reminderEnabled: reminderEnabled,
+      reminderFrequency: reminderFrequency,
+      reminderTime: reminderTime,
+      reminderDayOfWeek: reminderDayOfWeek,
       createdAt: now,
       updatedAt: now,
     );
@@ -95,6 +113,10 @@ class Tracker {
     DateTime? updatedAt,
     List<String>? platforms,
     List<String>? goalTypes,
+    bool? reminderEnabled,
+    String? reminderFrequency,
+    String? reminderTime,
+    int? reminderDayOfWeek,
     double? totalRevenue,
     double? totalSpend,
     double? totalProfit,
@@ -116,6 +138,10 @@ class Tracker {
       updatedAt: updatedAt ?? this.updatedAt,
       platforms: platforms ?? this.platforms,
       goalTypes: goalTypes ?? this.goalTypes,
+      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+      reminderFrequency: reminderFrequency ?? this.reminderFrequency,
+      reminderTime: reminderTime ?? this.reminderTime,
+      reminderDayOfWeek: reminderDayOfWeek ?? this.reminderDayOfWeek,
       totalRevenue: totalRevenue ?? this.totalRevenue,
       totalSpend: totalSpend ?? this.totalSpend,
       totalProfit: totalProfit ?? this.totalProfit,
@@ -138,6 +164,10 @@ class Tracker {
       'growth_cost_monthly': growthCostMonthly.round(),
       'notes': notes,
       'is_archived': isArchived,
+      'reminder_enabled': reminderEnabled,
+      'reminder_frequency': reminderFrequency,
+      'reminder_time': reminderTime,
+      'reminder_day_of_week': reminderDayOfWeek,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -163,6 +193,10 @@ class Tracker {
       growthCostMonthly: (map['growth_cost_monthly'] as num?)?.toDouble() ?? 0,
       notes: map['notes'] as String?,
       isArchived: map['is_archived'] as bool? ?? false,
+      reminderEnabled: map['reminder_enabled'] as bool? ?? false,
+      reminderFrequency: map['reminder_frequency'] as String? ?? 'none',
+      reminderTime: map['reminder_time'] as String?,
+      reminderDayOfWeek: map['reminder_day_of_week'] as int?,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
       platforms: platforms,
