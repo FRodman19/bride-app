@@ -62,6 +62,28 @@ class _MyAppState extends ConsumerState<MyApp> {
     NotificationService.onNotificationTap = _handleLocalNotificationTap;
     // Set up FCM notification tap handler
     FCMService.onNotificationTap = _handleFCMNotificationTap;
+    // Handle cold start notification (app opened from notification)
+    _handleColdStartNotification();
+  }
+
+  /// Handle notification that launched the app (cold start)
+  Future<void> _handleColdStartNotification() async {
+    try {
+      final notificationService = ref.read(notificationServiceProvider);
+      final launchDetails = await notificationService.getNotificationAppLaunchDetails();
+
+      if (launchDetails != null && launchDetails.didNotificationLaunchApp) {
+        final payload = launchDetails.notificationResponse?.payload;
+        debugPrint('ColdStart: App launched from notification with payload: $payload');
+
+        // Wait for auth state to be ready, then navigate
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _handleLocalNotificationTap(payload);
+        });
+      }
+    } catch (e) {
+      debugPrint('ColdStart: Error checking launch details: $e');
+    }
   }
 
   /// Handle local notification tap - navigate to appropriate screen
@@ -75,10 +97,22 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     final router = ref.read(routerProvider);
 
+    // Handle tracker-specific notifications (format: "tracker:trackerId")
+    if (payload != null && payload.startsWith('tracker:')) {
+      final trackerId = payload.substring(8); // Remove "tracker:" prefix
+      if (trackerId.isNotEmpty) {
+        debugPrint('NotificationTap: Navigating to log entry for tracker: $trackerId');
+        router.go(Routes.logEntryPath(trackerId));
+        return;
+      }
+    }
+
+    // Handle legacy notification types or fallback to dashboard
     switch (payload) {
       case 'daily_reminder':
       case 'weekly_summary':
       default:
+        debugPrint('NotificationTap: Navigating to dashboard');
         router.go(Routes.dashboard);
     }
   }

@@ -641,6 +641,71 @@ class NotificationService {
     debugPrint('NotificationService: Hydrated ${trackers.length} tracker reminders');
   }
 
+  /// Get notification app launch details (for cold start handling)
+  Future<NotificationAppLaunchDetails?> getNotificationAppLaunchDetails() async {
+    try {
+      return await _notifications.getNotificationAppLaunchDetails();
+    } catch (e) {
+      debugPrint('NotificationService: Error getting launch details: $e');
+      return null;
+    }
+  }
+
+  /// Check if notification permission is granted (Android 13+, iOS)
+  Future<bool> areNotificationsEnabled() async {
+    try {
+      if (Platform.isAndroid) {
+        final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+        if (androidPlugin != null) {
+          final granted = await androidPlugin.areNotificationsEnabled();
+          return granted ?? true; // Assume granted if null (older Android versions)
+        }
+      } else if (Platform.isIOS) {
+        final iosPlugin = _notifications.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>();
+        if (iosPlugin != null) {
+          final granted = await iosPlugin.requestPermissions(
+            alert: false,
+            badge: false,
+            sound: false,
+          );
+          return granted ?? false;
+        }
+      }
+      return true; // Default to true for other platforms
+    } catch (e) {
+      debugPrint('NotificationService: Error checking notification permission: $e');
+      return true; // Assume granted on error
+    }
+  }
+
+  /// Request notification permission (opens system settings on Android)
+  Future<void> requestNotificationPermission() async {
+    try {
+      if (Platform.isAndroid) {
+        final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+        if (androidPlugin != null) {
+          await androidPlugin.requestNotificationsPermission();
+        }
+      } else if (Platform.isIOS) {
+        final iosPlugin = _notifications.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>();
+        if (iosPlugin != null) {
+          await iosPlugin.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+        }
+      }
+      debugPrint('NotificationService: Notification permission requested');
+    } catch (e) {
+      debugPrint('NotificationService: Error requesting notification permission: $e');
+    }
+  }
+
   void dispose() {
     debugPrint('NotificationService: Disposed');
   }
