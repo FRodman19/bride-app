@@ -16,6 +16,7 @@ import '../../../grow_out_loud/components/gol_dividers.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/constants/currency_constants.dart';
+import '../../../core/constants/platform_constants.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
 /// Screen 2: Create Project
@@ -44,7 +45,9 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
   String? _nameError;
   bool _isLoading = false;
 
-  final List<String> _availablePlatforms = ["Facebook", "TikTok"];
+  /// Get available platforms from PlatformConstants (single source of truth)
+  List<String> get _availablePlatforms =>
+      PlatformConstants.platforms.map((p) => p.name).toList();
 
   /// Get the current currency info
   CurrencyInfo get _currencyInfo => CurrencyConstants.getCurrency(_currency);

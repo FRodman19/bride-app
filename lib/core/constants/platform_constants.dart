@@ -1,14 +1,13 @@
 /// Platform configuration for the Performance Tracker app.
 ///
-/// Initial version: Facebook and TikTok only (hardcoded)
-/// Custom platforms will be added in a future version.
+/// Phase 7.5: Expanded to 7 platforms with branded SVG icons
 ///
 /// Uses existing SVG assets from assets/icons/ directory.
 /// Colors should come from GOLSemanticColors, not hardcoded here.
 class PlatformConstants {
   PlatformConstants._();
 
-  /// All available advertising platforms
+  /// All available advertising platforms (7 total)
   static const List<PlatformInfo> platforms = [
     PlatformInfo(
       id: 'facebook',
@@ -19,6 +18,31 @@ class PlatformConstants {
       id: 'tiktok',
       name: 'TikTok',
       svgAssetPath: 'assets/icons/tiktok.svg',
+    ),
+    PlatformInfo(
+      id: 'google-ads',
+      name: 'Google Ads',
+      svgAssetPath: 'assets/icons/google-ads.svg',
+    ),
+    PlatformInfo(
+      id: 'linkedin',
+      name: 'LinkedIn',
+      svgAssetPath: 'assets/icons/linkedin.svg',
+    ),
+    PlatformInfo(
+      id: 'x',
+      name: 'X',
+      svgAssetPath: 'assets/icons/x.svg',
+    ),
+    PlatformInfo(
+      id: 'reddit',
+      name: 'Reddit',
+      svgAssetPath: 'assets/icons/reddit.svg',
+    ),
+    PlatformInfo(
+      id: 'youtube',
+      name: 'YouTube',
+      svgAssetPath: 'assets/icons/youtube.svg',
     ),
   ];
 

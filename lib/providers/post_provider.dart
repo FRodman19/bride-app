@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/config/supabase_config.dart';
+import '../core/constants/platform_constants.dart';
 import '../data/local/database.dart';
 import '../data/local/daos/post_dao.dart';
 import 'connectivity_provider.dart';
@@ -110,11 +111,11 @@ class PostModel {
 }
 
 /// Available platforms for posts.
+/// Available platforms for posts (uses PlatformConstants as single source of truth)
 class PostPlatforms {
-  static const List<String> all = [
-    'Facebook',
-    'TikTok',
-  ];
+  /// Get all available platform names
+  static List<String> get all =>
+      PlatformConstants.platforms.map((p) => p.name).toList();
 }
 
 /// State for posts list for a specific tracker.

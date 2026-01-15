@@ -19,6 +19,7 @@ import 'screens/design_system_home.dart';
 import 'screens/grow_out_loud_gallery_screen.dart';
 import 'services/fcm_service.dart';
 import 'services/notification_service.dart';
+import 'services/notification_id_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,9 @@ void main() async {
 
   // Initialize timezone for local notification scheduling
   await NotificationService.initializeTimezone();
+
+  // Initialize NotificationIdManager BEFORE app runs (CRITICAL for Phase 7.5)
+  await NotificationIdManager.initialize();
 
   // Initialize Supabase
   await SupabaseConfig.init();

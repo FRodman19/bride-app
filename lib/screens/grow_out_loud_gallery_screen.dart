@@ -698,6 +698,15 @@ class _GrowOutLoudGalleryScreenState extends State<GrowOutLoudGalleryScreen>
             ),
             _iconSpot(
               context,
+              label: 'Facebook',
+              icon: SvgPicture.asset(
+                'assets/icons/facebook.svg',
+                height: 32,
+                width: 32,
+              ),
+            ),
+            _iconSpot(
+              context,
               label: 'TikTok',
               icon: SvgPicture.asset(
                 'assets/icons/tiktok.svg',
@@ -707,9 +716,45 @@ class _GrowOutLoudGalleryScreenState extends State<GrowOutLoudGalleryScreen>
             ),
             _iconSpot(
               context,
-              label: 'Facebook',
+              label: 'Google Ads',
               icon: SvgPicture.asset(
-                'assets/icons/facebook.svg',
+                'assets/icons/google-ads.svg',
+                height: 32,
+                width: 32,
+              ),
+            ),
+            _iconSpot(
+              context,
+              label: 'LinkedIn',
+              icon: SvgPicture.asset(
+                'assets/icons/linkedin.svg',
+                height: 32,
+                width: 32,
+              ),
+            ),
+            _iconSpot(
+              context,
+              label: 'X',
+              icon: SvgPicture.asset(
+                'assets/icons/x.svg',
+                height: 32,
+                width: 32,
+              ),
+            ),
+            _iconSpot(
+              context,
+              label: 'Reddit',
+              icon: SvgPicture.asset(
+                'assets/icons/reddit.svg',
+                height: 32,
+                width: 32,
+              ),
+            ),
+            _iconSpot(
+              context,
+              label: 'YouTube',
+              icon: SvgPicture.asset(
+                'assets/icons/youtube.svg',
                 height: 32,
                 width: 32,
               ),
@@ -718,7 +763,7 @@ class _GrowOutLoudGalleryScreenState extends State<GrowOutLoudGalleryScreen>
         ),
         const SizedBox(height: GOLSpacing.space2),
         Text(
-          'Use the provided TikTok and Facebook SVG assets (assets/icons/tiktok.svg & assets/icons/facebook.svg) whenever you need social-brand icons in Grow Out Loud.',
+          'Platform icons with branded colors. All 7 platforms now available: Facebook, TikTok, Google Ads, LinkedIn, X, Reddit, YouTube. Use these SVG assets from assets/icons/ whenever you need social/ad platform icons.',
           style: Theme.of(context)
               .textTheme
               .bodySmall

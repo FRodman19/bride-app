@@ -16,6 +16,7 @@ import '../../../grow_out_loud/components/gol_select_field.dart';
 import '../../../providers/tracker_provider.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/constants/currency_constants.dart';
+import '../../../core/constants/platform_constants.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../../domain/models/tracker.dart';
 
@@ -49,7 +50,9 @@ class _EditTrackerScreenState extends ConsumerState<EditTrackerScreen> {
   bool _isLoading = false;
   bool _isInitialized = false;
 
-  final List<String> _availablePlatforms = ["Facebook", "TikTok"];
+  /// Get available platforms from PlatformConstants (single source of truth)
+  List<String> get _availablePlatforms =>
+      PlatformConstants.platforms.map((p) => p.name).toList();
 
   /// Get the current currency info
   CurrencyInfo get _currencyInfo => CurrencyConstants.getCurrency(_currency);

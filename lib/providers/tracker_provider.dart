@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/supabase_config.dart';
+import '../core/constants/platform_constants.dart';
 import '../domain/models/tracker.dart' as domain;
 import '../data/local/database.dart';
 import 'auth_provider.dart';
@@ -359,9 +360,15 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     double setupCost = 0,
     double growthCostMonthly = 0,
     String? notes,
-    List<String> platforms = const ['Facebook', 'TikTok'],
+    List<String>? platforms,
     List<String> goalTypes = const [],
   }) async {
+    // Use default platforms from PlatformConstants if not provided
+    final platformsToUse = platforms ??
+        PlatformConstants.platforms
+            .take(2) // Default to first 2 platforms (Facebook, TikTok)
+            .map((p) => p.name)
+            .toList();
     final userId = _userId;
     if (userId == null) {
       return TrackerResult.error('Not authenticated');
@@ -388,7 +395,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         setupCost: setupCost,
         growthCostMonthly: growthCostMonthly,
         notes: notes,
-        platforms: platforms,
+        platforms: platformsToUse,
         goalTypes: goalTypes,
       );
 
@@ -414,7 +421,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
       );
 
       await trackerDao.insertTracker(trackerCompanion);
-      await trackerDao.setTrackerPlatforms(tracker.id, platforms);
+      await trackerDao.setTrackerPlatforms(tracker.id, platformsToUse);
       await trackerDao.setTrackerGoals(tracker.id, goalTypes);
 
       // Try to sync to remote if online
@@ -425,8 +432,8 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
               .insert(tracker.toMap());
 
           // Insert platforms
-          if (platforms.isNotEmpty) {
-            final platformsData = platforms
+          if (platformsToUse.isNotEmpty) {
+            final platformsData = platformsToUse
                 .asMap()
                 .entries
                 .map((e) => {
