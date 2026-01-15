@@ -334,33 +334,36 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                   GOLDivider(),
                   const SizedBox(height: GOLSpacing.space6),
 
-                  _buildLabel('Reminder Notifications'),
+                  _buildLabel(l10n.reminderNotifications),
                   Text(
-                    'Get reminded to log your performance metrics',
+                    l10n.reminderNotificationsHelper,
                     style: textTheme.bodySmall?.copyWith(color: colors.textSecondary),
                   ),
                   const SizedBox(height: GOLSpacing.space4),
 
                   // Enable/disable switch
-                  GOLCard(
-                    variant: GOLCardVariant.elevated,
-                    child: Padding(
-                      padding: const EdgeInsets.all(GOLSpacing.space4),
-                      child: Row(
-                        children: [
-                          Icon(Iconsax.notification, color: colors.interactivePrimary),
-                          const SizedBox(width: GOLSpacing.space3),
-                          Expanded(
-                            child: Text(
-                              'Enable Reminders',
-                              style: textTheme.bodyMedium,
+                  Semantics(
+                    label: l10n.enableReminders,
+                    child: GOLCard(
+                      variant: GOLCardVariant.elevated,
+                      child: Padding(
+                        padding: const EdgeInsets.all(GOLSpacing.space4),
+                        child: Row(
+                          children: [
+                            Icon(Iconsax.notification, color: colors.interactivePrimary),
+                            const SizedBox(width: GOLSpacing.space3),
+                            Expanded(
+                              child: Text(
+                                l10n.enableReminders,
+                                style: textTheme.bodyMedium,
+                              ),
                             ),
-                          ),
-                          Switch(
-                            value: _reminderEnabled,
-                            onChanged: (value) => setState(() => _reminderEnabled = value),
-                          ),
-                        ],
+                            Switch(
+                              value: _reminderEnabled,
+                              onChanged: (value) => setState(() => _reminderEnabled = value),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -369,14 +372,18 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                     const SizedBox(height: GOLSpacing.space4),
 
                     // Frequency selector
-                    _buildLabel('Frequency'),
+                    _buildLabel(l10n.frequency),
                     const SizedBox(height: GOLSpacing.inputLabelGap),
                     GOLSelectableChipGroup(
-                      items: const ['Daily', 'Weekly'],
-                      selectedItems: {_reminderFrequency == 'daily' ? 'Daily' : 'Weekly'},
+                      items: [l10n.daily, l10n.weekly],
+                      selectedItems: {_reminderFrequency == 'daily' ? l10n.daily : l10n.weekly},
                       onChanged: (selected) {
                         setState(() {
-                          _reminderFrequency = selected.first == 'Daily' ? 'daily' : 'weekly';
+                          _reminderFrequency = selected.first == l10n.daily ? 'daily' : 'weekly';
+                          // Reset day of week when switching to daily
+                          if (_reminderFrequency == 'daily') {
+                            _reminderDayOfWeek = 1;
+                          }
                         });
                       },
                     ),
@@ -384,46 +391,83 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                     const SizedBox(height: GOLSpacing.space4),
 
                     // Time picker
-                    _buildLabel('Reminder Time'),
+                    _buildLabel(l10n.reminderTime),
                     const SizedBox(height: GOLSpacing.inputLabelGap),
-                    GOLCard(
-                      variant: GOLCardVariant.interactive,
-                      onTap: _selectTime,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: GOLSpacing.inputPaddingHorizontal,
-                        vertical: GOLSpacing.inputPaddingVertical,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Iconsax.clock, color: colors.textTertiary),
-                          const SizedBox(width: GOLSpacing.space3),
-                          Expanded(
-                            child: Text(
-                              _reminderTime.format(context),
-                              style: textTheme.bodyMedium,
+                    Semantics(
+                      label: l10n.selectReminderTime,
+                      button: true,
+                      child: GOLCard(
+                        variant: GOLCardVariant.interactive,
+                        onTap: _selectTime,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: GOLSpacing.inputPaddingHorizontal,
+                          vertical: GOLSpacing.inputPaddingVertical,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Iconsax.clock, color: colors.textTertiary),
+                            const SizedBox(width: GOLSpacing.space3),
+                            Expanded(
+                              child: Text(
+                                _reminderTime.format(context),
+                                style: textTheme.bodyMedium,
+                              ),
                             ),
-                          ),
-                          Icon(Iconsax.arrow_right_3, size: 16, color: colors.textTertiary),
-                        ],
+                            Icon(Iconsax.arrow_right_3, size: 16, color: colors.textTertiary),
+                          ],
+                        ),
                       ),
                     ),
 
                     // Day picker (if weekly)
                     if (_reminderFrequency == 'weekly') ...[
                       const SizedBox(height: GOLSpacing.space4),
-                      _buildLabel('Day of Week'),
+                      _buildLabel(l10n.selectDayOfWeek),
                       const SizedBox(height: GOLSpacing.inputLabelGap),
                       GOLSelectableChipGroup(
-                        items: const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        items: [
+                          l10n.monday,
+                          l10n.tuesday,
+                          l10n.wednesday,
+                          l10n.thursday,
+                          l10n.friday,
+                          l10n.saturday,
+                          l10n.sunday,
+                        ],
                         selectedItems: {
-                          ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][_reminderDayOfWeek - 1]
+                          () {
+                            final dayNames = [
+                              l10n.monday,
+                              l10n.tuesday,
+                              l10n.wednesday,
+                              l10n.thursday,
+                              l10n.friday,
+                              l10n.saturday,
+                              l10n.sunday,
+                            ];
+                            // Bounds check for safety
+                            final index = _reminderDayOfWeek - 1;
+                            if (index >= 0 && index < dayNames.length) {
+                              return dayNames[index];
+                            }
+                            return dayNames[0]; // Default to Monday
+                          }()
                         },
                         onChanged: (selected) {
                           setState(() {
-                            _reminderDayOfWeek =
-                                ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                                        .indexOf(selected.first) +
-                                    1;
+                            final dayNames = [
+                              l10n.monday,
+                              l10n.tuesday,
+                              l10n.wednesday,
+                              l10n.thursday,
+                              l10n.friday,
+                              l10n.saturday,
+                              l10n.sunday,
+                            ];
+                            final index = dayNames.indexOf(selected.first);
+                            if (index >= 0 && index < dayNames.length) {
+                              _reminderDayOfWeek = index + 1;
+                            }
                           });
                         },
                       ),

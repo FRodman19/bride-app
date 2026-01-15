@@ -583,5 +583,19 @@
   },
   "neverSynced": "Jamais synchronisé",
   "syncComplete": "Synchronisation terminée",
-  "allChangesSynced": "Toutes les modifications ont été synchronisées"
+  "allChangesSynced": "Toutes les modifications ont été synchronisées",
+
+  "reminderNotifications": "Rappels de Notifications",
+  "reminderNotificationsHelper": "Recevez des rappels pour enregistrer vos métriques de performance",
+  "enableReminders": "Activer les Rappels",
+  "frequency": "Fréquence",
+  "selectReminderTime": "Sélectionner l'heure du rappel",
+  "selectDayOfWeek": "Sélectionner le jour de la semaine",
+  "monday": "Lundi",
+  "tuesday": "Mardi",
+  "wednesday": "Mercredi",
+  "thursday": "Jeudi",
+  "friday": "Vendredi",
+  "saturday": "Samedi",
+  "sunday": "Dimanche"
 }

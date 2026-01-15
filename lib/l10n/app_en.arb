@@ -687,5 +687,19 @@
   },
   "neverSynced": "Never synced",
   "syncComplete": "Sync complete",
-  "allChangesSynced": "All changes synced successfully"
+  "allChangesSynced": "All changes synced successfully",
+
+  "reminderNotifications": "Reminder Notifications",
+  "reminderNotificationsHelper": "Get reminded to log your performance metrics",
+  "enableReminders": "Enable Reminders",
+  "frequency": "Frequency",
+  "selectReminderTime": "Select reminder time",
+  "selectDayOfWeek": "Select day of week",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday"
 }
