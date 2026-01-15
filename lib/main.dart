@@ -76,10 +76,19 @@ class _MyAppState extends ConsumerState<MyApp> {
         final payload = launchDetails.notificationResponse?.payload;
         debugPrint('ColdStart: App launched from notification with payload: $payload');
 
-        // Wait for auth state to be ready, then navigate
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _handleLocalNotificationTap(payload);
-        });
+        // Listen for auth state to be ready, then navigate
+        ref.listen<AuthState>(
+          authProvider,
+          (previous, next) {
+            if (next is AuthAuthenticated) {
+              debugPrint('ColdStart: Auth ready, navigating with payload: $payload');
+              _handleLocalNotificationTap(payload);
+            } else {
+              debugPrint('ColdStart: User not authenticated, ignoring notification');
+            }
+          },
+          fireImmediately: true,
+        );
       }
     } catch (e) {
       debugPrint('ColdStart: Error checking launch details: $e');
@@ -99,10 +108,26 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     // Handle tracker-specific notifications (format: "tracker:trackerId")
     if (payload != null && payload.startsWith('tracker:')) {
-      final trackerId = payload.substring(8); // Remove "tracker:" prefix
-      if (trackerId.isNotEmpty) {
+      final trackerId = payload.substring(8).trim(); // Remove "tracker:" prefix
+
+      // Validate tracker ID format (UUID v4 pattern)
+      final uuidPattern = RegExp(
+        r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+        caseSensitive: false,
+      );
+
+      if (trackerId.isNotEmpty && uuidPattern.hasMatch(trackerId)) {
         debugPrint('NotificationTap: Navigating to log entry for tracker: $trackerId');
-        router.go(Routes.logEntryPath(trackerId));
+        try {
+          router.go(Routes.logEntryPath(trackerId));
+        } catch (e) {
+          debugPrint('NotificationTap: Navigation failed: $e');
+          router.go(Routes.dashboard);
+        }
+        return;
+      } else {
+        debugPrint('NotificationTap: Invalid tracker ID format: $trackerId');
+        router.go(Routes.dashboard);
         return;
       }
     }
@@ -131,10 +156,29 @@ class _MyAppState extends ConsumerState<MyApp> {
 
     // Navigate based on notification type
     if (data['type'] == 'daily_reminder' && data['tracker_id'] != null) {
-      // Navigate to the specific tracker
-      router.go('/trackers/${data['tracker_id']}');
+      final trackerId = data['tracker_id'] as String;
+
+      // Validate tracker ID format (UUID v4 pattern)
+      final uuidPattern = RegExp(
+        r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+        caseSensitive: false,
+      );
+
+      if (uuidPattern.hasMatch(trackerId)) {
+        debugPrint('FCMNotificationTap: Navigating to tracker: $trackerId');
+        try {
+          router.go(Routes.logEntryPath(trackerId));
+        } catch (e) {
+          debugPrint('FCMNotificationTap: Navigation failed: $e');
+          router.go(Routes.dashboard);
+        }
+      } else {
+        debugPrint('FCMNotificationTap: Invalid tracker ID format: $trackerId');
+        router.go(Routes.dashboard);
+      }
     } else {
       // Default to dashboard
+      debugPrint('FCMNotificationTap: Navigating to dashboard');
       router.go(Routes.dashboard);
     }
   }

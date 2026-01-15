@@ -662,16 +662,10 @@ class NotificationService {
           return granted ?? true; // Assume granted if null (older Android versions)
         }
       } else if (Platform.isIOS) {
-        final iosPlugin = _notifications.resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>();
-        if (iosPlugin != null) {
-          final granted = await iosPlugin.requestPermissions(
-            alert: false,
-            badge: false,
-            sound: false,
-          );
-          return granted ?? false;
-        }
+        // Note: flutter_local_notifications doesn't have a direct "check only" method for iOS
+        // We return true by default and let the user manually request if needed
+        // This prevents unnecessary permission dialogs
+        return true;
       }
       return true; // Default to true for other platforms
     } catch (e) {
