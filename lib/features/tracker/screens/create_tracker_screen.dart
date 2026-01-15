@@ -42,6 +42,12 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
   final Set<String> _selectedPlatforms = {"Facebook", "TikTok"};
   final Set<String> _selectedGoals = {};
 
+  // Reminder notification settings
+  bool _reminderEnabled = false;
+  String _reminderFrequency = 'daily';
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
+  int _reminderDayOfWeek = 1; // Monday
+
   String? _nameError;
   bool _isLoading = false;
 
@@ -83,6 +89,16 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
     }
   }
 
+  Future<void> _selectTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _reminderTime,
+    );
+    if (picked != null) {
+      setState(() => _reminderTime = picked);
+    }
+  }
+
   Future<void> _handleCreate() async {
     // Validate
     setState(() {
@@ -117,6 +133,12 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
               : _notesController.text.trim(),
           platforms: _selectedPlatforms.toList(),
           goalTypes: _selectedGoals.toList(),
+          reminderEnabled: _reminderEnabled,
+          reminderFrequency: _reminderFrequency,
+          reminderTime: _reminderEnabled
+              ? '${_reminderTime.hour.toString().padLeft(2, '0')}:${_reminderTime.minute.toString().padLeft(2, '0')}'
+              : null,
+          reminderDayOfWeek: _reminderFrequency == 'weekly' ? _reminderDayOfWeek : null,
         );
 
     if (mounted) {
@@ -305,6 +327,108 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                     controller: _notesController,
                     maxLength: 500,
                   ),
+
+                  const SizedBox(height: GOLSpacing.betweenSections),
+
+                  // Reminder Notifications Section
+                  GOLDivider(),
+                  const SizedBox(height: GOLSpacing.space6),
+
+                  _buildLabel('Reminder Notifications'),
+                  Text(
+                    'Get reminded to log your performance metrics',
+                    style: textTheme.bodySmall?.copyWith(color: colors.textSecondary),
+                  ),
+                  const SizedBox(height: GOLSpacing.space4),
+
+                  // Enable/disable switch
+                  GOLCard(
+                    variant: GOLCardVariant.elevated,
+                    child: Padding(
+                      padding: const EdgeInsets.all(GOLSpacing.space4),
+                      child: Row(
+                        children: [
+                          Icon(Iconsax.notification, color: colors.interactivePrimary),
+                          const SizedBox(width: GOLSpacing.space3),
+                          Expanded(
+                            child: Text(
+                              'Enable Reminders',
+                              style: textTheme.bodyMedium,
+                            ),
+                          ),
+                          Switch(
+                            value: _reminderEnabled,
+                            onChanged: (value) => setState(() => _reminderEnabled = value),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  if (_reminderEnabled) ...[
+                    const SizedBox(height: GOLSpacing.space4),
+
+                    // Frequency selector
+                    _buildLabel('Frequency'),
+                    const SizedBox(height: GOLSpacing.inputLabelGap),
+                    GOLSelectableChipGroup(
+                      items: const ['Daily', 'Weekly'],
+                      selectedItems: {_reminderFrequency == 'daily' ? 'Daily' : 'Weekly'},
+                      onChanged: (selected) {
+                        setState(() {
+                          _reminderFrequency = selected.first == 'Daily' ? 'daily' : 'weekly';
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: GOLSpacing.space4),
+
+                    // Time picker
+                    _buildLabel('Reminder Time'),
+                    const SizedBox(height: GOLSpacing.inputLabelGap),
+                    GOLCard(
+                      variant: GOLCardVariant.interactive,
+                      onTap: _selectTime,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: GOLSpacing.inputPaddingHorizontal,
+                        vertical: GOLSpacing.inputPaddingVertical,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Iconsax.clock, color: colors.textTertiary),
+                          const SizedBox(width: GOLSpacing.space3),
+                          Expanded(
+                            child: Text(
+                              _reminderTime.format(context),
+                              style: textTheme.bodyMedium,
+                            ),
+                          ),
+                          Icon(Iconsax.arrow_right_3, size: 16, color: colors.textTertiary),
+                        ],
+                      ),
+                    ),
+
+                    // Day picker (if weekly)
+                    if (_reminderFrequency == 'weekly') ...[
+                      const SizedBox(height: GOLSpacing.space4),
+                      _buildLabel('Day of Week'),
+                      const SizedBox(height: GOLSpacing.inputLabelGap),
+                      GOLSelectableChipGroup(
+                        items: const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        selectedItems: {
+                          ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][_reminderDayOfWeek - 1]
+                        },
+                        onChanged: (selected) {
+                          setState(() {
+                            _reminderDayOfWeek =
+                                ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                                        .indexOf(selected.first) +
+                                    1;
+                          });
+                        },
+                      ),
+                    ],
+                  ],
 
                   const SizedBox(height: GOLSpacing.betweenSections),
 
