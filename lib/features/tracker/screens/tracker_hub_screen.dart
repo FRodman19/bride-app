@@ -447,7 +447,7 @@ class _OverviewTab extends ConsumerWidget {
         totalSpend += entry.totalSpend;
         totalDmsLeads += entry.totalDmsLeads;
       }
-      totalProfit = totalRevenue - totalSpend;
+      totalProfit = totalRevenue - totalSpend - tracker.setupCost.round();
     }
 
     return SingleChildScrollView(
