@@ -532,6 +532,7 @@ class _EditTrackerScreenState extends ConsumerState<EditTrackerScreen> {
                       return dayNames[0]; // Default to Monday
                     }()
                   },
+                  singleSelect: true,
                   onChanged: (selected) {
                     setState(() {
                       final dayNames = [

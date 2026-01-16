@@ -454,6 +454,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                             return dayNames[0]; // Default to Monday
                           }()
                         },
+                        singleSelect: true,
                         onChanged: (selected) {
                           setState(() {
                             final dayNames = [
