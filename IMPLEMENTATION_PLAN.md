@@ -84,8 +84,8 @@ All screen designs are in: `performance-section-wireframe.md`
 
 ## Build Progress Tracker
 
-### Current Phase: PHASE 9 - Google Authentication
-### Last Updated: 2026-01-11
+### Current Phase: PHASE 7 - Performance Optimization & Testing
+### Last Updated: 2026-01-16
 
 ### Phase 1: Foundation Setup
 - [x] Dependencies added to pubspec.yaml (2026-01-02)
@@ -169,6 +169,7 @@ All screen designs are in: `performance-section-wireframe.md`
 - [x] FCM push notifications working (2026-01-11) (FCMService, Supabase sync, Edge Functions)
 - [x] Notification settings functional (2026-01-11) (settings sync to user_preferences table)
 - [x] Daily reminder scheduling working (2026-01-11) (hourly cron + daily-reminder Edge Function)
+- [x] Setup cost as initial negative (2026-01-16) (deducted from profit across all screens)
 - [ ] Performance optimization
 - [ ] Testing complete
 
@@ -179,15 +180,15 @@ All screen designs are in: `performance-section-wireframe.md`
 - [ ] AI form pre-fill working
 
 ### Phase 9: Enhanced Authentication with Google OAuth
-- [ ] Google Cloud Console project configured
-- [ ] Supabase Google OAuth provider enabled
-- [ ] Unified AuthScreen created
-- [ ] Google sign-in working on Android
-- [ ] Silent registration implemented
-- [ ] Email/password on unified screen
-- [ ] Deep links configured
-- [ ] Old screens removed
-- [ ] Testing complete
+- [x] Google Cloud Console project configured (2026-01-16)
+- [x] Supabase Google OAuth provider enabled (2026-01-16)
+- [x] Unified AuthScreen created (2026-01-16)
+- [x] Google sign-in working on Android (2026-01-16)
+- [x] Silent registration implemented (2026-01-16)
+- [x] Email/password on unified screen (2026-01-16)
+- [x] Deep links configured (2026-01-16)
+- [x] Old screens removed (2026-01-16)
+- [x] Testing complete (2026-01-16)
 
 ---
 
