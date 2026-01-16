@@ -377,6 +377,7 @@ class _CreateTrackerScreenState extends ConsumerState<CreateTrackerScreen> {
                     GOLSelectableChipGroup(
                       items: [l10n.daily, l10n.weekly],
                       selectedItems: {_reminderFrequency == 'daily' ? l10n.daily : l10n.weekly},
+                      singleSelect: true,
                       onChanged: (selected) {
                         setState(() {
                           _reminderFrequency = selected.first == l10n.daily ? 'daily' : 'weekly';

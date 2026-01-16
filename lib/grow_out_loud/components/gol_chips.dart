@@ -195,12 +195,14 @@ class GOLSelectableChipGroup extends StatelessWidget {
   final List<String> items;
   final Set<String> selectedItems;
   final ValueChanged<Set<String>> onChanged;
+  final bool singleSelect;
 
   const GOLSelectableChipGroup({
     super.key,
     required this.items,
     required this.selectedItems,
     required this.onChanged,
+    this.singleSelect = false,
   });
 
   @override
@@ -214,11 +216,18 @@ class GOLSelectableChipGroup extends StatelessWidget {
           label: item,
           selected: isSelected,
           onTap: () {
-            final newSelection = Set<String>.from(selectedItems);
-            if (isSelected) {
-              newSelection.remove(item);
+            Set<String> newSelection;
+            if (singleSelect) {
+              // Single select mode: replace selection with new item
+              newSelection = {item};
             } else {
-              newSelection.add(item);
+              // Multi select mode: toggle item in selection
+              newSelection = Set<String>.from(selectedItems);
+              if (isSelected) {
+                newSelection.remove(item);
+              } else {
+                newSelection.add(item);
+              }
             }
             onChanged(newSelection);
           },
