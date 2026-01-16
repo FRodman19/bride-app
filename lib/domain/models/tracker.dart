@@ -181,6 +181,8 @@ class Tracker {
     double totalSpend = 0,
     int entryCount = 0,
   }) {
+    final setupCost = (map['setup_cost'] as num?)?.toDouble() ?? 0;
+
     return Tracker(
       id: map['id'] as String,
       userId: map['user_id'] as String,
@@ -189,7 +191,7 @@ class Tracker {
       currency: map['currency'] as String? ?? 'XOF',
       revenueTarget: (map['revenue_target'] as num?)?.toDouble(),
       engagementTarget: map['engagement_target'] as int?,
-      setupCost: (map['setup_cost'] as num?)?.toDouble() ?? 0,
+      setupCost: setupCost,
       growthCostMonthly: (map['growth_cost_monthly'] as num?)?.toDouble() ?? 0,
       notes: map['notes'] as String?,
       isArchived: map['is_archived'] as bool? ?? false,
@@ -203,7 +205,7 @@ class Tracker {
       goalTypes: goalTypes,
       totalRevenue: totalRevenue,
       totalSpend: totalSpend,
-      totalProfit: totalRevenue - totalSpend,
+      totalProfit: totalRevenue - totalSpend - setupCost,
       entryCount: entryCount,
     );
   }
