@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' hide Column;
+// import 'package:drift/drift.dart' hide Column; // Removed - no longer using local caching
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/supabase_config.dart';
@@ -195,7 +195,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     );
   }
 
-  /// Sync trackers from remote Supabase to local.
+  /// Load trackers from Supabase (NO local caching).
   Future<void> _syncFromRemote(String userId) async {
     try {
       // Fetch trackers with full entry data including platform spends and posts
@@ -229,14 +229,9 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
           .eq('user_id', userId)
           .order('created_at', ascending: false);
 
-      final trackerDao = _ref.read(trackerDaoProvider);
-      final entryDao = _ref.read(entryDaoProvider);
-
       final domainTrackers = <domain.Tracker>[];
 
       for (final data in (response as List)) {
-        final trackerId = data['id'] as String;
-
         // Extract platforms
         final platforms = (data['tracker_platforms'] as List?)
                 ?.map((p) => p['platform'] as String)
@@ -249,7 +244,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
                 .toList() ??
             [];
 
-        // Calculate totals from entries
+        // Calculate totals from entries (NO local writes)
         double totalRevenue = 0;
         double totalSpend = 0;
         int entryCount = 0;
@@ -260,82 +255,15 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
           final entryRevenue = (entryData['total_revenue'] as num?)?.toInt() ?? 0;
           totalRevenue += entryRevenue;
 
-          // Sync entry to local database
-          final entryId = entryData['id'] as String;
-          final entryCompanion = DailyEntriesCompanion(
-            id: Value(entryId),
-            trackerId: Value(trackerId),
-            entryDate: Value(DateTime.parse(entryData['entry_date'] as String)),
-            totalRevenue: Value(entryRevenue),
-            totalDmsLeads: Value((entryData['total_dms_leads'] as num?)?.toInt() ?? 0),
-            notes: Value(entryData['notes'] as String?),
-            createdAt: Value(DateTime.parse(entryData['created_at'] as String)),
-            updatedAt: Value(DateTime.parse(entryData['updated_at'] as String)),
-            syncStatus: const Value('synced'),
-          );
-          await entryDao.insertEntry(entryCompanion);
-
-          // Sync platform spends to local database
+          // Calculate spend from platform spends (NO local writes)
           final spends = entryData['entry_platform_spends'] as List? ?? [];
-          final spendsMap = <String, int>{};
           for (final spend in spends) {
             final amount = (spend['amount'] as num?)?.toInt() ?? 0;
-            final platform = spend['platform'] as String;
-            spendsMap[platform] = amount;
             totalSpend += amount;
           }
-          // Save spends to local database
-          await entryDao.setSpends(entryId, spendsMap);
         }
 
-        // Sync posts to local database
-        final posts = data['posts'] as List? ?? [];
-        final postDao = _ref.read(postDaoProvider);
-        for (final postData in posts) {
-          final postCompanion = PostsCompanion(
-            id: Value(postData['id'] as String),
-            trackerId: Value(trackerId),
-            title: Value(postData['title'] as String),
-            platform: Value(postData['platform'] as String),
-            url: Value(postData['url'] as String?),
-            publishedDate: Value(postData['published_date'] != null
-                ? DateTime.parse(postData['published_date'] as String)
-                : null),
-            notes: Value(postData['notes'] as String?),
-            createdAt: Value(DateTime.parse(postData['created_at'] as String)),
-            updatedAt: Value(DateTime.parse(postData['updated_at'] as String)),
-            syncStatus: const Value('synced'),
-          );
-          await postDao.insertPost(postCompanion);
-        }
-
-        // Upsert tracker to local database
-        final trackerCompanion = TrackersCompanion(
-          id: Value(trackerId),
-          userId: Value(data['user_id'] as String),
-          name: Value(data['name'] as String),
-          startDate: Value(DateTime.parse(data['start_date'] as String)),
-          currency: Value(data['currency'] as String? ?? 'XOF'),
-          revenueTarget: Value(data['revenue_target'] as int?),
-          engagementTarget: Value(data['engagement_target'] as int?),
-          setupCost: Value(data['setup_cost'] as int? ?? 0),
-          growthCostMonthly: Value(data['growth_cost_monthly'] as int? ?? 0),
-          notes: Value(data['notes'] as String?),
-          isArchived: Value(data['is_archived'] as bool? ?? false),
-          reminderEnabled: Value(data['reminder_enabled'] as bool? ?? false),
-          reminderFrequency: Value(data['reminder_frequency'] as String? ?? 'none'),
-          reminderTime: Value(data['reminder_time'] as String?),
-          reminderDayOfWeek: Value(data['reminder_day_of_week'] as int?),
-          createdAt: Value(DateTime.parse(data['created_at'] as String)),
-          updatedAt: Value(DateTime.parse(data['updated_at'] as String)),
-          syncStatus: const Value('synced'),
-        );
-
-        await trackerDao.insertTracker(trackerCompanion);
-        await trackerDao.setTrackerPlatforms(trackerId, platforms);
-        await trackerDao.setTrackerGoals(trackerId, goalTypes);
-
-        // Create domain tracker
+        // Create domain tracker directly from Supabase data (NO local writes)
         domainTrackers.add(domain.Tracker.fromMap(
           {
             'id': data['id'],
@@ -368,8 +296,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         state = TrackersLoaded(domainTrackers);
       }
     } catch (e) {
-      // Remote sync failed, but we still have local data
-      // Log error but don't change state
+      // Sync failed - show error to user
+      if (mounted) {
+        state = TrackersError(_getUserFriendlyError(e, 'load'));
+      }
     }
   }
 
@@ -421,7 +351,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
 
     try {
       // Read providers BEFORE async operations to avoid lifecycle issues
-      final trackerDao = _ref.read(trackerDaoProvider);
       final notificationService = _ref.read(notificationServiceProvider);
 
       // Create domain tracker
@@ -482,31 +411,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         return TrackerResult.error(_getUserFriendlyError(e, 'save'));
       }
 
-      // 4. If Supabase succeeds, cache locally
-      final trackerCompanion = TrackersCompanion(
-        id: Value(tracker.id),
-        userId: Value(tracker.userId),
-        name: Value(tracker.name),
-        startDate: Value(tracker.startDate),
-        currency: Value(tracker.currency),
-        revenueTarget: Value(tracker.revenueTarget?.round()),
-        engagementTarget: Value(tracker.engagementTarget),
-        setupCost: Value(tracker.setupCost.round()),
-        growthCostMonthly: Value(tracker.growthCostMonthly.round()),
-        notes: Value(tracker.notes),
-        isArchived: const Value(false),
-        reminderEnabled: Value(tracker.reminderEnabled),
-        reminderFrequency: Value(tracker.reminderFrequency),
-        reminderTime: Value(tracker.reminderTime),
-        reminderDayOfWeek: Value(tracker.reminderDayOfWeek),
-        createdAt: Value(tracker.createdAt),
-        updatedAt: Value(tracker.updatedAt),
-        syncStatus: const Value('synced'),
-      );
-
-      await trackerDao.insertTracker(trackerCompanion);
-      await trackerDao.setTrackerPlatforms(tracker.id, platformsToUse);
-      await trackerDao.setTrackerGoals(tracker.id, goalTypes);
+      // NO local caching - Supabase is the source of truth
 
       // Schedule notification if enabled
       if (reminderEnabled && reminderFrequency != 'none' && reminderTime != null) {
@@ -542,7 +447,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         }
       }
 
-      // Reload trackers from local
+      // Reload trackers from Supabase to reflect the newly created tracker
       await loadTrackers();
 
       return TrackerResult.success(tracker);
@@ -566,7 +471,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     }
 
     try {
-      final trackerDao = _ref.read(trackerDaoProvider);
       final notificationService = _ref.read(notificationServiceProvider);
       final updatedTracker = tracker.copyWith(updatedAt: DateTime.now());
 
@@ -618,33 +522,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         return TrackerResult.error(_getUserFriendlyError(e, 'update'));
       }
 
-      // 4. If Supabase succeeds, cache locally
-      final trackerCompanion = TrackersCompanion(
-        id: Value(updatedTracker.id),
-        userId: Value(updatedTracker.userId),
-        name: Value(updatedTracker.name),
-        startDate: Value(updatedTracker.startDate),
-        currency: Value(updatedTracker.currency),
-        revenueTarget: Value(updatedTracker.revenueTarget?.round()),
-        engagementTarget: Value(updatedTracker.engagementTarget),
-        setupCost: Value(updatedTracker.setupCost.round()),
-        growthCostMonthly: Value(updatedTracker.growthCostMonthly.round()),
-        notes: Value(updatedTracker.notes),
-        isArchived: Value(updatedTracker.isArchived),
-        reminderEnabled: Value(updatedTracker.reminderEnabled),
-        reminderFrequency: Value(updatedTracker.reminderFrequency),
-        reminderTime: Value(updatedTracker.reminderTime),
-        reminderDayOfWeek: Value(updatedTracker.reminderDayOfWeek),
-        createdAt: Value(updatedTracker.createdAt),
-        updatedAt: Value(updatedTracker.updatedAt),
-        syncStatus: const Value('synced'),
-      );
-
-      await trackerDao.updateTracker(trackerCompanion);
-
-      // Update platforms and goals in local DB
-      await trackerDao.setTrackerPlatforms(updatedTracker.id, updatedTracker.platforms);
-      await trackerDao.setTrackerGoals(updatedTracker.id, updatedTracker.goalTypes);
+      // NO local caching - Supabase is the source of truth
 
       // Reschedule notification if settings changed
       if (updatedTracker.reminderEnabled &&
@@ -767,7 +645,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     }
 
     try {
-      final trackerDao = _ref.read(trackerDaoProvider);
       final notificationService = _ref.read(notificationServiceProvider);
 
       // Cancel notification and release ID BEFORE deletion
@@ -788,8 +665,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         return TrackerResult.error(_getUserFriendlyError(e, 'delete'));
       }
 
-      // 4. If Supabase succeeds, remove from local cache
-      await trackerDao.deleteTracker(trackerId);
+      // NO local caching - Supabase is the source of truth
 
       await loadTrackers();
       return TrackerResult.success(null);

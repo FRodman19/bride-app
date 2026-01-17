@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:drift/drift.dart' hide Column;
+// import 'package:drift/drift.dart' hide Column; // Removed - no longer using local caching
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/config/supabase_config.dart';
-import '../data/local/database.dart';
+// import '../data/local/database.dart'; // Removed - no longer using local caching
 import 'connectivity_provider.dart';
 import 'database_provider.dart';
 
@@ -352,19 +352,7 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
         return EntryResult.error(_getUserFriendlyError(e, 'save'));
       }
 
-      // 4. If Supabase succeeds, cache locally
-      final entryCompanion = DailyEntriesCompanion.insert(
-        id: entry.id,
-        trackerId: entry.trackerId,
-        entryDate: entry.entryDate,
-        totalRevenue: entry.totalRevenue,
-        totalDmsLeads: Value(entry.totalDmsLeads),
-        notes: Value(entry.notes),
-        syncStatus: const Value('synced'), // Always synced in online-first
-      );
-
-      await entryDao.insertEntry(entryCompanion);
-      await entryDao.setSpends(entry.id, platformSpends);
+      // NO local caching - Supabase is the source of truth
 
       await loadEntries();
       return EntryResult.success(entry);
@@ -383,7 +371,6 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
     }
 
     try {
-      final entryDao = _ref.read(entryDaoProvider);
       final updatedEntry = entry.copyWith(updatedAt: DateTime.now());
 
       // 2. Write to Supabase FIRST
@@ -412,21 +399,7 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
         return EntryResult.error(_getUserFriendlyError(e, 'update'));
       }
 
-      // 4. If Supabase succeeds, cache locally
-      final entryCompanion = DailyEntriesCompanion(
-        id: Value(updatedEntry.id),
-        trackerId: Value(updatedEntry.trackerId),
-        entryDate: Value(updatedEntry.entryDate),
-        totalRevenue: Value(updatedEntry.totalRevenue),
-        totalDmsLeads: Value(updatedEntry.totalDmsLeads),
-        notes: Value(updatedEntry.notes),
-        createdAt: Value(updatedEntry.createdAt),
-        updatedAt: Value(updatedEntry.updatedAt),
-        syncStatus: const Value('synced'),
-      );
-
-      await entryDao.updateEntry(entryCompanion);
-      await entryDao.setSpends(updatedEntry.id, updatedEntry.platformSpends);
+      // NO local caching - Supabase is the source of truth
 
       await loadEntries();
       return EntryResult.success(updatedEntry);
@@ -445,8 +418,6 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
     }
 
     try {
-      final entryDao = _ref.read(entryDaoProvider);
-
       // 2. Delete from Supabase FIRST
       try {
         await SupabaseConfig.client.from('entry_platform_spends').delete().eq('entry_id', entryId);
@@ -456,8 +427,7 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
         return EntryResult.error(_getUserFriendlyError(e, 'delete'));
       }
 
-      // 4. If Supabase succeeds, remove from cache
-      await entryDao.deleteEntry(entryId);
+      // NO local caching - Supabase is the source of truth
 
       await loadEntries();
       return EntryResult.success(null);

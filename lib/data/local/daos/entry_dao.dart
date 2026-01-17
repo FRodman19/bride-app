@@ -37,9 +37,18 @@ class EntryDao extends DatabaseAccessor<AppDatabase> with _$EntryDaoMixin {
         .getSingleOrNull();
   }
 
-  /// Insert a new entry
+  /// Upsert an entry (insert or replace if exists)
+  Future<void> upsertEntry(DailyEntriesCompanion entry) {
+    return into(dailyEntries).insert(
+      entry,
+      mode: InsertMode.insertOrReplace,
+    );
+  }
+
+  /// Insert a new entry (legacy - use upsertEntry instead)
+  @Deprecated('Use upsertEntry to handle conflicts properly')
   Future<void> insertEntry(DailyEntriesCompanion entry) {
-    return into(dailyEntries).insert(entry);
+    return upsertEntry(entry);
   }
 
   /// Update an existing entry

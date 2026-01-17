@@ -33,9 +33,18 @@ class PostDao {
     return (_db.select(_db.posts)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
-  /// Insert a new post.
+  /// Upsert a post (insert or replace if exists)
+  Future<void> upsertPost(PostsCompanion post) async {
+    await _db.into(_db.posts).insert(
+      post,
+      mode: InsertMode.insertOrReplace,
+    );
+  }
+
+  /// Insert a new post (legacy - use upsertPost instead)
+  @Deprecated('Use upsertPost to handle conflicts properly')
   Future<void> insertPost(PostsCompanion post) async {
-    await _db.into(_db.posts).insert(post);
+    await upsertPost(post);
   }
 
   /// Update an existing post.

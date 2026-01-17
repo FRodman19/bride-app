@@ -42,9 +42,18 @@ class TrackerDao extends DatabaseAccessor<AppDatabase> with _$TrackerDaoMixin {
     return result.read(count) ?? 0;
   }
 
-  /// Insert a new tracker
+  /// Upsert a tracker (insert or replace if exists)
+  Future<void> upsertTracker(TrackersCompanion tracker) {
+    return into(trackers).insert(
+      tracker,
+      mode: InsertMode.insertOrReplace,
+    );
+  }
+
+  /// Insert a new tracker (legacy - use upsertTracker instead)
+  @Deprecated('Use upsertTracker to handle conflicts properly')
   Future<void> insertTracker(TrackersCompanion tracker) {
-    return into(trackers).insert(tracker);
+    return upsertTracker(tracker);
   }
 
   /// Update an existing tracker

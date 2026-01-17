@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' hide Column;
+// import 'package:drift/drift.dart' hide Column; // Removed - no longer using local caching
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -298,19 +298,7 @@ class PostsNotifier extends StateNotifier<PostsState> {
         return PostResult.error(_getUserFriendlyError(e, 'save'));
       }
 
-      // 4. If Supabase succeeds, cache locally
-      final postCompanion = PostsCompanion.insert(
-        id: post.id,
-        trackerId: post.trackerId,
-        title: post.title,
-        platform: post.platform,
-        url: Value(post.url),
-        publishedDate: Value(post.publishedDate),
-        notes: Value(post.notes),
-        syncStatus: const Value('synced'), // Always synced in online-first
-      );
-
-      await _postDao.insertPost(postCompanion);
+      // NO local caching - Supabase is the source of truth
 
       await loadPosts();
       return PostResult.success(post);
@@ -346,21 +334,7 @@ class PostsNotifier extends StateNotifier<PostsState> {
         return PostResult.error(_getUserFriendlyError(e, 'update'));
       }
 
-      // 4. If Supabase succeeds, cache locally
-      final postCompanion = PostsCompanion(
-        id: Value(updatedPost.id),
-        trackerId: Value(updatedPost.trackerId),
-        title: Value(updatedPost.title),
-        platform: Value(updatedPost.platform),
-        url: Value(updatedPost.url),
-        publishedDate: Value(updatedPost.publishedDate),
-        notes: Value(updatedPost.notes),
-        createdAt: Value(updatedPost.createdAt),
-        updatedAt: Value(updatedPost.updatedAt),
-        syncStatus: const Value('synced'),
-      );
-
-      await _postDao.updatePost(postCompanion);
+      // NO local caching - Supabase is the source of truth
 
       await loadPosts();
       return PostResult.success(updatedPost);
@@ -387,8 +361,7 @@ class PostsNotifier extends StateNotifier<PostsState> {
         return PostResult.error(_getUserFriendlyError(e, 'delete'));
       }
 
-      // 4. If Supabase succeeds, remove from cache
-      await _postDao.deletePost(postId);
+      // NO local caching - Supabase is the source of truth
 
       await loadPosts();
       return PostResult.success(null);
