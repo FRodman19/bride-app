@@ -406,13 +406,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 onSync: () => _handleSync(),
               ),
 
-              const SizedBox(height: GOLSpacing.space3),
-
-              // EMERGENCY DATA RECOVERY (temporary - for frankwultof@gmail.com)
-              _EmergencyRecoveryTile(
-                onTap: () => context.push(Routes.dataRecovery),
-              ),
-
               const SizedBox(height: GOLSpacing.space6),
 
               // ABOUT SECTION
@@ -1377,69 +1370,5 @@ class _DailyReminderTile extends StatelessWidget {
     if (picked != null) {
       onTimeChanged(picked);
     }
-  }
-}
-
-/// Emergency Data Recovery Tile
-///
-/// TEMPORARY: For frankwultof@gmail.com to recover local data to Supabase.
-/// Remove after data recovery is complete.
-class _EmergencyRecoveryTile extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _EmergencyRecoveryTile({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
-    final textTheme = Theme.of(context).textTheme;
-
-    return GOLCard(
-      variant: GOLCardVariant.standard,
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(GOLSpacing.space2),
-            decoration: BoxDecoration(
-              color: GOLPrimitives.accent100,
-              borderRadius: BorderRadius.circular(GOLRadius.sm),
-            ),
-            child: const Icon(
-              Iconsax.recovery_convert,
-              size: 20,
-              color: GOLPrimitives.accent600,
-            ),
-          ),
-          const SizedBox(width: GOLSpacing.space3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Emergency Data Recovery',
-                  style: textTheme.bodyLarge?.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Upload all local data to Supabase',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Iconsax.arrow_right_3,
-            size: 16,
-            color: colors.textTertiary,
-          ),
-        ],
-      ),
-    );
   }
 }
