@@ -3,11 +3,7 @@ import '../theme/colors.dart';
 import '../theme/text_styles.dart';
 
 /// Button size variants
-enum ButtonSize {
-  small,
-  medium,
-  large,
-}
+enum ButtonSize { small, medium, large }
 
 /// Get button specs based on size
 class _ButtonSpecs {
@@ -112,15 +108,11 @@ class AppButton extends StatelessWidget {
                 ),
               )
             : icon != null
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      icon!,
-                      const SizedBox(width: 8),
-                      Text(text),
-                    ],
-                  )
-                : Text(text),
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [icon!, const SizedBox(width: 8), Text(text)],
+              )
+            : Text(text),
       ),
     );
   }
@@ -173,11 +165,7 @@ class AppButtonSecondary extends StatelessWidget {
         child: icon != null
             ? Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  icon!,
-                  const SizedBox(width: 8),
-                  Text(text),
-                ],
+                children: [icon!, const SizedBox(width: 8), Text(text)],
               )
             : Text(text),
       ),
@@ -226,11 +214,7 @@ class AppButtonTertiary extends StatelessWidget {
         child: icon != null
             ? Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  icon!,
-                  const SizedBox(width: 8),
-                  Text(text),
-                ],
+                children: [icon!, const SizedBox(width: 8), Text(text)],
               )
             : Text(text),
       ),
@@ -279,11 +263,7 @@ class AppButtonDestructive extends StatelessWidget {
         child: icon != null
             ? Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  icon!,
-                  const SizedBox(width: 8),
-                  Text(text),
-                ],
+                children: [icon!, const SizedBox(width: 8), Text(text)],
               )
             : Text(text),
       ),

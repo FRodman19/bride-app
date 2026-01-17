@@ -38,10 +38,10 @@ class DSChip extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: isSelected
-                      ? DSColors.white
-                      : (isDark ? DSColors.neutral200 : DSColors.black),
-                ),
+              color: isSelected
+                  ? DSColors.white
+                  : (isDark ? DSColors.neutral200 : DSColors.black),
+            ),
           ),
         ),
       ),

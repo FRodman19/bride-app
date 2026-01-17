@@ -15,6 +15,8 @@ class AuthTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onEditingComplete;
   final Widget? prefixIcon;
 
   const AuthTextField({
@@ -27,6 +29,8 @@ class AuthTextField extends StatefulWidget {
     this.keyboardType,
     this.textInputAction,
     this.onSubmitted,
+    this.onChanged,
+    this.onEditingComplete,
     this.prefixIcon,
   });
 
@@ -58,6 +62,8 @@ class _AuthTextFieldState extends State<AuthTextField> {
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
           onSubmitted: widget.onSubmitted,
+          onChanged: widget.onChanged,
+          onEditingComplete: widget.onEditingComplete,
           decoration: InputDecoration(
             hintText: widget.hintText,
             errorText: widget.errorText,

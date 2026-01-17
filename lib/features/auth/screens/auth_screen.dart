@@ -13,35 +13,32 @@ import '../../../core/utils/validators.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../widgets/auth_text_field.dart';
 
-/// Simple sign-up screen with all fields visible immediately and centered.
-class SignupScreen extends ConsumerStatefulWidget {
-  const SignupScreen({super.key});
+/// Simple sign-in screen with all fields visible immediately and centered.
+class AuthScreen extends ConsumerStatefulWidget {
+  const AuthScreen({super.key});
 
   @override
-  ConsumerState<SignupScreen> createState() => _SignupScreenState();
+  ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _SignupScreenState extends ConsumerState<SignupScreen> {
+class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
 
   bool _isGoogleLoading = false;
-  bool _isSignUpLoading = false;
+  bool _isSignInLoading = false;
 
   String? _emailError;
   String? _passwordError;
-  String? _confirmPasswordError;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  /// Handle Google sign-in (also handles sign-up automatically)
+  /// Handle Google sign-in
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isGoogleLoading = true);
 
@@ -72,55 +69,38 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     }
   }
 
-  /// Handle email/password sign-up
-  Future<void> _handleSignUp() async {
+  /// Handle email/password sign-in
+  Future<void> _handleSignIn() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
 
     setState(() {
       _emailError = Validators.email(email);
       _passwordError = Validators.password(password);
-      _confirmPasswordError = Validators.confirmPassword(
-        confirmPassword,
-        password,
-      );
     });
 
-    if (_emailError != null ||
-        _passwordError != null ||
-        _confirmPasswordError != null) {
+    if (_emailError != null || _passwordError != null) {
       return;
     }
 
-    setState(() => _isSignUpLoading = true);
+    setState(() => _isSignInLoading = true);
 
-    final result = await ref.read(authProvider.notifier).signUp(
+    final result = await ref.read(authProvider.notifier).signIn(
       email: email,
       password: password,
     );
 
     if (mounted) {
-      setState(() => _isSignUpLoading = false);
+      setState(() => _isSignInLoading = false);
 
       if (result.success) {
-        if (result.requiresEmailConfirmation) {
-          showGOLToast(
-            context,
-            'Check your email to confirm your account',
-            variant: GOLToastVariant.success,
-          );
-          // Navigate back to sign in
-          context.go(Routes.auth);
-        } else {
-          // Show welcome message for new users
-          showGOLToast(
-            context,
-            'Welcome to Rhydle! 👋',
-            variant: GOLToastVariant.info,
-          );
-          // Router will automatically redirect to dashboard
-        }
+        // Show welcome back message for returning users
+        showGOLToast(
+          context,
+          'Welcome back! 😊',
+          variant: GOLToastVariant.info,
+        );
+        // Router will automatically redirect to dashboard
       } else if (result.error != null) {
         showGOLToast(
           context,
@@ -148,7 +128,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               children: [
                 // Header
                 Text(
-                  'Create Account',
+                  'Welcome Back',
                   style: textTheme.displaySmall?.copyWith(
                     color: colors.textPrimary,
                     fontWeight: FontWeight.bold,
@@ -157,7 +137,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ),
                 const SizedBox(height: GOLSpacing.space2),
                 Text(
-                  'Sign up to get started',
+                  'Sign in to continue',
                   style: textTheme.bodyMedium?.copyWith(
                     color: colors.textSecondary,
                   ),
@@ -233,76 +213,71 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 // Password field
                 AuthTextField(
                   label: l10n.password,
-                  hintText: l10n.createPasswordHint,
+                  hintText: l10n.enterYourPassword,
                   controller: _passwordController,
                   errorText: _passwordError,
                   isPassword: true,
-                  textInputAction: TextInputAction.next,
+                  textInputAction: TextInputAction.done,
                   onChanged: (_) {
                     if (_passwordError != null) {
                       setState(() => _passwordError = null);
                     }
                   },
+                  onSubmitted: (_) => _handleSignIn(),
                   prefixIcon: Icon(
                     Iconsax.lock,
                     color: colors.textTertiary,
                   ),
                 ),
 
-                const SizedBox(height: GOLSpacing.space4),
+                const SizedBox(height: GOLSpacing.space3),
 
-                // Confirm Password field
-                AuthTextField(
-                  label: l10n.confirmPassword,
-                  hintText: l10n.reEnterPassword,
-                  controller: _confirmPasswordController,
-                  errorText: _confirmPasswordError,
-                  isPassword: true,
-                  textInputAction: TextInputAction.done,
-                  onChanged: (_) {
-                    if (_confirmPasswordError != null) {
-                      setState(() => _confirmPasswordError = null);
-                    }
-                  },
-                  onSubmitted: (_) => _handleSignUp(),
-                  prefixIcon: Icon(
-                    Iconsax.lock,
-                    color: colors.textTertiary,
+                // Forgot password link
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => context.push(Routes.forgotPassword),
+                    child: Text(
+                      l10n.forgotPassword,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colors.interactivePrimary,
+                      ),
+                    ),
                   ),
                 ),
 
-                const SizedBox(height: GOLSpacing.space6),
+                const SizedBox(height: GOLSpacing.space5),
 
-                // Sign Up button
+                // Sign In button
                 GOLButton(
-                  label: l10n.createAccount,
-                  onPressed: _isSignUpLoading ? null : _handleSignUp,
-                  isLoading: _isSignUpLoading,
+                  label: 'Sign In',
+                  onPressed: _isSignInLoading ? null : _handleSignIn,
+                  isLoading: _isSignInLoading,
                   fullWidth: true,
                   size: GOLButtonSize.large,
                 ),
 
                 const SizedBox(height: GOLSpacing.space5),
 
-                // Sign in link
+                // Sign up link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      "Don't have an account? ",
                       style: textTheme.bodyMedium?.copyWith(
                         color: colors.textSecondary,
                       ),
                     ),
                     TextButton(
-                      onPressed: () => context.go(Routes.auth),
+                      onPressed: () => context.push(Routes.signUp),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
                         minimumSize: const Size(0, 0),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Sign In',
+                        'Sign Up',
                         style: textTheme.bodyMedium?.copyWith(
                           color: colors.interactivePrimary,
                           fontWeight: FontWeight.w600,

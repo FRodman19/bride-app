@@ -49,6 +49,8 @@ dependencies:
   # Backend & Auth
   supabase_flutter: ^2.8.4
   crypto: ^3.0.3
+  google_sign_in: ^6.2.1         # Google OAuth for Android/iOS
+  sign_in_with_apple: ^6.1.0     # For future iOS compliance
 
   # Local Database (Offline-first)
   drift: ^2.23.1

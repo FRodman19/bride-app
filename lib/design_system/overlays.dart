@@ -41,10 +41,13 @@ class DSModal {
                   const SizedBox(height: DSSpacing.lg),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: actions
-                        .expand((widget) => [widget, const SizedBox(width: 8)])
-                        .toList()
-                      ..removeLast(),
+                    children:
+                        actions
+                            .expand(
+                              (widget) => [widget, const SizedBox(width: 8)],
+                            )
+                            .toList()
+                          ..removeLast(),
                   ),
                 ],
               ],
@@ -94,10 +97,7 @@ class DSBottomSheet {
 }
 
 class DSToast {
-  static void show({
-    required BuildContext context,
-    required String message,
-  }) {
+  static void show({required BuildContext context, required String message}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -113,11 +113,7 @@ class DSToast {
 }
 
 class DSInlineModal extends StatelessWidget {
-  const DSInlineModal({
-    super.key,
-    required this.title,
-    required this.body,
-  });
+  const DSInlineModal({super.key, required this.title, required this.body});
 
   final String title;
   final String body;
@@ -145,10 +141,7 @@ class DSInlineModal extends StatelessWidget {
                 onPressed: () {},
               ),
               const SizedBox(width: 8),
-              DSButton(
-                label: 'Confirm',
-                onPressed: () {},
-              ),
+              DSButton(label: 'Confirm', onPressed: () {}),
             ],
           ),
         ],

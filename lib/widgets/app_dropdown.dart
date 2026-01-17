@@ -47,19 +47,16 @@ class AppDropdown<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final bgColor = backgroundColor ??
-        (isDark ? AppColors.neutral900 : AppColors.white);
-    final bColor = borderColor ??
-        (isDark ? AppColors.neutral600 : AppColors.neutral400);
+    final bgColor =
+        backgroundColor ?? (isDark ? AppColors.neutral900 : AppColors.white);
+    final bColor =
+        borderColor ?? (isDark ? AppColors.neutral600 : AppColors.neutral400);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (label != null) ...[
-          Text(
-            label!,
-            style: TextStyles.labelMedium(brightness),
-          ),
+          Text(label!, style: TextStyles.labelMedium(brightness)),
           const SizedBox(height: 8),
         ],
         Container(
@@ -159,8 +156,7 @@ class AppDropdownMultiSelect<T> extends StatefulWidget {
       _AppDropdownMultiSelectState<T>();
 }
 
-class _AppDropdownMultiSelectState<T>
-    extends State<AppDropdownMultiSelect<T>> {
+class _AppDropdownMultiSelectState<T> extends State<AppDropdownMultiSelect<T>> {
   bool _isOpen = false;
 
   void _toggleItem(T value) {
@@ -177,19 +173,18 @@ class _AppDropdownMultiSelectState<T>
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final bgColor = widget.backgroundColor ??
+    final bgColor =
+        widget.backgroundColor ??
         (isDark ? AppColors.neutral900 : AppColors.white);
-    final bColor = widget.borderColor ??
+    final bColor =
+        widget.borderColor ??
         (isDark ? AppColors.neutral600 : AppColors.neutral400);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: TextStyles.labelMedium(brightness),
-          ),
+          Text(widget.label!, style: TextStyles.labelMedium(brightness)),
           const SizedBox(height: 8),
         ],
         GestureDetector(
@@ -217,9 +212,7 @@ class _AppDropdownMultiSelectState<T>
                   ),
                 ),
                 Icon(
-                  _isOpen
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
+                  _isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                   color: isDark ? AppColors.white : AppColors.black,
                 ),
               ],
@@ -259,14 +252,14 @@ class _AppDropdownMultiSelectState<T>
                             onChanged: item.enabled
                                 ? (value) => _toggleItem(item.value)
                                 : null,
-                            fillColor: WidgetStateProperty.resolveWith(
-                              (states) {
-                                if (states.contains(WidgetState.selected)) {
-                                  return AppColors.teal500;
-                                }
-                                return null;
-                              },
-                            ),
+                            fillColor: WidgetStateProperty.resolveWith((
+                              states,
+                            ) {
+                              if (states.contains(WidgetState.selected)) {
+                                return AppColors.teal500;
+                              }
+                              return null;
+                            }),
                           ),
                           const SizedBox(width: 12),
                           if (item.icon != null) ...[
@@ -274,9 +267,7 @@ class _AppDropdownMultiSelectState<T>
                               item.icon,
                               size: 20,
                               color: item.enabled
-                                  ? (isDark
-                                      ? AppColors.white
-                                      : AppColors.black)
+                                  ? (isDark ? AppColors.white : AppColors.black)
                                   : AppColors.secondaryTextColor(brightness),
                             ),
                             const SizedBox(width: 12),
@@ -342,8 +333,10 @@ class _AppDropdownSearchableState<T> extends State<AppDropdownSearchable<T>> {
   List<AppDropdownItem<T>> get _filteredItems {
     if (_searchQuery.isEmpty) return widget.items;
     return widget.items
-        .where((item) =>
-            item.label.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .where(
+          (item) =>
+              item.label.toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
         .toList();
   }
 
@@ -357,9 +350,11 @@ class _AppDropdownSearchableState<T> extends State<AppDropdownSearchable<T>> {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final bgColor = widget.backgroundColor ??
+    final bgColor =
+        widget.backgroundColor ??
         (isDark ? AppColors.neutral900 : AppColors.white);
-    final bColor = widget.borderColor ??
+    final bColor =
+        widget.borderColor ??
         (isDark ? AppColors.neutral600 : AppColors.neutral400);
 
     final selectedItem = widget.items.firstWhere(
@@ -374,10 +369,7 @@ class _AppDropdownSearchableState<T> extends State<AppDropdownSearchable<T>> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: TextStyles.labelMedium(brightness),
-          ),
+          Text(widget.label!, style: TextStyles.labelMedium(brightness)),
           const SizedBox(height: 8),
         ],
         GestureDetector(
@@ -406,9 +398,7 @@ class _AppDropdownSearchableState<T> extends State<AppDropdownSearchable<T>> {
                   ),
                 ),
                 Icon(
-                  _isOpen
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
+                  _isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                   color: isDark ? AppColors.white : AppColors.black,
                 ),
               ],
@@ -493,10 +483,11 @@ class _AppDropdownSearchableState<T> extends State<AppDropdownSearchable<T>> {
                                     size: 20,
                                     color: item.enabled
                                         ? (isDark
-                                            ? AppColors.white
-                                            : AppColors.black)
+                                              ? AppColors.white
+                                              : AppColors.black)
                                         : AppColors.secondaryTextColor(
-                                            brightness),
+                                            brightness,
+                                          ),
                                   ),
                                   const SizedBox(width: 12),
                                 ],
@@ -505,15 +496,17 @@ class _AppDropdownSearchableState<T> extends State<AppDropdownSearchable<T>> {
                                     item.label,
                                     style: TextStyles.bodyMedium(brightness)
                                         .copyWith(
-                                      color: item.enabled
-                                          ? AppColors.primaryTextColor(
-                                              brightness)
-                                          : AppColors.secondaryTextColor(
-                                              brightness),
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-                                    ),
+                                          color: item.enabled
+                                              ? AppColors.primaryTextColor(
+                                                  brightness,
+                                                )
+                                              : AppColors.secondaryTextColor(
+                                                  brightness,
+                                                ),
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.w400,
+                                        ),
                                   ),
                                 ),
                                 if (isSelected)

@@ -44,10 +44,10 @@ class AppBottomNavBar extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final activeCol = activeColor ?? AppColors.teal500;
-    final inactiveCol = inactiveColor ??
-        (isDark ? AppColors.neutral400 : AppColors.neutral600);
-    final bgColor = backgroundColor ??
-        (isDark ? AppColors.neutral900 : AppColors.white);
+    final inactiveCol =
+        inactiveColor ?? (isDark ? AppColors.neutral400 : AppColors.neutral600);
+    final bgColor =
+        backgroundColor ?? (isDark ? AppColors.neutral900 : AppColors.white);
 
     return Container(
       decoration: BoxDecoration(
@@ -162,10 +162,10 @@ class AppBottomNavBarFloating extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final activeCol = activeColor ?? AppColors.teal500;
-    final inactiveCol = inactiveColor ??
-        (isDark ? AppColors.neutral400 : AppColors.neutral600);
-    final bgColor = backgroundColor ??
-        (isDark ? AppColors.neutral800 : AppColors.white);
+    final inactiveCol =
+        inactiveColor ?? (isDark ? AppColors.neutral400 : AppColors.neutral600);
+    final bgColor =
+        backgroundColor ?? (isDark ? AppColors.neutral800 : AppColors.white);
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -218,11 +218,7 @@ class AppBottomNavBarFloating extends StatelessWidget {
                             ),
                           ),
                           if (item.badge != null)
-                            Positioned(
-                              right: -8,
-                              top: -4,
-                              child: item.badge!,
-                            ),
+                            Positioned(right: -8, top: -4, child: item.badge!),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -275,18 +271,16 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final bgColor = backgroundColor ??
-        (isDark ? AppColors.neutral900 : AppColors.white);
-    final fgColor = foregroundColor ??
-        (isDark ? AppColors.white : AppColors.black);
+    final bgColor =
+        backgroundColor ?? (isDark ? AppColors.neutral900 : AppColors.white);
+    final fgColor =
+        foregroundColor ?? (isDark ? AppColors.white : AppColors.black);
 
     return AppBar(
       title: title != null
           ? Text(
               title!,
-              style: TextStyles.titleLarge(brightness).copyWith(
-                color: fgColor,
-              ),
+              style: TextStyles.titleLarge(brightness).copyWith(color: fgColor),
             )
           : null,
       leading: leading,
@@ -329,8 +323,8 @@ class AppSearchBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final bgColor = backgroundColor ??
-        (isDark ? AppColors.neutral900 : AppColors.white);
+    final bgColor =
+        backgroundColor ?? (isDark ? AppColors.neutral900 : AppColors.white);
 
     return AppBar(
       backgroundColor: bgColor,
@@ -349,9 +343,9 @@ class AppSearchBar extends StatelessWidget implements PreferredSizeWidget {
           style: TextStyles.bodyMedium(brightness),
           decoration: InputDecoration(
             hintText: hintText ?? 'Search...',
-            hintStyle: TextStyles.bodyMedium(brightness).copyWith(
-              color: AppColors.secondaryTextColor(brightness),
-            ),
+            hintStyle: TextStyles.bodyMedium(
+              brightness,
+            ).copyWith(color: AppColors.secondaryTextColor(brightness)),
             prefixIcon: Icon(
               Icons.search,
               color: AppColors.secondaryTextColor(brightness),
@@ -431,8 +425,8 @@ class AppNavDrawer extends StatelessWidget {
                               color: isSelected
                                   ? AppColors.teal500
                                   : (isDark
-                                      ? AppColors.neutral400
-                                      : AppColors.neutral600),
+                                        ? AppColors.neutral400
+                                        : AppColors.neutral600),
                               size: 24,
                             ),
                             const SizedBox(width: 16),
@@ -441,13 +435,15 @@ class AppNavDrawer extends StatelessWidget {
                                 item.label,
                                 style: TextStyles.bodyMedium(brightness)
                                     .copyWith(
-                                  color: isSelected
-                                      ? AppColors.teal500
-                                      : AppColors.primaryTextColor(brightness),
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                ),
+                                      color: isSelected
+                                          ? AppColors.teal500
+                                          : AppColors.primaryTextColor(
+                                              brightness,
+                                            ),
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+                                    ),
                               ),
                             ),
                             if (item.badge != null) item.badge!,

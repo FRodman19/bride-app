@@ -465,16 +465,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: colors.stateError.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Iconsax.logout, size: 32, color: colors.stateError),
-            ),
-            const SizedBox(height: GOLSpacing.space4),
             Text(
               l10n.logoutConfirmTitle,
               style: textTheme.titleLarge?.copyWith(
@@ -497,30 +487,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: GOLSpacing.space3),
-            Container(
-              padding: const EdgeInsets.all(GOLSpacing.space3),
-              decoration: BoxDecoration(
-                color: colors.stateSuccess.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(GOLRadius.md),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Iconsax.tick_circle,
-                    size: 16,
-                    color: colors.stateSuccess,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Iconsax.tick_circle,
+                  size: 14,
+                  color: Colors.black,
+                ),
+                const SizedBox(width: GOLSpacing.space2),
+                Text(
+                  l10n.logoutDataSaved,
+                  style: textTheme.labelSmall?.copyWith(
+                    color: Colors.black,
                   ),
-                  const SizedBox(width: GOLSpacing.space2),
-                  Expanded(
-                    child: Text(
-                      l10n.logoutDataSaved,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: colors.stateSuccess,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
@@ -588,7 +570,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     if (!mounted) return;
 
     if (result.success) {
-      context.go(Routes.login);
+      context.go(Routes.auth);
     } else {
       setState(() => _isLoggingOut = false);
       showGOLToast(

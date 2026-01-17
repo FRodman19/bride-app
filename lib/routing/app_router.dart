@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../l10n/generated/app_localizations.dart';
-import '../features/auth/screens/login_screen.dart';
+import '../features/auth/screens/auth_screen.dart';
 import '../features/auth/screens/signup_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
@@ -57,16 +57,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoading = authState is AuthLoading;
       final isAuthenticated = authState is AuthAuthenticated;
       final isAuthRoute =
-          state.matchedLocation == Routes.login ||
+          state.matchedLocation == Routes.auth ||
           state.matchedLocation == Routes.signUp ||
           state.matchedLocation == Routes.forgotPassword;
 
       // Still loading - don't redirect
       if (isLoading) return null;
 
-      // Not authenticated and not on auth route - go to login
+      // Not authenticated and not on auth route - go to auth
       if (!isAuthenticated && !isAuthRoute) {
-        return Routes.login;
+        return Routes.auth;
       }
 
       // Authenticated and on auth route - go to dashboard
@@ -78,11 +78,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
 
     routes: [
-      // Auth routes
+      // Auth routes (Phase 9 - Google Authentication)
       GoRoute(
-        path: Routes.login,
-        name: 'login',
-        builder: (context, state) => const LoginScreen(),
+        path: Routes.auth,
+        name: 'auth',
+        builder: (context, state) => const AuthScreen(),
       ),
       GoRoute(
         path: Routes.signUp,

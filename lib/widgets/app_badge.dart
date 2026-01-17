@@ -3,11 +3,7 @@ import '../theme/colors.dart';
 import '../theme/text_styles.dart';
 
 /// Badge size variants
-enum BadgeSize {
-  small,
-  medium,
-  large,
-}
+enum BadgeSize { small, medium, large }
 
 /// Badge type for different use cases
 enum BadgeType {
@@ -69,29 +65,27 @@ class _BadgeSpecs {
               height: 16,
               paddingHorizontal: 4,
               paddingVertical: 2,
-              textStyle: TextStyles.labelSmall(brightness).copyWith(
-                fontSize: 10,
-                height: 1.2,
-              ),
+              textStyle: TextStyles.labelSmall(
+                brightness,
+              ).copyWith(fontSize: 10, height: 1.2),
             );
           case BadgeSize.medium:
             return _BadgeSpecs(
               height: 20,
               paddingHorizontal: 6,
               paddingVertical: 3,
-              textStyle: TextStyles.labelSmall(brightness).copyWith(
-                fontSize: 11,
-                height: 1.2,
-              ),
+              textStyle: TextStyles.labelSmall(
+                brightness,
+              ).copyWith(fontSize: 11, height: 1.2),
             );
           case BadgeSize.large:
             return _BadgeSpecs(
               height: 24,
               paddingHorizontal: 8,
               paddingVertical: 4,
-              textStyle: TextStyles.labelMedium(brightness).copyWith(
-                height: 1.2,
-              ),
+              textStyle: TextStyles.labelMedium(
+                brightness,
+              ).copyWith(height: 1.2),
             );
         }
       case BadgeType.label:
@@ -165,10 +159,7 @@ class AppBadgeSuccess extends StatelessWidget {
       child: Center(
         child: Text(
           label ?? '',
-          style: specs.textStyle?.copyWith(
-            color: AppColors.white,
-            height: 1.0,
-          ),
+          style: specs.textStyle?.copyWith(color: AppColors.white, height: 1.0),
         ),
       ),
     );
@@ -218,10 +209,7 @@ class AppBadgeError extends StatelessWidget {
       child: Center(
         child: Text(
           label ?? '',
-          style: specs.textStyle?.copyWith(
-            color: AppColors.white,
-            height: 1.0,
-          ),
+          style: specs.textStyle?.copyWith(color: AppColors.white, height: 1.0),
         ),
       ),
     );
@@ -271,10 +259,7 @@ class AppBadgeWarning extends StatelessWidget {
       child: Center(
         child: Text(
           label ?? '',
-          style: specs.textStyle?.copyWith(
-            color: AppColors.black,
-            height: 1.0,
-          ),
+          style: specs.textStyle?.copyWith(color: AppColors.black, height: 1.0),
         ),
       ),
     );
@@ -324,10 +309,7 @@ class AppBadgeInfo extends StatelessWidget {
       child: Center(
         child: Text(
           label ?? '',
-          style: specs.textStyle?.copyWith(
-            color: AppColors.white,
-            height: 1.0,
-          ),
+          style: specs.textStyle?.copyWith(color: AppColors.white, height: 1.0),
         ),
       ),
     );
@@ -377,10 +359,7 @@ class AppBadgePrimary extends StatelessWidget {
       child: Center(
         child: Text(
           label ?? '',
-          style: specs.textStyle?.copyWith(
-            color: AppColors.black,
-            height: 1.0,
-          ),
+          style: specs.textStyle?.copyWith(color: AppColors.black, height: 1.0),
         ),
       ),
     );
@@ -431,10 +410,7 @@ class AppBadgeNeutral extends StatelessWidget {
       child: Center(
         child: Text(
           label ?? '',
-          style: specs.textStyle?.copyWith(
-            color: AppColors.black,
-            height: 1.0,
-          ),
+          style: specs.textStyle?.copyWith(color: AppColors.black, height: 1.0),
         ),
       ),
     );

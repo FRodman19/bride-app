@@ -16,10 +16,7 @@ class GOLThemeData {
     return _baseTheme(GOLSemanticColors.dark, Brightness.dark);
   }
 
-  static ThemeData _baseTheme(
-    GOLSemanticColors colors,
-    Brightness brightness,
-  ) {
+  static ThemeData _baseTheme(GOLSemanticColors colors, Brightness brightness) {
     final textTheme = GOLTypography.baseTextTheme().apply(
       displayColor: colors.textPrimary,
       bodyColor: colors.textPrimary,
@@ -58,7 +55,9 @@ class GOLThemeData {
     return ThemeData(
       brightness: brightness,
       useMaterial3: true,
-      scaffoldBackgroundColor: colors.backgroundPrimary,
+      scaffoldBackgroundColor: brightness == Brightness.light
+          ? colors.backgroundSecondary
+          : colors.backgroundPrimary,
       colorScheme: colorScheme,
       textTheme: textTheme,
       // Cursor and text selection use accent color
@@ -75,6 +74,41 @@ class GOLThemeData {
         foregroundColor: colors.textPrimary,
         titleTextStyle: textTheme.headlineSmall,
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: colors.backgroundPrimary,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: colors.interactivePrimary.withValues(alpha: 0.2),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final isSelected = states.contains(WidgetState.selected);
+          return textTheme.labelMedium?.copyWith(
+            color: isSelected
+                ? (brightness == Brightness.light
+                      ? colors.textPrimary
+                      : colors.interactivePrimary)
+                : colors.textSecondary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final isSelected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            color: isSelected
+                ? colors.interactivePrimary
+                : colors.textSecondary,
+          );
+        }),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: colors.backgroundPrimary,
+        selectedItemColor: brightness == Brightness.light
+            ? colors
+                  .textPrimary // Black in light mode
+            : colors.interactivePrimary, // Accent in dark mode
+        unselectedItemColor: colors.textSecondary,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+      ),
       dividerColor: colors.borderDefault,
       dividerTheme: DividerThemeData(
         color: colors.borderDefault,
@@ -90,7 +124,10 @@ class GOLThemeData {
         hintStyle: textTheme.bodyMedium?.copyWith(color: colors.textTertiary),
         labelStyle: textTheme.labelSmall?.copyWith(color: colors.textSecondary),
         enabledBorder: _outline(colors.borderDefault, 1.5),
-        focusedBorder: _outline(colors.borderStrong, 2),  // Keep grey on focus, cursor has accent
+        focusedBorder: _outline(
+          colors.borderStrong,
+          2,
+        ), // Keep grey on focus, cursor has accent
         errorBorder: _outline(colors.stateError, 2),
         focusedErrorBorder: _outline(colors.stateError, 2),
       ),
@@ -117,8 +154,9 @@ class GOLThemeData {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: colors.backgroundInverse,
-        contentTextStyle:
-            textTheme.bodySmall?.copyWith(color: colors.textInverse),
+        contentTextStyle: textTheme.bodySmall?.copyWith(
+          color: colors.textInverse,
+        ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(GOLRadius.sm),
@@ -130,8 +168,9 @@ class GOLThemeData {
           borderRadius: BorderRadius.circular(GOLRadius.modal),
         ),
         titleTextStyle: textTheme.headlineMedium,
-        contentTextStyle:
-            textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: colors.textSecondary,
+        ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colors.surfaceRaised,

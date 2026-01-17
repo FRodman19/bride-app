@@ -228,9 +228,7 @@ class TextStyles {
       height: 1.6,
       letterSpacing: 1.5,
       color: AppColors.secondaryTextColor(brightness),
-    ).copyWith(
-      fontFeatures: [const FontFeature.enable('smcp')],
-    );
+    ).copyWith(fontFeatures: [const FontFeature.enable('smcp')]);
   }
 
   // ========== BUTTON TEXT STYLES ==========
