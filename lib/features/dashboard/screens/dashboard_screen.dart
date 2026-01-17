@@ -33,9 +33,9 @@ class DashboardScreen extends ConsumerWidget {
       body: SafeArea(
         child: switch (trackersState) {
           TrackersLoading() => GOLLoadingScreen(
-              message: 'Loading your performance data from Supabase...',
+              message: 'Loading your performance data...',
               icon: Iconsax.chart_1,
-              onRetry: () => ref.read(trackersProvider.notifier).loadTrackers(),
+              showRetryWhileLoading: false,
             ),
           TrackersError(:final message) => Center(
               child: Column(

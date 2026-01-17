@@ -36,7 +36,7 @@ class TrackersListScreen extends ConsumerWidget {
           TrackersLoading() => GOLLoadingScreen(
               message: 'Loading your projects...',
               icon: Iconsax.folder_2,
-              onRetry: () => ref.read(trackersProvider.notifier).loadTrackers(),
+              showRetryWhileLoading: false,
             ),
           TrackersError(:final message) => Center(
               child: Column(

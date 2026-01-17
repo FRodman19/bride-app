@@ -1269,9 +1269,9 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
     // Loading state
     if (entriesState is EntriesLoading) {
       return GOLLoadingScreen(
-        message: 'Loading entries from Supabase...',
+        message: 'Loading entries...',
         icon: Iconsax.document_text,
-        onRetry: () => ref.read(entriesProvider(widget.tracker.id).notifier).loadEntries(),
+        showRetryWhileLoading: false,
       );
     }
 
