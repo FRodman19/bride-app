@@ -41,7 +41,11 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      animationDuration: const Duration(milliseconds: 150), // Fast, snappy animation (default: 300ms)
+    );
   }
 
   @override

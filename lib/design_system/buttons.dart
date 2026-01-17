@@ -5,7 +5,9 @@ import 'progress.dart';
 import 'theme.dart';
 
 enum DSButtonVariant { primary, secondary, tertiary, text }
+
 enum DSButtonSize { small, medium, large }
+
 enum DSButtonState { normal, hover, pressed, disabled, loading }
 
 class DSButton extends StatelessWidget {
@@ -33,7 +35,8 @@ class DSButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final disabled = onPressed == null ||
+    final disabled =
+        onPressed == null ||
         stateOverride == DSButtonState.disabled ||
         isLoading ||
         stateOverride == DSButtonState.loading;
@@ -51,7 +54,9 @@ class DSButton extends StatelessWidget {
 
     final style = ButtonStyle(
       padding: MaterialStateProperty.all(padding),
-      minimumSize: MaterialStateProperty.all(Size(fullWidth ? double.infinity : 0, height)),
+      minimumSize: MaterialStateProperty.all(
+        Size(fullWidth ? double.infinity : 0, height),
+      ),
       backgroundColor: MaterialStateProperty.all(colors.background),
       foregroundColor: MaterialStateProperty.all(colors.foreground),
       overlayColor: MaterialStateProperty.all(colors.overlay),
@@ -94,7 +99,7 @@ class DSButton extends StatelessWidget {
             loading: DSColors.orange500,
           ),
           foreground: DSColors.black,
-          overlay: DSColors.orange600.withOpacity(0.1),
+          overlay: DSColors.orange600.withValues(alpha: 0.1),
           border: BorderSide.none,
         );
       case DSButtonVariant.secondary:
@@ -102,13 +107,13 @@ class DSButton extends StatelessWidget {
           background: _resolveByState(
             state,
             normal: Colors.transparent,
-            hover: DSColors.teal500.withOpacity(0.08),
-            pressed: DSColors.teal600.withOpacity(0.12),
+            hover: DSColors.teal500.withValues(alpha: 0.08),
+            pressed: DSColors.teal600.withValues(alpha: 0.12),
             disabled: Colors.transparent,
             loading: Colors.transparent,
           ),
           foreground: isDark ? DSColors.white : DSColors.black,
-          overlay: DSColors.teal600.withOpacity(0.08),
+          overlay: DSColors.teal600.withValues(alpha: 0.08),
           border: BorderSide(
             color: state == DSButtonState.disabled
                 ? DSColors.neutral300
@@ -127,7 +132,7 @@ class DSButton extends StatelessWidget {
             loading: DSColors.neutral200,
           ),
           foreground: DSColors.black,
-          overlay: DSColors.neutral300.withOpacity(0.2),
+          overlay: DSColors.neutral300.withValues(alpha: 0.2),
           border: BorderSide.none,
         );
       case DSButtonVariant.text:
@@ -135,17 +140,17 @@ class DSButton extends StatelessWidget {
           background: _resolveByState(
             state,
             normal: Colors.transparent,
-            hover: DSColors.teal500.withOpacity(0.1),
-            pressed: DSColors.teal600.withOpacity(0.12),
+            hover: DSColors.teal500.withValues(alpha: 0.1),
+            pressed: DSColors.teal600.withValues(alpha: 0.12),
             disabled: Colors.transparent,
             loading: Colors.transparent,
           ),
           foreground: state == DSButtonState.disabled
               ? DSColors.neutral500
               : (state == DSButtonState.pressed
-                  ? DSColors.teal600
-                  : DSColors.teal500),
-          overlay: DSColors.teal600.withOpacity(0.08),
+                    ? DSColors.teal600
+                    : DSColors.teal500),
+          overlay: DSColors.teal600.withValues(alpha: 0.08),
           border: BorderSide.none,
         );
     }
@@ -188,11 +193,7 @@ class DSButton extends StatelessWidget {
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 18),
-        const SizedBox(width: 8),
-        Text(label),
-      ],
+      children: [Icon(icon, size: 18), const SizedBox(width: 8), Text(label)],
     );
   }
 }

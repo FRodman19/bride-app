@@ -32,7 +32,7 @@ class DSCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(DSSpacing.cardRadius),
-        highlightColor: DSColors.teal500.withOpacity(0.08),
+        highlightColor: DSColors.teal500.withValues(alpha: 0.08),
         child: Padding(
           padding: padding ?? const EdgeInsets.all(DSSpacing.lg),
           child: child,

@@ -79,13 +79,28 @@ class AppBottomNavBar extends StatelessWidget {
                       children: [
                         Stack(
                           clipBehavior: Clip.none,
+                          alignment: Alignment.center,
                           children: [
-                            Icon(
-                              isActive && item.activeIcon != null
-                                  ? item.activeIcon
-                                  : item.icon,
-                              color: isActive ? activeCol : inactiveCol,
-                              size: 24,
+                            Container(
+                              padding: isActive
+                                  ? const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 4,
+                                    )
+                                  : EdgeInsets.zero,
+                              decoration: isActive
+                                  ? BoxDecoration(
+                                      color: activeCol,
+                                      borderRadius: BorderRadius.circular(16),
+                                    )
+                                  : null,
+                              child: Icon(
+                                isActive && item.activeIcon != null
+                                    ? item.activeIcon
+                                    : item.icon,
+                                color: isActive ? AppColors.black : inactiveCol,
+                                size: 24,
+                              ),
                             ),
                             if (item.badge != null)
                               Positioned(
@@ -100,7 +115,9 @@ class AppBottomNavBar extends StatelessWidget {
                           Text(
                             item.label,
                             style: TextStyles.labelSmall(brightness).copyWith(
-                              color: isActive ? activeCol : inactiveCol,
+                              color: isActive
+                                  ? (isDark ? AppColors.white : AppColors.black)
+                                  : inactiveCol,
                               fontSize: 10,
                             ),
                             maxLines: 1,
@@ -177,13 +194,28 @@ class AppBottomNavBarFloating extends StatelessWidget {
                     children: [
                       Stack(
                         clipBehavior: Clip.none,
+                        alignment: Alignment.center,
                         children: [
-                          Icon(
-                            isActive && item.activeIcon != null
-                                ? item.activeIcon
-                                : item.icon,
-                            color: isActive ? activeCol : inactiveCol,
-                            size: 24,
+                          Container(
+                            padding: isActive
+                                ? const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 4,
+                                  )
+                                : EdgeInsets.zero,
+                            decoration: isActive
+                                ? BoxDecoration(
+                                    color: activeCol,
+                                    borderRadius: BorderRadius.circular(16),
+                                  )
+                                : null,
+                            child: Icon(
+                              isActive && item.activeIcon != null
+                                  ? item.activeIcon
+                                  : item.icon,
+                              color: isActive ? AppColors.black : inactiveCol,
+                              size: 24,
+                            ),
                           ),
                           if (item.badge != null)
                             Positioned(
@@ -197,7 +229,9 @@ class AppBottomNavBarFloating extends StatelessWidget {
                       Text(
                         item.label,
                         style: TextStyles.labelSmall(brightness).copyWith(
-                          color: isActive ? activeCol : inactiveCol,
+                          color: isActive
+                              ? (isDark ? AppColors.white : AppColors.black)
+                              : inactiveCol,
                           fontSize: 10,
                         ),
                         maxLines: 1,

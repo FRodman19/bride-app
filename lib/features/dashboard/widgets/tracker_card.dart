@@ -45,19 +45,21 @@ class TrackerCard extends StatelessWidget {
     // Use normal text color for profit, only red for loss (more professional)
     final profitColor = isProfit ? colors.textPrimary : colors.stateError;
 
-    return GOLCard(
-      variant: GOLCardVariant.interactive,
+    // Wrap in RepaintBoundary to isolate repaints during scrolling
+    return RepaintBoundary(
+      child: GOLCard(
+      variant: GOLCardVariant.standard,
       onTap: onTap,
       padding: const EdgeInsets.all(GOLSpacing.cardPadding),
       child: Row(
         children: [
           // Icon
           Container(
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: colors.surfaceRaised,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(GOLSpacing.space2),
             ),
             child: Icon(
               Iconsax.chart_square,
@@ -136,6 +138,7 @@ class TrackerCard extends StatelessWidget {
             color: colors.textTertiary,
           ),
         ],
+      ),
       ),
     );
   }

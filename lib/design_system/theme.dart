@@ -286,7 +286,7 @@ class DSTheme {
         horizontal: DSSpacing.horizontalPadding,
         vertical: DSSpacing.verticalPadding,
       ),
-      hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+      hintStyle: TextStyle(color: textColor.withValues(alpha: 0.5)),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(DSSpacing.componentRadius),
         borderSide: BorderSide(color: borderColor),
@@ -344,7 +344,7 @@ class DSTheme {
     return SwitchThemeData(
       trackColor: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.selected)) {
-          return activeColor.withOpacity(0.4);
+          return activeColor.withValues(alpha: 0.4);
         }
         return inactiveColor;
       }),
@@ -362,7 +362,7 @@ class DSTheme {
   }) {
     return TabBarThemeData(
       labelColor: labelColor,
-      unselectedLabelColor: labelColor.withOpacity(0.5),
+      unselectedLabelColor: labelColor.withValues(alpha: 0.5),
       indicator: UnderlineTabIndicator(
         borderSide: BorderSide(color: indicatorColor, width: 2),
       ),

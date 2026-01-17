@@ -277,6 +277,9 @@ class _MainShell extends ConsumerWidget {
         currentIndex: _calculateSelectedIndex(context),
         onTap: (index) => _onItemTapped(index, context),
         enableFeedback: false, // No fancy animations per design system
+        selectedItemColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black,
         items: [
           BottomNavigationBarItem(
             icon: const SizedBox(
@@ -291,8 +294,8 @@ class _MainShell extends ConsumerWidget {
                 color: colors.interactivePrimary,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Center(
-                child: Icon(Iconsax.category5, color: colors.textInverse),
+              child: const Center(
+                child: Icon(Iconsax.category5, color: Colors.black),
               ),
             ),
             label: l10n.home,
@@ -310,8 +313,8 @@ class _MainShell extends ConsumerWidget {
                 color: colors.interactivePrimary,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Center(
-                child: Icon(Iconsax.folder_25, color: colors.textInverse),
+              child: const Center(
+                child: Icon(Iconsax.folder_25, color: Colors.black),
               ),
             ),
             label: l10n.projects,
@@ -329,8 +332,8 @@ class _MainShell extends ConsumerWidget {
                 color: colors.interactivePrimary,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Center(
-                child: Icon(Iconsax.profile_circle5, color: colors.textInverse),
+              child: const Center(
+                child: Icon(Iconsax.profile_circle5, color: Colors.black),
               ),
             ),
             label: l10n.settings,

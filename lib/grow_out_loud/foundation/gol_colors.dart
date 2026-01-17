@@ -34,16 +34,16 @@ class GOLPrimitives {
   static const Color dark1000 = Color(0xFFFFFFFF);
 
   // Accent.
-  static const Color accent50 = Color(0xFFFFF6E0);
-  static const Color accent100 = Color(0xFFFFECB9);
-  static const Color accent200 = Color(0xFFFFE08E);
-  static const Color accent300 = Color(0xFFFFD35F);
-  static const Color accent400 = Color(0xFFFFC12B);
-  static const Color accent500 = Color(0xFFFFAB00);
-  static const Color accent600 = Color(0xFFE69400);
-  static const Color accent700 = Color(0xFFC07F00);
-  static const Color accent800 = Color(0xFF9D6500);
-  static const Color accent900 = Color(0xFF7B4C00);
+  static const Color accent50 = Color(0xFFFEF9E7);
+  static const Color accent100 = Color(0xFFFEF0C4);
+  static const Color accent200 = Color(0xFFFDE69D);
+  static const Color accent300 = Color(0xFFFCDC76);
+  static const Color accent400 = Color(0xFFFBD458);
+  static const Color accent500 = Color(0xFFF9C10B);
+  static const Color accent600 = Color(0xFFE0AD0A);
+  static const Color accent700 = Color(0xFFC59509);
+  static const Color accent800 = Color(0xFFAA7E07);
+  static const Color accent900 = Color(0xFF8F6806);
 
   // Semantic.
   static const Color success50 = Color(0xFFF0FDF4);

@@ -35,7 +35,7 @@ class DSSlider extends StatelessWidget {
         activeTrackColor: DSColors.teal500,
         inactiveTrackColor: DSColors.neutral200,
         thumbColor: DSColors.teal500,
-        overlayColor: DSColors.teal500.withOpacity(0.2),
+        overlayColor: DSColors.teal500.withValues(alpha: 0.2),
         valueIndicatorColor: DSColors.teal500,
       ),
       child: Slider(

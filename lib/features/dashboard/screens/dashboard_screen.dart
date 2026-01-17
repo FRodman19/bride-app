@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../core/utils/scroll_performance.dart';
 import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../providers/tracker_provider.dart';
@@ -167,7 +168,7 @@ class _DashboardContent extends ConsumerWidget {
         // Trigger refresh via provider
       },
       child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: const SmoothScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
