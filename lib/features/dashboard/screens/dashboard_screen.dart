@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../core/utils/scroll_performance.dart';
+import '../../../grow_out_loud/components/gol_loading_screen.dart';
 import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../providers/tracker_provider.dart';
@@ -31,8 +32,10 @@ class DashboardScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: switch (trackersState) {
-          TrackersLoading() => const Center(
-              child: CircularProgressIndicator(),
+          TrackersLoading() => GOLLoadingScreen(
+              message: 'Loading your performance data from Supabase...',
+              icon: Iconsax.chart_1,
+              onRetry: () => ref.read(trackersProvider.notifier).loadTrackers(),
             ),
           TrackersError(:final message) => Center(
               child: Column(
@@ -171,7 +174,7 @@ class _DashboardContent extends ConsumerWidget {
 
     return RefreshIndicator(
       onRefresh: () async {
-        // Trigger refresh via provider
+        await ref.read(trackersProvider.notifier).loadTrackers();
       },
       child: SingleChildScrollView(
         physics: const SmoothScrollPhysics(parent: AlwaysScrollableScrollPhysics()),

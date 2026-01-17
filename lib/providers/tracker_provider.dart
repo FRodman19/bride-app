@@ -82,8 +82,11 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     // Watch auth state changes
     _ref.listen<AuthState>(authProvider, (previous, next) {
       if (next is AuthAuthenticated) {
+        // Immediately show loading state when user signs in
+        if (mounted) state = const TrackersLoading();
         loadTrackers();
       } else if (next is AuthUnauthenticated) {
+        // When user signs out, show empty state
         if (mounted) state = const TrackersLoaded([]);
       }
     }, fireImmediately: true);
@@ -139,7 +142,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
       return;
     }
 
-    if (mounted) state = const TrackersLoading();
+    // Set loading state if not already loading
+    if (mounted && state is! TrackersLoading) {
+      state = const TrackersLoading();
+    }
 
     try {
       // Check if online

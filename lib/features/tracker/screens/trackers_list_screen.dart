@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../grow_out_loud/components/gol_loading_screen.dart';
 import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/foundation/gol_radius.dart';
@@ -32,8 +33,10 @@ class TrackersListScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: switch (trackersState) {
-          TrackersLoading() => const Center(
-              child: CircularProgressIndicator(),
+          TrackersLoading() => GOLLoadingScreen(
+              message: 'Loading your projects...',
+              icon: Iconsax.folder_2,
+              onRetry: () => ref.read(trackersProvider.notifier).loadTrackers(),
             ),
           TrackersError(:final message) => Center(
               child: Column(
@@ -494,7 +497,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
 
     return RefreshIndicator(
       onRefresh: () async {
-        // Provider handles refresh
+        await ref.read(trackersProvider.notifier).loadTrackers();
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 
+import '../../../grow_out_loud/components/gol_loading_screen.dart';
 import '../../../grow_out_loud/foundation/gol_colors.dart';
 import '../../../grow_out_loud/foundation/gol_spacing.dart';
 import '../../../grow_out_loud/foundation/gol_radius.dart';
@@ -1267,7 +1268,11 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
 
     // Loading state
     if (entriesState is EntriesLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return GOLLoadingScreen(
+        message: 'Loading entries from Supabase...',
+        icon: Iconsax.document_text,
+        onRetry: () => ref.read(entriesProvider(widget.tracker.id).notifier).loadEntries(),
+      );
     }
 
     // Error state
@@ -3194,10 +3199,11 @@ class _PostsSection extends ConsumerWidget {
         const SizedBox(height: GOLSpacing.space3),
 
         if (postsState is PostsLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(GOLSpacing.space4),
-              child: CircularProgressIndicator(),
+          Padding(
+            padding: const EdgeInsets.all(GOLSpacing.space4),
+            child: GOLLoadingIndicator(
+              message: 'Loading posts...',
+              size: 20,
             ),
           )
         else if (postsState is PostsLoaded && postsState.posts.isEmpty)
