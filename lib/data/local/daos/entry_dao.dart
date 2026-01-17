@@ -135,4 +135,9 @@ class EntryDao extends DatabaseAccessor<AppDatabase> with _$EntryDaoMixin {
       DailyEntriesCompanion(syncStatus: Value(status)),
     );
   }
+
+  /// Get ALL entries (for data recovery)
+  Future<List<DailyEntry>> getAllEntries() {
+    return (select(dailyEntries)..orderBy([(e) => OrderingTerm.desc(e.entryDate)])).get();
+  }
 }

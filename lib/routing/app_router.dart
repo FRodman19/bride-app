@@ -19,6 +19,7 @@ import '../features/tracker/screens/archive_screen.dart';
 import '../features/tracker/screens/edit_tracker_screen.dart';
 import '../features/settings/screens/settings_screen.dart';
 import '../screens/grow_out_loud_gallery_screen.dart';
+import '../features/admin/screens/data_recovery_screen.dart';
 import '../grow_out_loud/foundation/gol_colors.dart';
 import '../providers/auth_provider.dart';
 import 'routes.dart';
@@ -252,6 +253,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.designSystemGallery,
         name: 'design-system-gallery',
         builder: (context, state) => const GrowOutLoudGalleryScreen(),
+      ),
+
+      // Data Recovery (admin/emergency only - for frankwultof@gmail.com)
+      GoRoute(
+        path: Routes.dataRecovery,
+        name: 'data-recovery',
+        builder: (context, state) => const DataRecoveryScreen(),
       ),
     ],
 

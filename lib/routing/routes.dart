@@ -16,6 +16,7 @@ class Routes {
 
   // Dev/Debug routes (temporary, remove in production)
   static const String designSystemGallery = '/design-system-v3';
+  static const String dataRecovery = '/admin/data-recovery'; // Emergency data recovery
 
   // Tracker routes
   static const String createTracker = '/trackers/create';

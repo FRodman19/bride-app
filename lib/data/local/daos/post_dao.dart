@@ -64,4 +64,13 @@ class PostDao {
     final result = await query.getSingle();
     return result.read(count) ?? 0;
   }
+
+  /// Get ALL posts (for data recovery).
+  Future<List<Post>> getAllPosts() async {
+    return (_db.select(_db.posts)
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.publishedDate, mode: OrderingMode.desc),
+          ]))
+        .get();
+  }
 }

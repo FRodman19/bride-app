@@ -144,4 +144,9 @@ class TrackerDao extends DatabaseAccessor<AppDatabase> with _$TrackerDaoMixin {
       const TrackersCompanion(syncStatus: Value('synced')),
     );
   }
+
+  /// Get ALL trackers (for data recovery)
+  Future<List<Tracker>> getAllTrackers() {
+    return (select(trackers)..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])).get();
+  }
 }
