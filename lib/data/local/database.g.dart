@@ -168,6 +168,56 @@ class $TrackersTable extends Trackers with TableInfo<$TrackersTable, Tracker> {
     requiredDuringInsert: false,
     defaultValue: const Constant('pending'),
   );
+  static const VerificationMeta _reminderEnabledMeta = const VerificationMeta(
+    'reminderEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> reminderEnabled = GeneratedColumn<bool>(
+    'reminder_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("reminder_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _reminderFrequencyMeta = const VerificationMeta(
+    'reminderFrequency',
+  );
+  @override
+  late final GeneratedColumn<String> reminderFrequency =
+      GeneratedColumn<String>(
+        'reminder_frequency',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('none'),
+      );
+  static const VerificationMeta _reminderTimeMeta = const VerificationMeta(
+    'reminderTime',
+  );
+  @override
+  late final GeneratedColumn<String> reminderTime = GeneratedColumn<String>(
+    'reminder_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reminderDayOfWeekMeta = const VerificationMeta(
+    'reminderDayOfWeek',
+  );
+  @override
+  late final GeneratedColumn<int> reminderDayOfWeek = GeneratedColumn<int>(
+    'reminder_day_of_week',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -184,6 +234,10 @@ class $TrackersTable extends Trackers with TableInfo<$TrackersTable, Tracker> {
     createdAt,
     updatedAt,
     syncStatus,
+    reminderEnabled,
+    reminderFrequency,
+    reminderTime,
+    reminderDayOfWeek,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -295,6 +349,42 @@ class $TrackersTable extends Trackers with TableInfo<$TrackersTable, Tracker> {
         syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
       );
     }
+    if (data.containsKey('reminder_enabled')) {
+      context.handle(
+        _reminderEnabledMeta,
+        reminderEnabled.isAcceptableOrUnknown(
+          data['reminder_enabled']!,
+          _reminderEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_frequency')) {
+      context.handle(
+        _reminderFrequencyMeta,
+        reminderFrequency.isAcceptableOrUnknown(
+          data['reminder_frequency']!,
+          _reminderFrequencyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_time')) {
+      context.handle(
+        _reminderTimeMeta,
+        reminderTime.isAcceptableOrUnknown(
+          data['reminder_time']!,
+          _reminderTimeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_day_of_week')) {
+      context.handle(
+        _reminderDayOfWeekMeta,
+        reminderDayOfWeek.isAcceptableOrUnknown(
+          data['reminder_day_of_week']!,
+          _reminderDayOfWeekMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -360,6 +450,22 @@ class $TrackersTable extends Trackers with TableInfo<$TrackersTable, Tracker> {
         DriftSqlType.string,
         data['${effectivePrefix}sync_status'],
       )!,
+      reminderEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}reminder_enabled'],
+      )!,
+      reminderFrequency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_frequency'],
+      )!,
+      reminderTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_time'],
+      ),
+      reminderDayOfWeek: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_day_of_week'],
+      ),
     );
   }
 
@@ -411,6 +517,18 @@ class Tracker extends DataClass implements Insertable<Tracker> {
 
   /// Sync status: 'synced', 'pending', 'error'
   final String syncStatus;
+
+  /// Whether reminder notifications are enabled
+  final bool reminderEnabled;
+
+  /// Reminder frequency: 'none', 'daily', 'weekly'
+  final String reminderFrequency;
+
+  /// Reminder time in HH:MM format (e.g., "09:00")
+  final String? reminderTime;
+
+  /// Day of week for weekly reminders (1=Monday, 7=Sunday)
+  final int? reminderDayOfWeek;
   const Tracker({
     required this.id,
     required this.userId,
@@ -426,6 +544,10 @@ class Tracker extends DataClass implements Insertable<Tracker> {
     required this.createdAt,
     required this.updatedAt,
     required this.syncStatus,
+    required this.reminderEnabled,
+    required this.reminderFrequency,
+    this.reminderTime,
+    this.reminderDayOfWeek,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -450,6 +572,14 @@ class Tracker extends DataClass implements Insertable<Tracker> {
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['sync_status'] = Variable<String>(syncStatus);
+    map['reminder_enabled'] = Variable<bool>(reminderEnabled);
+    map['reminder_frequency'] = Variable<String>(reminderFrequency);
+    if (!nullToAbsent || reminderTime != null) {
+      map['reminder_time'] = Variable<String>(reminderTime);
+    }
+    if (!nullToAbsent || reminderDayOfWeek != null) {
+      map['reminder_day_of_week'] = Variable<int>(reminderDayOfWeek);
+    }
     return map;
   }
 
@@ -475,6 +605,14 @@ class Tracker extends DataClass implements Insertable<Tracker> {
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       syncStatus: Value(syncStatus),
+      reminderEnabled: Value(reminderEnabled),
+      reminderFrequency: Value(reminderFrequency),
+      reminderTime: reminderTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderTime),
+      reminderDayOfWeek: reminderDayOfWeek == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderDayOfWeek),
     );
   }
 
@@ -498,6 +636,10 @@ class Tracker extends DataClass implements Insertable<Tracker> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       syncStatus: serializer.fromJson<String>(json['syncStatus']),
+      reminderEnabled: serializer.fromJson<bool>(json['reminderEnabled']),
+      reminderFrequency: serializer.fromJson<String>(json['reminderFrequency']),
+      reminderTime: serializer.fromJson<String?>(json['reminderTime']),
+      reminderDayOfWeek: serializer.fromJson<int?>(json['reminderDayOfWeek']),
     );
   }
   @override
@@ -518,6 +660,10 @@ class Tracker extends DataClass implements Insertable<Tracker> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'syncStatus': serializer.toJson<String>(syncStatus),
+      'reminderEnabled': serializer.toJson<bool>(reminderEnabled),
+      'reminderFrequency': serializer.toJson<String>(reminderFrequency),
+      'reminderTime': serializer.toJson<String?>(reminderTime),
+      'reminderDayOfWeek': serializer.toJson<int?>(reminderDayOfWeek),
     };
   }
 
@@ -536,6 +682,10 @@ class Tracker extends DataClass implements Insertable<Tracker> {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? syncStatus,
+    bool? reminderEnabled,
+    String? reminderFrequency,
+    Value<String?> reminderTime = const Value.absent(),
+    Value<int?> reminderDayOfWeek = const Value.absent(),
   }) => Tracker(
     id: id ?? this.id,
     userId: userId ?? this.userId,
@@ -555,6 +705,12 @@ class Tracker extends DataClass implements Insertable<Tracker> {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+    reminderFrequency: reminderFrequency ?? this.reminderFrequency,
+    reminderTime: reminderTime.present ? reminderTime.value : this.reminderTime,
+    reminderDayOfWeek: reminderDayOfWeek.present
+        ? reminderDayOfWeek.value
+        : this.reminderDayOfWeek,
   );
   Tracker copyWithCompanion(TrackersCompanion data) {
     return Tracker(
@@ -582,6 +738,18 @@ class Tracker extends DataClass implements Insertable<Tracker> {
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
           : this.syncStatus,
+      reminderEnabled: data.reminderEnabled.present
+          ? data.reminderEnabled.value
+          : this.reminderEnabled,
+      reminderFrequency: data.reminderFrequency.present
+          ? data.reminderFrequency.value
+          : this.reminderFrequency,
+      reminderTime: data.reminderTime.present
+          ? data.reminderTime.value
+          : this.reminderTime,
+      reminderDayOfWeek: data.reminderDayOfWeek.present
+          ? data.reminderDayOfWeek.value
+          : this.reminderDayOfWeek,
     );
   }
 
@@ -601,7 +769,11 @@ class Tracker extends DataClass implements Insertable<Tracker> {
           ..write('isArchived: $isArchived, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('syncStatus: $syncStatus')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('reminderEnabled: $reminderEnabled, ')
+          ..write('reminderFrequency: $reminderFrequency, ')
+          ..write('reminderTime: $reminderTime, ')
+          ..write('reminderDayOfWeek: $reminderDayOfWeek')
           ..write(')'))
         .toString();
   }
@@ -622,6 +794,10 @@ class Tracker extends DataClass implements Insertable<Tracker> {
     createdAt,
     updatedAt,
     syncStatus,
+    reminderEnabled,
+    reminderFrequency,
+    reminderTime,
+    reminderDayOfWeek,
   );
   @override
   bool operator ==(Object other) =>
@@ -640,7 +816,11 @@ class Tracker extends DataClass implements Insertable<Tracker> {
           other.isArchived == this.isArchived &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
-          other.syncStatus == this.syncStatus);
+          other.syncStatus == this.syncStatus &&
+          other.reminderEnabled == this.reminderEnabled &&
+          other.reminderFrequency == this.reminderFrequency &&
+          other.reminderTime == this.reminderTime &&
+          other.reminderDayOfWeek == this.reminderDayOfWeek);
 }
 
 class TrackersCompanion extends UpdateCompanion<Tracker> {
@@ -658,6 +838,10 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String> syncStatus;
+  final Value<bool> reminderEnabled;
+  final Value<String> reminderFrequency;
+  final Value<String?> reminderTime;
+  final Value<int?> reminderDayOfWeek;
   final Value<int> rowid;
   const TrackersCompanion({
     this.id = const Value.absent(),
@@ -674,6 +858,10 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.reminderEnabled = const Value.absent(),
+    this.reminderFrequency = const Value.absent(),
+    this.reminderTime = const Value.absent(),
+    this.reminderDayOfWeek = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TrackersCompanion.insert({
@@ -691,6 +879,10 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.reminderEnabled = const Value.absent(),
+    this.reminderFrequency = const Value.absent(),
+    this.reminderTime = const Value.absent(),
+    this.reminderDayOfWeek = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        userId = Value(userId),
@@ -711,6 +903,10 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? syncStatus,
+    Expression<bool>? reminderEnabled,
+    Expression<String>? reminderFrequency,
+    Expression<String>? reminderTime,
+    Expression<int>? reminderDayOfWeek,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -728,6 +924,10 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (reminderEnabled != null) 'reminder_enabled': reminderEnabled,
+      if (reminderFrequency != null) 'reminder_frequency': reminderFrequency,
+      if (reminderTime != null) 'reminder_time': reminderTime,
+      if (reminderDayOfWeek != null) 'reminder_day_of_week': reminderDayOfWeek,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -747,6 +947,10 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<String>? syncStatus,
+    Value<bool>? reminderEnabled,
+    Value<String>? reminderFrequency,
+    Value<String?>? reminderTime,
+    Value<int?>? reminderDayOfWeek,
     Value<int>? rowid,
   }) {
     return TrackersCompanion(
@@ -764,6 +968,10 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+      reminderFrequency: reminderFrequency ?? this.reminderFrequency,
+      reminderTime: reminderTime ?? this.reminderTime,
+      reminderDayOfWeek: reminderDayOfWeek ?? this.reminderDayOfWeek,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -813,6 +1021,18 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
     if (syncStatus.present) {
       map['sync_status'] = Variable<String>(syncStatus.value);
     }
+    if (reminderEnabled.present) {
+      map['reminder_enabled'] = Variable<bool>(reminderEnabled.value);
+    }
+    if (reminderFrequency.present) {
+      map['reminder_frequency'] = Variable<String>(reminderFrequency.value);
+    }
+    if (reminderTime.present) {
+      map['reminder_time'] = Variable<String>(reminderTime.value);
+    }
+    if (reminderDayOfWeek.present) {
+      map['reminder_day_of_week'] = Variable<int>(reminderDayOfWeek.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -836,6 +1056,10 @@ class TrackersCompanion extends UpdateCompanion<Tracker> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('reminderEnabled: $reminderEnabled, ')
+          ..write('reminderFrequency: $reminderFrequency, ')
+          ..write('reminderTime: $reminderTime, ')
+          ..write('reminderDayOfWeek: $reminderDayOfWeek, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3933,6 +4157,10 @@ typedef $$TrackersTableCreateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<String> syncStatus,
+      Value<bool> reminderEnabled,
+      Value<String> reminderFrequency,
+      Value<String?> reminderTime,
+      Value<int?> reminderDayOfWeek,
       Value<int> rowid,
     });
 typedef $$TrackersTableUpdateCompanionBuilder =
@@ -3951,6 +4179,10 @@ typedef $$TrackersTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<String> syncStatus,
+      Value<bool> reminderEnabled,
+      Value<String> reminderFrequency,
+      Value<String?> reminderTime,
+      Value<int?> reminderDayOfWeek,
       Value<int> rowid,
     });
 
@@ -4030,6 +4262,26 @@ class $$TrackersTableFilterComposer
 
   ColumnFilters<String> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get reminderEnabled => $composableBuilder(
+    column: $table.reminderEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderFrequency => $composableBuilder(
+    column: $table.reminderFrequency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderDayOfWeek => $composableBuilder(
+    column: $table.reminderDayOfWeek,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -4112,6 +4364,26 @@ class $$TrackersTableOrderingComposer
     column: $table.syncStatus,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get reminderEnabled => $composableBuilder(
+    column: $table.reminderEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderFrequency => $composableBuilder(
+    column: $table.reminderFrequency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderDayOfWeek => $composableBuilder(
+    column: $table.reminderDayOfWeek,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TrackersTableAnnotationComposer
@@ -4174,6 +4446,26 @@ class $$TrackersTableAnnotationComposer
     column: $table.syncStatus,
     builder: (column) => column,
   );
+
+  GeneratedColumn<bool> get reminderEnabled => $composableBuilder(
+    column: $table.reminderEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderFrequency => $composableBuilder(
+    column: $table.reminderFrequency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderDayOfWeek => $composableBuilder(
+    column: $table.reminderDayOfWeek,
+    builder: (column) => column,
+  );
 }
 
 class $$TrackersTableTableManager
@@ -4218,6 +4510,10 @@ class $$TrackersTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String> syncStatus = const Value.absent(),
+                Value<bool> reminderEnabled = const Value.absent(),
+                Value<String> reminderFrequency = const Value.absent(),
+                Value<String?> reminderTime = const Value.absent(),
+                Value<int?> reminderDayOfWeek = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TrackersCompanion(
                 id: id,
@@ -4234,6 +4530,10 @@ class $$TrackersTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 syncStatus: syncStatus,
+                reminderEnabled: reminderEnabled,
+                reminderFrequency: reminderFrequency,
+                reminderTime: reminderTime,
+                reminderDayOfWeek: reminderDayOfWeek,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4252,6 +4552,10 @@ class $$TrackersTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String> syncStatus = const Value.absent(),
+                Value<bool> reminderEnabled = const Value.absent(),
+                Value<String> reminderFrequency = const Value.absent(),
+                Value<String?> reminderTime = const Value.absent(),
+                Value<int?> reminderDayOfWeek = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TrackersCompanion.insert(
                 id: id,
@@ -4268,6 +4572,10 @@ class $$TrackersTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 syncStatus: syncStatus,
+                reminderEnabled: reminderEnabled,
+                reminderFrequency: reminderFrequency,
+                reminderTime: reminderTime,
+                reminderDayOfWeek: reminderDayOfWeek,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:drift/drift.dart' hide Column;
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/supabase_config.dart';
+import '../core/constants/platform_constants.dart';
 import '../domain/models/tracker.dart' as domain;
 import '../data/local/database.dart';
+import '../services/notification_service.dart';
 import 'auth_provider.dart';
 import 'connectivity_provider.dart';
 import 'database_provider.dart';
@@ -137,6 +140,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         state = TrackersLoaded(domainTrackers, pendingSyncCount: pendingCount);
       }
 
+      // Hydrate tracker reminders on app start
+      final notificationService = _ref.read(notificationServiceProvider);
+      await notificationService.hydrateTrackerReminders(domainTrackers);
+
       // Sync with remote if online
       if (_isOnline) {
         await _syncFromRemote(userId);
@@ -167,6 +174,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
       growthCostMonthly: driftTracker.growthCostMonthly.toDouble(),
       notes: driftTracker.notes,
       isArchived: driftTracker.isArchived,
+      reminderEnabled: driftTracker.reminderEnabled,
+      reminderFrequency: driftTracker.reminderFrequency,
+      reminderTime: driftTracker.reminderTime,
+      reminderDayOfWeek: driftTracker.reminderDayOfWeek,
       createdAt: driftTracker.createdAt,
       updatedAt: driftTracker.updatedAt,
       platforms: platforms.map((p) => p.platform).toList(),
@@ -305,6 +316,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
           growthCostMonthly: Value(data['growth_cost_monthly'] as int? ?? 0),
           notes: Value(data['notes'] as String?),
           isArchived: Value(data['is_archived'] as bool? ?? false),
+          reminderEnabled: Value(data['reminder_enabled'] as bool? ?? false),
+          reminderFrequency: Value(data['reminder_frequency'] as String? ?? 'none'),
+          reminderTime: Value(data['reminder_time'] as String?),
+          reminderDayOfWeek: Value(data['reminder_day_of_week'] as int?),
           createdAt: Value(DateTime.parse(data['created_at'] as String)),
           updatedAt: Value(DateTime.parse(data['updated_at'] as String)),
           syncStatus: const Value('synced'),
@@ -328,6 +343,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
             'growth_cost_monthly': data['growth_cost_monthly'] ?? 0,
             'notes': data['notes'],
             'is_archived': data['is_archived'] ?? false,
+            'reminder_enabled': data['reminder_enabled'] ?? false,
+            'reminder_frequency': data['reminder_frequency'] ?? 'none',
+            'reminder_time': data['reminder_time'],
+            'reminder_day_of_week': data['reminder_day_of_week'],
             'created_at': data['created_at'],
             'updated_at': data['updated_at'],
           },
@@ -359,9 +378,19 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     double setupCost = 0,
     double growthCostMonthly = 0,
     String? notes,
-    List<String> platforms = const ['Facebook', 'TikTok'],
+    List<String>? platforms,
     List<String> goalTypes = const [],
+    bool reminderEnabled = false,
+    String reminderFrequency = 'none',
+    String? reminderTime,
+    int? reminderDayOfWeek,
   }) async {
+    // Use default platforms from PlatformConstants if not provided
+    final platformsToUse = platforms ??
+        PlatformConstants.platforms
+            .take(2) // Default to first 2 platforms (Facebook, TikTok)
+            .map((p) => p.name)
+            .toList();
     final userId = _userId;
     if (userId == null) {
       return TrackerResult.error('Not authenticated');
@@ -377,6 +406,11 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     }
 
     try {
+      // Read providers BEFORE async operations to avoid lifecycle issues
+      final trackerDao = _ref.read(trackerDaoProvider);
+      final syncDao = _ref.read(syncDaoProvider);
+      final notificationService = _ref.read(notificationServiceProvider);
+
       // Create domain tracker
       final tracker = domain.Tracker.create(
         userId: userId,
@@ -388,12 +422,13 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         setupCost: setupCost,
         growthCostMonthly: growthCostMonthly,
         notes: notes,
-        platforms: platforms,
+        platforms: platformsToUse,
         goalTypes: goalTypes,
+        reminderEnabled: reminderEnabled,
+        reminderFrequency: reminderFrequency,
+        reminderTime: reminderTime,
+        reminderDayOfWeek: reminderDayOfWeek,
       );
-
-      final trackerDao = _ref.read(trackerDaoProvider);
-      final syncDao = _ref.read(syncDaoProvider);
 
       // Save to local database first
       final trackerCompanion = TrackersCompanion(
@@ -408,14 +443,52 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         growthCostMonthly: Value(tracker.growthCostMonthly.round()),
         notes: Value(tracker.notes),
         isArchived: const Value(false),
+        reminderEnabled: Value(tracker.reminderEnabled),
+        reminderFrequency: Value(tracker.reminderFrequency),
+        reminderTime: Value(tracker.reminderTime),
+        reminderDayOfWeek: Value(tracker.reminderDayOfWeek),
         createdAt: Value(tracker.createdAt),
         updatedAt: Value(tracker.updatedAt),
         syncStatus: Value(_isOnline ? 'synced' : 'pending'),
       );
 
       await trackerDao.insertTracker(trackerCompanion);
-      await trackerDao.setTrackerPlatforms(tracker.id, platforms);
+      await trackerDao.setTrackerPlatforms(tracker.id, platformsToUse);
       await trackerDao.setTrackerGoals(tracker.id, goalTypes);
+
+      // Schedule notification if enabled
+      if (reminderEnabled && reminderFrequency != 'none' && reminderTime != null) {
+        try {
+          final timeParts = reminderTime.split(':');
+          if (timeParts.length == 2) {
+            final hour = int.tryParse(timeParts[0]);
+            final minute = int.tryParse(timeParts[1]);
+
+            if (hour != null && minute != null &&
+                hour >= 0 && hour <= 23 &&
+                minute >= 0 && minute <= 59) {
+              // Validate day of week for weekly reminders
+              if (reminderFrequency == 'weekly' &&
+                  (reminderDayOfWeek == null || reminderDayOfWeek < 1 || reminderDayOfWeek > 7)) {
+                debugPrint('Invalid day of week: $reminderDayOfWeek');
+              } else {
+                await notificationService.scheduleTrackerReminder(
+                  trackerId: tracker.id,
+                  trackerName: tracker.name,
+                  frequency: reminderFrequency,
+                  time: TimeOfDay(hour: hour, minute: minute),
+                  dayOfWeek: reminderDayOfWeek,
+                );
+              }
+            } else {
+              debugPrint('Invalid reminder time: $hour:$minute');
+            }
+          }
+        } catch (e) {
+          debugPrint('Failed to schedule notification: $e');
+          // Don't fail tracker creation if notification fails
+        }
+      }
 
       // Try to sync to remote if online
       if (_isOnline) {
@@ -425,8 +498,8 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
               .insert(tracker.toMap());
 
           // Insert platforms
-          if (platforms.isNotEmpty) {
-            final platformsData = platforms
+          if (platformsToUse.isNotEmpty) {
+            final platformsData = platformsToUse
                 .asMap()
                 .entries
                 .map((e) => {
@@ -492,6 +565,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     try {
       final trackerDao = _ref.read(trackerDaoProvider);
       final syncDao = _ref.read(syncDaoProvider);
+      final notificationService = _ref.read(notificationServiceProvider);
       final updatedTracker = tracker.copyWith(updatedAt: DateTime.now());
 
       // Update local first
@@ -507,6 +581,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         growthCostMonthly: Value(updatedTracker.growthCostMonthly.round()),
         notes: Value(updatedTracker.notes),
         isArchived: Value(updatedTracker.isArchived),
+        reminderEnabled: Value(updatedTracker.reminderEnabled),
+        reminderFrequency: Value(updatedTracker.reminderFrequency),
+        reminderTime: Value(updatedTracker.reminderTime),
+        reminderDayOfWeek: Value(updatedTracker.reminderDayOfWeek),
         createdAt: Value(updatedTracker.createdAt),
         updatedAt: Value(updatedTracker.updatedAt),
         syncStatus: Value(_isOnline ? 'synced' : 'pending'),
@@ -517,6 +595,50 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
       // Update platforms and goals in local DB
       await trackerDao.setTrackerPlatforms(updatedTracker.id, updatedTracker.platforms);
       await trackerDao.setTrackerGoals(updatedTracker.id, updatedTracker.goalTypes);
+
+      // Reschedule notification if settings changed
+      if (updatedTracker.reminderEnabled &&
+          updatedTracker.reminderFrequency != 'none' &&
+          updatedTracker.reminderTime != null) {
+        try {
+          final timeParts = updatedTracker.reminderTime!.split(':');
+          if (timeParts.length == 2) {
+            final hour = int.tryParse(timeParts[0]);
+            final minute = int.tryParse(timeParts[1]);
+
+            if (hour != null && minute != null &&
+                hour >= 0 && hour <= 23 &&
+                minute >= 0 && minute <= 59) {
+              // Validate day of week for weekly reminders
+              if (updatedTracker.reminderFrequency == 'weekly' &&
+                  (updatedTracker.reminderDayOfWeek == null ||
+                   updatedTracker.reminderDayOfWeek! < 1 ||
+                   updatedTracker.reminderDayOfWeek! > 7)) {
+                debugPrint('Invalid day of week: ${updatedTracker.reminderDayOfWeek}');
+              } else {
+                await notificationService.scheduleTrackerReminder(
+                  trackerId: updatedTracker.id,
+                  trackerName: updatedTracker.name,
+                  frequency: updatedTracker.reminderFrequency,
+                  time: TimeOfDay(hour: hour, minute: minute),
+                  dayOfWeek: updatedTracker.reminderDayOfWeek,
+                );
+              }
+            } else {
+              debugPrint('Invalid reminder time: $hour:$minute');
+            }
+          }
+        } catch (e) {
+          debugPrint('Failed to reschedule notification: $e');
+        }
+      } else {
+        // Cancel notification if disabled
+        try {
+          await notificationService.cancelTrackerReminder(updatedTracker.id);
+        } catch (e) {
+          debugPrint('Failed to cancel notification: $e');
+        }
+      }
 
       // Sync to remote if online
       if (_isOnline) {
@@ -635,6 +757,14 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     try {
       final trackerDao = _ref.read(trackerDaoProvider);
       final syncDao = _ref.read(syncDaoProvider);
+      final notificationService = _ref.read(notificationServiceProvider);
+
+      // Cancel notification and release ID BEFORE deletion
+      try {
+        await notificationService.cancelTrackerReminder(trackerId);
+      } catch (e) {
+        debugPrint('Failed to cancel notification on delete: $e');
+      }
 
       // Delete locally first
       await trackerDao.deleteTracker(trackerId);

@@ -31,7 +31,8 @@ class GOLCard extends StatelessWidget {
       child: child,
     );
 
-    if (variant == GOLCardVariant.interactive && onTap != null) {
+    // Make card tappable if onTap is provided, regardless of variant
+    if (onTap != null) {
       return Material(
         color: Colors.transparent,
         child: InkWell(

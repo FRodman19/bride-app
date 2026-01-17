@@ -6,8 +6,10 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../domain/models/tracker.dart';
 import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
+import 'notification_id_manager.dart';
 
 /// Callback type for handling notification taps
 typedef NotificationTapCallback = void Function(String? payload);
@@ -156,12 +158,22 @@ class NotificationService {
                 AndroidFlutterLocalNotificationsPlugin>();
 
         if (androidPlugin != null) {
-          // Create one channel for all reminders
+          // Create channel for general reminders
           await androidPlugin.createNotificationChannel(
             const AndroidNotificationChannel(
               'reminders',
               'Reminders',
               description: 'Daily and weekly reminder notifications',
+              importance: Importance.high,
+            ),
+          );
+
+          // Create channel for tracker reminders
+          await androidPlugin.createNotificationChannel(
+            const AndroidNotificationChannel(
+              'tracker_reminders',
+              'Tracker Reminders',
+              description: 'Per-tracker reminder notifications',
               importance: Importance.high,
             ),
           );
@@ -449,6 +461,242 @@ class NotificationService {
       );
     } catch (e) {
       debugPrint('NotificationService: Inexact schedule also failed: $e');
+    }
+  }
+
+  // ==================== TRACKER REMINDERS ====================
+
+  /// Get notification details for tracker reminders channel
+  NotificationDetails _getTrackerReminderDetails() {
+    return const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'tracker_reminders',
+        'Tracker Reminders',
+        channelDescription: 'Per-tracker reminder notifications',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
+    );
+  }
+
+  /// Schedule a reminder for a specific tracker
+  Future<void> scheduleTrackerReminder({
+    required String trackerId,
+    required String trackerName,
+    required String frequency,
+    required TimeOfDay time,
+    int? dayOfWeek,
+  }) async {
+    final ready = await _ensureReady();
+    if (!ready) return;
+
+    // Get collision-free notification ID from NotificationIdManager
+    final notificationId = await NotificationIdManager.getOrAssignId(trackerId);
+    await _notifications.cancel(notificationId);
+
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate;
+
+    if (frequency == 'daily') {
+      scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        time.hour,
+        time.minute,
+      );
+
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+
+      await _notifications.zonedSchedule(
+        notificationId,
+        'Time to update $trackerName',
+        'Log your ad spend and revenue for today',
+        scheduledDate,
+        _getTrackerReminderDetails(),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: 'tracker:$trackerId',
+      );
+
+      debugPrint(
+          'NotificationService: Daily tracker reminder scheduled for $trackerName at ${time.hour}:${time.minute.toString().padLeft(2, '0')}');
+    } else if (frequency == 'weekly' && dayOfWeek != null) {
+      // Find next occurrence of the specified day of week
+      scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        time.hour,
+        time.minute,
+      );
+
+      // Adjust to the correct day of week
+      while (scheduledDate.weekday != dayOfWeek) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+
+      // If time already passed this week, schedule for next week
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 7));
+      }
+
+      await _notifications.zonedSchedule(
+        notificationId,
+        'Time to update $trackerName',
+        'Log your ad spend and revenue for this week',
+        scheduledDate,
+        _getTrackerReminderDetails(),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+        payload: 'tracker:$trackerId',
+      );
+
+      final days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      debugPrint(
+          'NotificationService: Weekly tracker reminder scheduled for $trackerName on ${days[dayOfWeek]} at ${time.hour}:${time.minute.toString().padLeft(2, '0')}');
+    }
+  }
+
+  /// Cancel a tracker's reminder
+  Future<void> cancelTrackerReminder(String trackerId) async {
+    final notificationId = NotificationIdManager.getId(trackerId);
+    if (notificationId != null) {
+      await _notifications.cancel(notificationId);
+      debugPrint('NotificationService: Cancelled reminder for tracker $trackerId');
+    }
+    await NotificationIdManager.releaseId(trackerId);
+  }
+
+  /// Hydrate all tracker reminders from a list of trackers
+  /// Uses parallel batching (5 at a time) for optimal performance
+  Future<void> hydrateTrackerReminders(List<Tracker> trackers) async {
+    final ready = await _ensureReady();
+    if (!ready) {
+      debugPrint('NotificationService: Cannot hydrate tracker reminders - not ready');
+      return;
+    }
+
+    const batchSize = 5; // Process 5 at a time
+
+    for (var i = 0; i < trackers.length; i += batchSize) {
+      final batch = trackers.skip(i).take(batchSize).toList();
+
+      // Process batch in parallel
+      await Future.wait(
+        batch.map((tracker) async {
+          if (!tracker.isArchived && tracker.reminderEnabled &&
+              tracker.reminderFrequency != 'none' && tracker.reminderTime != null) {
+            final timeParts = tracker.reminderTime!.split(':');
+            if (timeParts.length == 2) {
+              final hour = int.tryParse(timeParts[0]);
+              final minute = int.tryParse(timeParts[1]);
+
+              if (hour != null && minute != null) {
+                try {
+                  await scheduleTrackerReminder(
+                    trackerId: tracker.id,
+                    trackerName: tracker.name,
+                    frequency: tracker.reminderFrequency,
+                    time: TimeOfDay(hour: hour, minute: minute),
+                    dayOfWeek: tracker.reminderDayOfWeek,
+                  );
+                } catch (e) {
+                  debugPrint('Failed to hydrate tracker ${tracker.name}: $e');
+                }
+              }
+            }
+          } else {
+            // Cancel reminder if tracker is archived or reminder is disabled
+            try {
+              await cancelTrackerReminder(tracker.id);
+            } catch (e) {
+              debugPrint('Failed to cancel tracker ${tracker.name}: $e');
+            }
+          }
+        }),
+        eagerError: false,
+      );
+
+      // Small delay between batches to prevent overwhelming the system
+      if (i + batchSize < trackers.length) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+    }
+
+    debugPrint('NotificationService: Hydrated ${trackers.length} tracker reminders');
+  }
+
+  /// Get notification app launch details (for cold start handling)
+  Future<NotificationAppLaunchDetails?> getNotificationAppLaunchDetails() async {
+    try {
+      return await _notifications.getNotificationAppLaunchDetails();
+    } catch (e) {
+      debugPrint('NotificationService: Error getting launch details: $e');
+      return null;
+    }
+  }
+
+  /// Check if notification permission is granted (Android 13+, iOS)
+  Future<bool> areNotificationsEnabled() async {
+    try {
+      if (Platform.isAndroid) {
+        final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+        if (androidPlugin != null) {
+          final granted = await androidPlugin.areNotificationsEnabled();
+          return granted ?? true; // Assume granted if null (older Android versions)
+        }
+      } else if (Platform.isIOS) {
+        // Note: flutter_local_notifications doesn't have a direct "check only" method for iOS
+        // We return true by default and let the user manually request if needed
+        // This prevents unnecessary permission dialogs
+        return true;
+      }
+      return true; // Default to true for other platforms
+    } catch (e) {
+      debugPrint('NotificationService: Error checking notification permission: $e');
+      return true; // Assume granted on error
+    }
+  }
+
+  /// Request notification permission (opens system settings on Android)
+  Future<void> requestNotificationPermission() async {
+    try {
+      if (Platform.isAndroid) {
+        final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+        if (androidPlugin != null) {
+          await androidPlugin.requestNotificationsPermission();
+        }
+      } else if (Platform.isIOS) {
+        final iosPlugin = _notifications.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>();
+        if (iosPlugin != null) {
+          await iosPlugin.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+        }
+      }
+      debugPrint('NotificationService: Notification permission requested');
+    } catch (e) {
+      debugPrint('NotificationService: Error requesting notification permission: $e');
     }
   }
 

@@ -2923,6 +2923,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All changes synced successfully'**
   String get allChangesSynced;
+
+  /// No description provided for @reminderNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder Notifications'**
+  String get reminderNotifications;
+
+  /// No description provided for @reminderNotificationsHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Get reminded to log your performance metrics'**
+  String get reminderNotificationsHelper;
+
+  /// No description provided for @enableReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Reminders'**
+  String get enableReminders;
+
+  /// No description provided for @frequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get frequency;
+
+  /// No description provided for @selectReminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select reminder time'**
+  String get selectReminderTime;
+
+  /// No description provided for @selectDayOfWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Select day of week'**
+  String get selectDayOfWeek;
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// No description provided for @saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// No description provided for @sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
 }
 
 class _AppLocalizationsDelegate

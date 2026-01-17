@@ -121,7 +121,7 @@ class _DashboardContent extends ConsumerWidget {
           trackerStats[tracker.id] = _TrackerStats(
             totalRevenue: revenue,
             totalSpend: spend,
-            totalProfit: revenue - spend,
+            totalProfit: revenue - spend - tracker.setupCost.round(),
             entryCount: entriesState.entries.length,
           );
         } else {
@@ -147,7 +147,7 @@ class _DashboardContent extends ConsumerWidget {
       totalSpend += stats.totalSpend;
     }
 
-    // Get active trackers sorted by live profit
+    // Get active trackers sorted by live profit (including setup cost)
     final activeTrackers = trackers
         .where((t) => !t.isArchived)
         .toList()

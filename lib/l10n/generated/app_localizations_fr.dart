@@ -1596,4 +1596,44 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get allChangesSynced =>
       'Toutes les modifications ont été synchronisées';
+
+  @override
+  String get reminderNotifications => 'Rappels de Notifications';
+
+  @override
+  String get reminderNotificationsHelper =>
+      'Recevez des rappels pour enregistrer vos métriques de performance';
+
+  @override
+  String get enableReminders => 'Activer les Rappels';
+
+  @override
+  String get frequency => 'Fréquence';
+
+  @override
+  String get selectReminderTime => 'Sélectionner l\'heure du rappel';
+
+  @override
+  String get selectDayOfWeek => 'Sélectionner le jour de la semaine';
+
+  @override
+  String get monday => 'Lundi';
+
+  @override
+  String get tuesday => 'Mardi';
+
+  @override
+  String get wednesday => 'Mercredi';
+
+  @override
+  String get thursday => 'Jeudi';
+
+  @override
+  String get friday => 'Vendredi';
+
+  @override
+  String get saturday => 'Samedi';
+
+  @override
+  String get sunday => 'Dimanche';
 }

@@ -40,14 +40,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   // Loading state
   bool _isLoggingOut = false;
 
-  // Exact alarm permission state (Android only)
-  bool _hasExactAlarmPermission = true; // Assume true until checked
+  // Notification permission states
+  bool _hasNotificationPermission = true; // Assume true until checked
+  bool _hasExactAlarmPermission = true; // Assume true until checked (Android only)
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkExactAlarmPermission();
+    _checkNotificationPermissions();
   }
 
   @override
@@ -58,9 +59,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Re-check permission when app comes back to foreground
+    // Re-check permissions when app comes back to foreground
     if (state == AppLifecycleState.resumed) {
-      _checkExactAlarmPermission();
+      _checkNotificationPermissions();
+    }
+  }
+
+  Future<void> _checkNotificationPermissions() async {
+    final notificationService = ref.read(notificationServiceProvider);
+
+    // Check general notification permission
+    final hasNotifications = await notificationService.areNotificationsEnabled();
+
+    // Check exact alarm permission (Android only)
+    bool hasExactAlarm = true;
+    if (Platform.isAndroid) {
+      hasExactAlarm = await notificationService.canScheduleExactAlarms();
+    }
+
+    if (mounted) {
+      setState(() {
+        _hasNotificationPermission = hasNotifications;
+        _hasExactAlarmPermission = hasExactAlarm;
+      });
     }
   }
 
@@ -73,6 +94,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       setState(() {
         _hasExactAlarmPermission = hasPermission;
       });
+    }
+  }
+
+  Future<void> _requestNotificationPermission() async {
+    final notificationService = ref.read(notificationServiceProvider);
+    await notificationService.requestNotificationPermission();
+
+    // Check again after user returns from settings
+    await Future.delayed(const Duration(milliseconds: 500));
+    await _checkNotificationPermissions();
+
+    // If permission was granted, show success message
+    if (_hasNotificationPermission && mounted) {
+      showGOLToast(
+        context,
+        'Notification permission granted!',
+        variant: GOLToastVariant.success,
+      );
     }
   }
 
@@ -240,6 +279,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               // NOTIFICATIONS SECTION
               _SectionHeader(title: l10n.notifications),
               const SizedBox(height: GOLSpacing.space3),
+
+              // Notification permission warning (if disabled)
+              if (!_hasNotificationPermission) ...[
+                _NotificationPermissionCard(
+                  onRequestPermission: _requestNotificationPermission,
+                ),
+                const SizedBox(height: GOLSpacing.space3),
+              ],
 
               // Exact alarm permission warning (Android only)
               if (Platform.isAndroid && !_hasExactAlarmPermission) ...[
@@ -1041,6 +1088,68 @@ class _LinkTile extends StatelessWidget {
               Icon(Iconsax.arrow_right_3, size: 16, color: colors.textTertiary),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Notification permission warning card.
+/// Shows when the app doesn't have notification permission.
+class _NotificationPermissionCard extends StatelessWidget {
+  final VoidCallback onRequestPermission;
+
+  const _NotificationPermissionCard({required this.onRequestPermission});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
+    final textTheme = Theme.of(context).textTheme;
+
+    return GOLCard(
+      variant: GOLCardVariant.standard,
+      padding: const EdgeInsets.all(GOLSpacing.cardPadding),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(color: colors.stateError, width: 3),
+          ),
+        ),
+        padding: const EdgeInsets.only(left: GOLSpacing.space3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Iconsax.notification_bing, size: 20, color: colors.stateError),
+                const SizedBox(width: GOLSpacing.space2),
+                Expanded(
+                  child: Text(
+                    'Notification permission required',
+                    style: textTheme.titleSmall?.copyWith(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: GOLSpacing.space2),
+            Text(
+              'Notifications are currently disabled. Please enable them in your device settings to receive reminders.',
+              style: textTheme.bodySmall?.copyWith(color: colors.textSecondary),
+            ),
+            const SizedBox(height: GOLSpacing.space3),
+            SizedBox(
+              width: double.infinity,
+              child: GOLButton(
+                label: 'Enable Notifications',
+                variant: GOLButtonVariant.secondary,
+                size: GOLButtonSize.small,
+                onPressed: onRequestPermission,
+              ),
+            ),
+          ],
         ),
       ),
     );

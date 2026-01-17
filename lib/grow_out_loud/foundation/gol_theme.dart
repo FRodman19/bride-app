@@ -82,9 +82,8 @@ class GOLThemeData {
           final isSelected = states.contains(WidgetState.selected);
           return textTheme.labelMedium?.copyWith(
             color: isSelected
-                ? (brightness == Brightness.light
-                      ? colors.textPrimary
-                      : colors.interactivePrimary)
+                ? colors
+                      .textPrimary // Use textPrimary (Black/White) for text
                 : colors.textSecondary,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           );
@@ -101,10 +100,12 @@ class GOLThemeData {
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         type: BottomNavigationBarType.fixed,
         backgroundColor: colors.backgroundPrimary,
-        selectedItemColor: brightness == Brightness.light
-            ? colors
-                  .textPrimary // Black in light mode
-            : colors.interactivePrimary, // Accent in dark mode
+        selectedItemColor: colors.interactivePrimary, // Icons stay accent
+        selectedLabelStyle: textTheme.labelMedium?.copyWith(
+          color:
+              colors.textPrimary, // Text is Black/White (overrides ItemColor)
+          fontWeight: FontWeight.w600,
+        ),
         unselectedItemColor: colors.textSecondary,
         showSelectedLabels: true,
         showUnselectedLabels: true,

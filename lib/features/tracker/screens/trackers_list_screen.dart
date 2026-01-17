@@ -480,7 +480,7 @@ class _TrackersListContentState extends ConsumerState<_TrackersListContent> {
           spend += entry.totalSpend;
         }
         trackerStats[tracker.id] = _TrackerStats(
-          totalProfit: revenue - spend,
+          totalProfit: revenue - spend - tracker.setupCost.round(),
           entryCount: entriesState.entries.length,
         );
       } else {
