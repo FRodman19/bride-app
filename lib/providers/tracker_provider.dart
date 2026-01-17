@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/supabase_config.dart';
 import '../core/constants/platform_constants.dart';
 import '../domain/models/tracker.dart' as domain;
-import '../data/local/database.dart';
+// import '../data/local/database.dart'; // Removed - no longer using local caching
 import '../services/notification_service.dart';
 import 'auth_provider.dart';
 import 'connectivity_provider.dart';
-import 'database_provider.dart';
+// import 'database_provider.dart'; // Removed - no longer using local caching
 
 /// State for trackers list.
 sealed class TrackersState {
@@ -157,42 +157,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     } catch (e) {
       if (mounted) state = TrackersError(_getUserFriendlyError(e, 'load'));
     }
-  }
-
-  /// Convert Drift Tracker to domain Tracker.
-  Future<domain.Tracker> _convertToDomainTracker(Tracker driftTracker) async {
-    final trackerDao = _ref.read(trackerDaoProvider);
-
-    // Get platforms and goals
-    final platforms = await trackerDao.getTrackerPlatforms(driftTracker.id);
-    final goals = await trackerDao.getTrackerGoals(driftTracker.id);
-
-    // TODO: Calculate totals from entries (for now, return 0s)
-    return domain.Tracker(
-      id: driftTracker.id,
-      userId: driftTracker.userId,
-      name: driftTracker.name,
-      startDate: driftTracker.startDate,
-      currency: driftTracker.currency,
-      revenueTarget: driftTracker.revenueTarget?.toDouble(),
-      engagementTarget: driftTracker.engagementTarget,
-      setupCost: driftTracker.setupCost.toDouble(),
-      growthCostMonthly: driftTracker.growthCostMonthly.toDouble(),
-      notes: driftTracker.notes,
-      isArchived: driftTracker.isArchived,
-      reminderEnabled: driftTracker.reminderEnabled,
-      reminderFrequency: driftTracker.reminderFrequency,
-      reminderTime: driftTracker.reminderTime,
-      reminderDayOfWeek: driftTracker.reminderDayOfWeek,
-      createdAt: driftTracker.createdAt,
-      updatedAt: driftTracker.updatedAt,
-      platforms: platforms.map((p) => p.platform).toList(),
-      goalTypes: goals.map((g) => g.goalType).toList(),
-      totalRevenue: 0,
-      totalSpend: 0,
-      totalProfit: 0,
-      entryCount: 0,
-    );
   }
 
   /// Load trackers from Supabase (NO local caching).

@@ -7,7 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../core/config/supabase_config.dart';
 // import '../data/local/database.dart'; // Removed - no longer using local caching
 import 'connectivity_provider.dart';
-import 'database_provider.dart';
+// import 'database_provider.dart'; // Removed - no longer using local caching
 
 /// Generate a deterministic UUID from entry_id and platform.
 /// This ensures the same spend always gets the same ID.
@@ -313,11 +313,15 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
     }
 
     try {
-      final entryDao = _ref.read(entryDaoProvider);
+      // Check for duplicate entry on same date (from Supabase, not local cache)
+      final existingResponse = await SupabaseConfig.client
+          .from('daily_entries')
+          .select('id')
+          .eq('tracker_id', trackerId)
+          .eq('entry_date', entryStart.toIso8601String().split('T')[0])
+          .maybeSingle();
 
-      // Check for duplicate entry on same date (from local cache)
-      final existing = await entryDao.getEntryForDate(trackerId, entryDate);
-      if (existing != null) {
+      if (existingResponse != null) {
         return EntryResult.error('An entry already exists for this date. Please edit the existing entry instead.');
       }
 
@@ -434,38 +438,6 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
     } catch (e) {
       return EntryResult.error(_getUserFriendlyError(e, 'delete'));
     }
-  }
-
-  /// Check if an entry exists for a given date.
-  Future<bool> hasEntryForDate(DateTime date) async {
-    final entryDao = _ref.read(entryDaoProvider);
-    final existing = await entryDao.getEntryForDate(trackerId, date);
-    return existing != null;
-  }
-
-  /// Get entry for a specific date (if exists).
-  Future<Entry?> getEntryForDate(DateTime date) async {
-    final entryDao = _ref.read(entryDaoProvider);
-    final entry = await entryDao.getEntryForDate(trackerId, date);
-    if (entry == null) return null;
-
-    final spends = await entryDao.getSpends(entry.id);
-    final spendsMap = <String, int>{};
-    for (final spend in spends) {
-      spendsMap[spend.platform] = spend.amount;
-    }
-
-    return Entry(
-      id: entry.id,
-      trackerId: entry.trackerId,
-      entryDate: entry.entryDate,
-      totalRevenue: entry.totalRevenue,
-      totalDmsLeads: entry.totalDmsLeads,
-      notes: entry.notes,
-      createdAt: entry.createdAt,
-      updatedAt: entry.updatedAt,
-      platformSpends: spendsMap,
-    );
   }
 }
 
