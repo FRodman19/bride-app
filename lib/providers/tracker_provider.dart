@@ -131,7 +131,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   }
 
   /// Load all trackers for the current user.
-  /// Uses local-first: loads from local DB, then syncs with remote if online.
+  /// ONLINE-FIRST: Loads ONLY from Supabase, never from local cache.
   Future<void> loadTrackers() async {
     final userId = _userId;
     if (userId == null) {
@@ -142,32 +142,20 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     if (mounted) state = const TrackersLoading();
 
     try {
-      final trackerDao = _ref.read(trackerDaoProvider);
-
-      // Load from local database first (fast)
-      final localTrackers = await trackerDao.getActiveTrackers(userId);
-      final archivedTrackers = await trackerDao.getArchivedTrackers(userId);
-
-      // Convert Drift models to domain models
-      final allTrackers = [...localTrackers, ...archivedTrackers];
-      final domainTrackers = await Future.wait(
-        allTrackers.map((t) => _convertToDomainTracker(t)),
-      );
-
-      if (mounted) {
-        state = TrackersLoaded(domainTrackers);
+      // Check if online
+      if (!_isOnline) {
+        if (mounted) {
+          state = const TrackersError(
+            "You're offline. Please check your internet connection and try again."
+          );
+        }
+        return;
       }
 
-      // Hydrate tracker reminders on app start
-      final notificationService = _ref.read(notificationServiceProvider);
-      await notificationService.hydrateTrackerReminders(domainTrackers);
-
-      // Sync with remote if online
-      if (_isOnline) {
-        await _syncFromRemote(userId);
-      }
+      // Load ONLY from Supabase (never from local)
+      await _syncFromRemote(userId);
     } catch (e) {
-      if (mounted) state = TrackersError('Failed to load trackers: $e');
+      if (mounted) state = TrackersError(_getUserFriendlyError(e, 'load'));
     }
   }
 

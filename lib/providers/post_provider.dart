@@ -212,13 +212,45 @@ class PostsNotifier extends StateNotifier<PostsState> {
     return "We couldn't $action your post. Please try again.";
   }
 
-  /// Load all posts for this tracker from local cache.
+  /// Load all posts for this tracker ONLY from Supabase.
+  /// ONLINE-FIRST: Never loads from local cache.
   Future<void> loadPosts() async {
     if (mounted) state = const PostsLoading();
 
     try {
-      final posts = await _postDao.getPostsForTracker(trackerId);
-      final domainPosts = posts.map((p) => PostModel.fromDb(p)).toList();
+      // Check if online
+      if (!_isOnline) {
+        if (mounted) {
+          state = const PostsError(
+            "You're offline. Please check your internet connection and try again."
+          );
+        }
+        return;
+      }
+
+      // Load ONLY from Supabase
+      final response = await SupabaseConfig.client
+          .from('posts')
+          .select('*')
+          .eq('tracker_id', trackerId)
+          .order('published_date', ascending: false);
+
+      // Convert to domain posts
+      final domainPosts = (response as List).map((data) {
+        return PostModel(
+          id: data['id'] as String,
+          trackerId: data['tracker_id'] as String,
+          title: data['title'] as String,
+          platform: data['platform'] as String,
+          url: data['url'] as String?,
+          publishedDate: data['published_date'] != null
+              ? DateTime.parse(data['published_date'] as String)
+              : null,
+          notes: data['notes'] as String?,
+          createdAt: DateTime.parse(data['created_at'] as String),
+          updatedAt: DateTime.parse(data['updated_at'] as String),
+        );
+      }).toList();
 
       if (mounted) {
         state = PostsLoaded(domainPosts, trackerId: trackerId);

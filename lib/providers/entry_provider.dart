@@ -229,34 +229,53 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
     return "We couldn't $action your entry. Please try again.";
   }
 
-  /// Load all entries for this tracker from local cache.
+  /// Load all entries for this tracker ONLY from Supabase.
+  /// ONLINE-FIRST: Never loads from local cache.
   Future<void> loadEntries() async {
     if (mounted) state = const EntriesLoading();
 
     try {
-      final entryDao = _ref.read(entryDaoProvider);
+      // Check if online
+      if (!_isOnline) {
+        if (mounted) {
+          state = const EntriesError(
+            "You're offline. Please check your internet connection and try again."
+          );
+        }
+        return;
+      }
 
-      // Load from local database (used as read cache)
-      final localEntries = await entryDao.getEntriesForTracker(trackerId);
+      // Load ONLY from Supabase
+      final response = await SupabaseConfig.client
+          .from('daily_entries')
+          .select('''
+            *,
+            entry_platform_spends(id, platform, amount)
+          ''')
+          .eq('tracker_id', trackerId)
+          .order('entry_date', ascending: false);
 
-      // Convert to domain entries with spends
+      // Convert to domain entries
       final domainEntries = <Entry>[];
-      for (final entry in localEntries) {
-        final spends = await entryDao.getSpends(entry.id);
+      for (final data in (response as List)) {
+        // Extract platform spends
+        final spendsData = data['entry_platform_spends'] as List?;
         final spendsMap = <String, int>{};
-        for (final spend in spends) {
-          spendsMap[spend.platform] = spend.amount;
+        if (spendsData != null) {
+          for (final spend in spendsData) {
+            spendsMap[spend['platform'] as String] = spend['amount'] as int;
+          }
         }
 
         domainEntries.add(Entry(
-          id: entry.id,
-          trackerId: entry.trackerId,
-          entryDate: entry.entryDate,
-          totalRevenue: entry.totalRevenue,
-          totalDmsLeads: entry.totalDmsLeads,
-          notes: entry.notes,
-          createdAt: entry.createdAt,
-          updatedAt: entry.updatedAt,
+          id: data['id'] as String,
+          trackerId: data['tracker_id'] as String,
+          entryDate: DateTime.parse(data['entry_date'] as String),
+          totalRevenue: data['total_revenue'] as int,
+          totalDmsLeads: data['total_dms_leads'] as int? ?? 0,
+          notes: data['notes'] as String?,
+          createdAt: DateTime.parse(data['created_at'] as String),
+          updatedAt: DateTime.parse(data['updated_at'] as String),
           platformSpends: spendsMap,
         ));
       }
