@@ -102,7 +102,7 @@ class Entry {
     return {
       'id': id,
       'tracker_id': trackerId,
-      'entry_date': entryDate.toIso8601String(),
+      'entry_date': entryDate.toIso8601String().split('T')[0], // Date only
       'total_revenue': totalRevenue,
       'total_dms_leads': totalDmsLeads,
       'notes': notes,
@@ -181,7 +181,14 @@ final entryByIdProvider = Provider.family<Entry?, ({String trackerId, String ent
   return null;
 });
 
-/// Notifier for managing entries with offline-first support.
+/// Notifier for managing entries with online-first approach.
+///
+/// ONLINE-FIRST ARCHITECTURE:
+/// 1. Check if online → if not, return friendly error
+/// 2. Write to Supabase FIRST
+/// 3. If Supabase fails → return friendly error (DO NOT save locally)
+/// 4. If Supabase succeeds → cache locally
+/// 5. No sync queue, no syncStatus checking
 class EntriesNotifier extends StateNotifier<EntriesState> {
   final Ref _ref;
   final String trackerId;
@@ -192,14 +199,44 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
 
   bool get _isOnline => _ref.read(connectivityProvider) == ConnectivityState.online;
 
-  /// Load all entries for this tracker.
+  /// Convert technical errors to user-friendly messages
+  String _getUserFriendlyError(dynamic error, String action) {
+    final errorStr = error.toString().toLowerCase();
+
+    // Network/connectivity errors
+    if (errorStr.contains('network') ||
+        errorStr.contains('socket') ||
+        errorStr.contains('connection') ||
+        errorStr.contains('timeout')) {
+      return "We couldn't $action your entry. Please check your internet connection and try again.";
+    }
+
+    // Supabase/server errors
+    if (errorStr.contains('postgrest') ||
+        errorStr.contains('supabase') ||
+        errorStr.contains('server')) {
+      return "We're having trouble connecting to our servers. Please try again in a moment.";
+    }
+
+    // Authentication errors
+    if (errorStr.contains('auth') ||
+        errorStr.contains('token') ||
+        errorStr.contains('unauthorized')) {
+      return "Your session has expired. Please sign in again.";
+    }
+
+    // Generic fallback
+    return "We couldn't $action your entry. Please try again.";
+  }
+
+  /// Load all entries for this tracker from local cache.
   Future<void> loadEntries() async {
     if (mounted) state = const EntriesLoading();
 
     try {
       final entryDao = _ref.read(entryDaoProvider);
 
-      // Load from local database
+      // Load from local database (used as read cache)
       final localEntries = await entryDao.getEntriesForTracker(trackerId);
 
       // Convert to domain entries with spends
@@ -228,11 +265,11 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
         state = EntriesLoaded(domainEntries, trackerId: trackerId);
       }
     } catch (e) {
-      if (mounted) state = EntriesError('Failed to load entries: $e');
+      if (mounted) state = EntriesError(_getUserFriendlyError(e, 'load'));
     }
   }
 
-  /// Create a new entry.
+  /// Create a new entry (ONLINE-FIRST).
   Future<EntryResult> createEntry({
     required DateTime entryDate,
     required int totalRevenue,
@@ -249,11 +286,17 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
       return EntryResult.error('Cannot log entries for future dates');
     }
 
+    // 1. Check if online
+    if (!_isOnline) {
+      return EntryResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     try {
       final entryDao = _ref.read(entryDaoProvider);
-      final syncDao = _ref.read(syncDaoProvider);
 
-      // Check for duplicate entry on same date
+      // Check for duplicate entry on same date (from local cache)
       final existing = await entryDao.getEntryForDate(trackerId, entryDate);
       if (existing != null) {
         return EntryResult.error('An entry already exists for this date. Please edit the existing entry instead.');
@@ -269,7 +312,28 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
         platformSpends: platformSpends,
       );
 
-      // Save to local database
+      // 2. Write to Supabase FIRST
+      try {
+        await SupabaseConfig.client.from('daily_entries').insert(entry.toMap());
+
+        // Insert platform spends
+        if (platformSpends.isNotEmpty) {
+          final spendsData = platformSpends.entries
+              .map((e) => {
+                    'id': _generateSpendId(entry.id, e.key),
+                    'entry_id': entry.id,
+                    'platform': e.key,
+                    'amount': e.value,
+                  })
+              .toList();
+          await SupabaseConfig.client.from('entry_platform_spends').insert(spendsData);
+        }
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT save locally)
+        return EntryResult.error(_getUserFriendlyError(e, 'save'));
+      }
+
+      // 4. If Supabase succeeds, cache locally
       final entryCompanion = DailyEntriesCompanion.insert(
         id: entry.id,
         trackerId: entry.trackerId,
@@ -277,66 +341,59 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
         totalRevenue: entry.totalRevenue,
         totalDmsLeads: Value(entry.totalDmsLeads),
         notes: Value(entry.notes),
-        syncStatus: Value(_isOnline ? 'synced' : 'pending'),
+        syncStatus: const Value('synced'), // Always synced in online-first
       );
 
       await entryDao.insertEntry(entryCompanion);
       await entryDao.setSpends(entry.id, platformSpends);
 
-      // Sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client.from('daily_entries').insert(entry.toMap());
-
-          // Insert platform spends
-          if (platformSpends.isNotEmpty) {
-            final spendsData = platformSpends.entries
-                .map((e) => {
-                      'id': _generateSpendId(entry.id, e.key),
-                      'entry_id': entry.id,
-                      'platform': e.key,
-                      'amount': e.value,
-                    })
-                .toList();
-            await SupabaseConfig.client.from('entry_platform_spends').insert(spendsData);
-          }
-
-          await entryDao.markAsSynced(entry.id);
-        } catch (e) {
-          // Queue for later sync
-          await syncDao.addToQueue(
-            targetTable: 'daily_entries',
-            recordId: entry.id,
-            operation: 'insert',
-            payload: jsonEncode(entry.toMap()),
-          );
-        }
-      } else {
-        // Offline - queue for later
-        await syncDao.addToQueue(
-          targetTable: 'daily_entries',
-          recordId: entry.id,
-          operation: 'insert',
-          payload: jsonEncode(entry.toMap()),
-        );
-      }
-
       await loadEntries();
       return EntryResult.success(entry);
     } catch (e) {
-      return EntryResult.error('Failed to create entry: $e');
+      return EntryResult.error(_getUserFriendlyError(e, 'save'));
     }
   }
 
-  /// Update an existing entry.
+  /// Update an existing entry (ONLINE-FIRST).
   Future<EntryResult> updateEntry(Entry entry) async {
+    // 1. Check if online
+    if (!_isOnline) {
+      return EntryResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     try {
       final entryDao = _ref.read(entryDaoProvider);
-      final syncDao = _ref.read(syncDaoProvider);
-
       final updatedEntry = entry.copyWith(updatedAt: DateTime.now());
 
-      // Update local
+      // 2. Write to Supabase FIRST
+      try {
+        await SupabaseConfig.client
+            .from('daily_entries')
+            .update(updatedEntry.toMap())
+            .eq('id', entry.id);
+
+        // Delete and re-insert spends
+        await SupabaseConfig.client.from('entry_platform_spends').delete().eq('entry_id', entry.id);
+
+        if (updatedEntry.platformSpends.isNotEmpty) {
+          final spendsData = updatedEntry.platformSpends.entries
+              .map((e) => {
+                    'id': _generateSpendId(entry.id, e.key),
+                    'entry_id': entry.id,
+                    'platform': e.key,
+                    'amount': e.value,
+                  })
+              .toList();
+          await SupabaseConfig.client.from('entry_platform_spends').insert(spendsData);
+        }
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT save locally)
+        return EntryResult.error(_getUserFriendlyError(e, 'update'));
+      }
+
+      // 4. If Supabase succeeds, cache locally
       final entryCompanion = DailyEntriesCompanion(
         id: Value(updatedEntry.id),
         trackerId: Value(updatedEntry.trackerId),
@@ -346,96 +403,47 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
         notes: Value(updatedEntry.notes),
         createdAt: Value(updatedEntry.createdAt),
         updatedAt: Value(updatedEntry.updatedAt),
-        syncStatus: Value(_isOnline ? 'synced' : 'pending'),
+        syncStatus: const Value('synced'),
       );
 
       await entryDao.updateEntry(entryCompanion);
       await entryDao.setSpends(updatedEntry.id, updatedEntry.platformSpends);
 
-      // Sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client
-              .from('daily_entries')
-              .update(updatedEntry.toMap())
-              .eq('id', entry.id);
-
-          // Delete and re-insert spends
-          await SupabaseConfig.client.from('entry_platform_spends').delete().eq('entry_id', entry.id);
-
-          if (updatedEntry.platformSpends.isNotEmpty) {
-            final spendsData = updatedEntry.platformSpends.entries
-                .map((e) => {
-                      'id': _generateSpendId(entry.id, e.key),
-                      'entry_id': entry.id,
-                      'platform': e.key,
-                      'amount': e.value,
-                    })
-                .toList();
-            await SupabaseConfig.client.from('entry_platform_spends').insert(spendsData);
-          }
-
-          await entryDao.markAsSynced(entry.id);
-        } catch (e) {
-          await syncDao.addToQueue(
-            targetTable: 'daily_entries',
-            recordId: entry.id,
-            operation: 'update',
-            payload: jsonEncode(updatedEntry.toMap()),
-          );
-        }
-      } else {
-        await syncDao.addToQueue(
-          targetTable: 'daily_entries',
-          recordId: entry.id,
-          operation: 'update',
-          payload: jsonEncode(updatedEntry.toMap()),
-        );
-      }
-
       await loadEntries();
       return EntryResult.success(updatedEntry);
     } catch (e) {
-      return EntryResult.error('Failed to update entry: $e');
+      return EntryResult.error(_getUserFriendlyError(e, 'update'));
     }
   }
 
-  /// Delete an entry.
+  /// Delete an entry (ONLINE-FIRST).
   Future<EntryResult> deleteEntry(String entryId) async {
+    // 1. Check if online
+    if (!_isOnline) {
+      return EntryResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     try {
       final entryDao = _ref.read(entryDaoProvider);
-      final syncDao = _ref.read(syncDaoProvider);
 
-      // Delete locally (cascades to spends)
-      await entryDao.deleteEntry(entryId);
-
-      // Sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client.from('entry_platform_spends').delete().eq('entry_id', entryId);
-          await SupabaseConfig.client.from('daily_entries').delete().eq('id', entryId);
-        } catch (e) {
-          await syncDao.addToQueue(
-            targetTable: 'daily_entries',
-            recordId: entryId,
-            operation: 'delete',
-            payload: '{}',
-          );
-        }
-      } else {
-        await syncDao.addToQueue(
-          targetTable: 'daily_entries',
-          recordId: entryId,
-          operation: 'delete',
-          payload: '{}',
-        );
+      // 2. Delete from Supabase FIRST
+      try {
+        await SupabaseConfig.client.from('entry_platform_spends').delete().eq('entry_id', entryId);
+        await SupabaseConfig.client.from('daily_entries').delete().eq('id', entryId);
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT delete locally)
+        return EntryResult.error(_getUserFriendlyError(e, 'delete'));
       }
 
-      await syncDao.clearForRecord(entryId);
+      // 4. If Supabase succeeds, remove from cache
+      await entryDao.deleteEntry(entryId);
+
       await loadEntries();
       return EntryResult.success(null);
     } catch (e) {
-      return EntryResult.error('Failed to delete entry: $e');
+      return EntryResult.error(_getUserFriendlyError(e, 'delete'));
     }
   }
 

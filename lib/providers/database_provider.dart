@@ -3,7 +3,6 @@ import '../data/local/database.dart';
 import '../data/local/daos/tracker_dao.dart';
 import '../data/local/daos/entry_dao.dart';
 import '../data/local/daos/post_dao.dart';
-import '../data/local/daos/sync_dao.dart';
 
 /// Provider for the local SQLite database.
 ///
@@ -37,11 +36,3 @@ final postDaoProvider = Provider<PostDao>((ref) {
   final db = ref.watch(databaseProvider);
   return PostDao(db);
 });
-
-/// Provider for the Sync DAO.
-final syncDaoProvider = Provider<SyncDao>((ref) {
-  final db = ref.watch(databaseProvider);
-  return SyncDao(db);
-});
-
-// Note: pendingSyncCountProvider is defined in sync_provider.dart

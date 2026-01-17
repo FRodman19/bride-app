@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,9 +21,8 @@ class TrackersLoading extends TrackersState {
 
 class TrackersLoaded extends TrackersState {
   final List<domain.Tracker> trackers;
-  final int pendingSyncCount;
 
-  const TrackersLoaded(this.trackers, {this.pendingSyncCount = 0});
+  const TrackersLoaded(this.trackers);
 
   List<domain.Tracker> get activeTrackers =>
       trackers.where((t) => !t.isArchived).toList();
@@ -37,7 +35,7 @@ class TrackersError extends TrackersState {
   const TrackersError(this.message);
 }
 
-/// Provider for trackers with offline-first architecture.
+/// Provider for trackers with online-first architecture.
 final trackersProvider =
     StateNotifierProvider<TrackersNotifier, TrackersState>((ref) {
   return TrackersNotifier(ref);
@@ -72,7 +70,7 @@ final trackerByIdProvider =
   return null;
 });
 
-/// Notifier for managing trackers with offline-first support.
+/// Notifier for managing trackers with online-first support.
 class TrackersNotifier extends StateNotifier<TrackersState> {
   final Ref _ref;
 
@@ -89,14 +87,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         if (mounted) state = const TrackersLoaded([]);
       }
     }, fireImmediately: true);
-
-    // Watch connectivity changes to trigger sync
-    _ref.listen<ConnectivityState>(connectivityProvider, (previous, next) {
-      if (previous == ConnectivityState.offline &&
-          next == ConnectivityState.online) {
-        _syncPendingChanges();
-      }
-    });
   }
 
   bool get _isOnline =>
@@ -108,6 +98,36 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
       return authState.user.id;
     }
     return null;
+  }
+
+  /// Convert technical errors to user-friendly messages
+  String _getUserFriendlyError(dynamic error, String action) {
+    final errorStr = error.toString().toLowerCase();
+
+    // Network/connectivity errors
+    if (errorStr.contains('network') ||
+        errorStr.contains('socket') ||
+        errorStr.contains('connection') ||
+        errorStr.contains('timeout')) {
+      return "We couldn't $action your tracker. Please check your internet connection and try again.";
+    }
+
+    // Supabase/server errors
+    if (errorStr.contains('postgrest') ||
+        errorStr.contains('supabase') ||
+        errorStr.contains('server')) {
+      return "We're having trouble connecting to our servers. Please try again in a moment.";
+    }
+
+    // Authentication errors
+    if (errorStr.contains('auth') ||
+        errorStr.contains('token') ||
+        errorStr.contains('unauthorized')) {
+      return "Your session has expired. Please sign in again.";
+    }
+
+    // Generic fallback
+    return "We couldn't $action your tracker. Please try again.";
   }
 
   /// Load all trackers for the current user.
@@ -123,12 +143,10 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
 
     try {
       final trackerDao = _ref.read(trackerDaoProvider);
-      final syncDao = _ref.read(syncDaoProvider);
 
       // Load from local database first (fast)
       final localTrackers = await trackerDao.getActiveTrackers(userId);
       final archivedTrackers = await trackerDao.getArchivedTrackers(userId);
-      final pendingCount = await syncDao.getPendingCount();
 
       // Convert Drift models to domain models
       final allTrackers = [...localTrackers, ...archivedTrackers];
@@ -137,7 +155,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
       );
 
       if (mounted) {
-        state = TrackersLoaded(domainTrackers, pendingSyncCount: pendingCount);
+        state = TrackersLoaded(domainTrackers);
       }
 
       // Hydrate tracker reminders on app start
@@ -368,7 +386,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   }
 
   /// Create a new tracker.
-  /// Saves to local first, then syncs to remote if online.
+  /// Online-first: Saves to Supabase FIRST, then caches locally.
   Future<TrackerResult> createTracker({
     required String name,
     required DateTime startDate,
@@ -385,6 +403,13 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     String? reminderTime,
     int? reminderDayOfWeek,
   }) async {
+    // 1. Check if online
+    if (!_isOnline) {
+      return TrackerResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     // Use default platforms from PlatformConstants if not provided
     final platformsToUse = platforms ??
         PlatformConstants.platforms
@@ -393,7 +418,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
             .toList();
     final userId = _userId;
     if (userId == null) {
-      return TrackerResult.error('Not authenticated');
+      return TrackerResult.error('You need to sign in to create a tracker.');
     }
 
     // Check limit
@@ -401,14 +426,14 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
       final active = (state as TrackersLoaded).activeTrackers;
       if (active.length >= 20) {
         return TrackerResult.error(
-            'You have reached the maximum of 20 active trackers');
+          "You've reached the maximum of 20 active trackers. Archive one to create a new tracker."
+        );
       }
     }
 
     try {
       // Read providers BEFORE async operations to avoid lifecycle issues
       final trackerDao = _ref.read(trackerDaoProvider);
-      final syncDao = _ref.read(syncDaoProvider);
       final notificationService = _ref.read(notificationServiceProvider);
 
       // Create domain tracker
@@ -430,7 +455,46 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         reminderDayOfWeek: reminderDayOfWeek,
       );
 
-      // Save to local database first
+      // 2. Write to Supabase FIRST
+      try {
+        await SupabaseConfig.client
+            .from('trackers')
+            .insert(tracker.toMap());
+
+        // Insert platforms
+        if (platformsToUse.isNotEmpty) {
+          final platformsData = platformsToUse
+              .asMap()
+              .entries
+              .map((e) => {
+                    'tracker_id': tracker.id,
+                    'platform': e.value,
+                    'display_order': e.key,
+                  })
+              .toList();
+          await SupabaseConfig.client
+              .from('tracker_platforms')
+              .insert(platformsData);
+        }
+
+        // Insert goals
+        if (goalTypes.isNotEmpty) {
+          final goalsData = goalTypes
+              .map((g) => {
+                    'tracker_id': tracker.id,
+                    'goal_type': g,
+                  })
+              .toList();
+          await SupabaseConfig.client
+              .from('tracker_goals')
+              .insert(goalsData);
+        }
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT save locally)
+        return TrackerResult.error(_getUserFriendlyError(e, 'save'));
+      }
+
+      // 4. If Supabase succeeds, cache locally
       final trackerCompanion = TrackersCompanion(
         id: Value(tracker.id),
         userId: Value(tracker.userId),
@@ -449,7 +513,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         reminderDayOfWeek: Value(tracker.reminderDayOfWeek),
         createdAt: Value(tracker.createdAt),
         updatedAt: Value(tracker.updatedAt),
-        syncStatus: Value(_isOnline ? 'synced' : 'pending'),
+        syncStatus: const Value('synced'),
       );
 
       await trackerDao.insertTracker(trackerCompanion);
@@ -490,85 +554,83 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         }
       }
 
-      // Try to sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client
-              .from('trackers')
-              .insert(tracker.toMap());
-
-          // Insert platforms
-          if (platformsToUse.isNotEmpty) {
-            final platformsData = platformsToUse
-                .asMap()
-                .entries
-                .map((e) => {
-                      'tracker_id': tracker.id,
-                      'platform': e.value,
-                      'display_order': e.key,
-                    })
-                .toList();
-            await SupabaseConfig.client
-                .from('tracker_platforms')
-                .insert(platformsData);
-          }
-
-          // Insert goals
-          if (goalTypes.isNotEmpty) {
-            final goalsData = goalTypes
-                .map((g) => {
-                      'tracker_id': tracker.id,
-                      'goal_type': g,
-                    })
-                .toList();
-            await SupabaseConfig.client
-                .from('tracker_goals')
-                .insert(goalsData);
-          }
-
-          // Mark as synced
-          await trackerDao.markAsSynced(tracker.id);
-        } catch (e) {
-          // Remote failed, queue for later sync
-          await syncDao.addToQueue(
-            targetTable: 'trackers',
-            recordId: tracker.id,
-            operation: 'insert',
-            payload: jsonEncode(tracker.toMap()),
-          );
-        }
-      } else {
-        // Offline, queue for later sync
-        await syncDao.addToQueue(
-          targetTable: 'trackers',
-          recordId: tracker.id,
-          operation: 'insert',
-          payload: jsonEncode(tracker.toMap()),
-        );
-      }
-
       // Reload trackers from local
       await loadTrackers();
 
       return TrackerResult.success(tracker);
     } catch (e) {
-      return TrackerResult.error('Failed to create tracker: $e');
+      return TrackerResult.error(_getUserFriendlyError(e, 'create'));
     }
   }
 
   /// Update an existing tracker.
+  /// Online-first: Updates Supabase FIRST, then caches locally.
   Future<TrackerResult> updateTracker(domain.Tracker tracker) async {
+    // 1. Check if online
+    if (!_isOnline) {
+      return TrackerResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     if (_userId == null) {
-      return TrackerResult.error('Not authenticated');
+      return TrackerResult.error('You need to sign in to update a tracker.');
     }
 
     try {
       final trackerDao = _ref.read(trackerDaoProvider);
-      final syncDao = _ref.read(syncDaoProvider);
       final notificationService = _ref.read(notificationServiceProvider);
       final updatedTracker = tracker.copyWith(updatedAt: DateTime.now());
 
-      // Update local first
+      // 2. Write to Supabase FIRST
+      try {
+        await SupabaseConfig.client
+            .from('trackers')
+            .update(updatedTracker.toMap())
+            .eq('id', tracker.id);
+
+        // Update platforms in Supabase - delete existing and insert new
+        await SupabaseConfig.client
+            .from('tracker_platforms')
+            .delete()
+            .eq('tracker_id', tracker.id);
+        if (updatedTracker.platforms.isNotEmpty) {
+          final platformsData = updatedTracker.platforms
+              .asMap()
+              .entries
+              .map((e) => {
+                    'tracker_id': tracker.id,
+                    'platform': e.value,
+                    'display_order': e.key,
+                  })
+              .toList();
+          await SupabaseConfig.client
+              .from('tracker_platforms')
+              .insert(platformsData);
+        }
+
+        // Update goals in Supabase - delete existing and insert new
+        await SupabaseConfig.client
+            .from('tracker_goals')
+            .delete()
+            .eq('tracker_id', tracker.id);
+        if (updatedTracker.goalTypes.isNotEmpty) {
+          final goalsData = updatedTracker.goalTypes
+              .map((g) => {
+                    'tracker_id': tracker.id,
+                    'goal_type': g,
+                  })
+              .toList();
+          await SupabaseConfig.client
+              .from('tracker_goals')
+              .insert(goalsData);
+        }
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT save locally)
+        return TrackerResult.error(_getUserFriendlyError(e, 'update'));
+      }
+
+      // 4. If Supabase succeeds, cache locally
       final trackerCompanion = TrackersCompanion(
         id: Value(updatedTracker.id),
         userId: Value(updatedTracker.userId),
@@ -587,7 +649,7 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         reminderDayOfWeek: Value(updatedTracker.reminderDayOfWeek),
         createdAt: Value(updatedTracker.createdAt),
         updatedAt: Value(updatedTracker.updatedAt),
-        syncStatus: Value(_isOnline ? 'synced' : 'pending'),
+        syncStatus: const Value('synced'),
       );
 
       await trackerDao.updateTracker(trackerCompanion);
@@ -640,78 +702,23 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         }
       }
 
-      // Sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client
-              .from('trackers')
-              .update(updatedTracker.toMap())
-              .eq('id', tracker.id);
-
-          // Update platforms in Supabase - delete existing and insert new
-          await SupabaseConfig.client
-              .from('tracker_platforms')
-              .delete()
-              .eq('tracker_id', tracker.id);
-          if (updatedTracker.platforms.isNotEmpty) {
-            final platformsData = updatedTracker.platforms
-                .asMap()
-                .entries
-                .map((e) => {
-                      'tracker_id': tracker.id,
-                      'platform': e.value,
-                      'display_order': e.key,
-                    })
-                .toList();
-            await SupabaseConfig.client
-                .from('tracker_platforms')
-                .insert(platformsData);
-          }
-
-          // Update goals in Supabase - delete existing and insert new
-          await SupabaseConfig.client
-              .from('tracker_goals')
-              .delete()
-              .eq('tracker_id', tracker.id);
-          if (updatedTracker.goalTypes.isNotEmpty) {
-            final goalsData = updatedTracker.goalTypes
-                .map((g) => {
-                      'tracker_id': tracker.id,
-                      'goal_type': g,
-                    })
-                .toList();
-            await SupabaseConfig.client
-                .from('tracker_goals')
-                .insert(goalsData);
-          }
-
-          await trackerDao.markAsSynced(tracker.id);
-        } catch (e) {
-          await syncDao.addToQueue(
-            targetTable: 'trackers',
-            recordId: tracker.id,
-            operation: 'update',
-            payload: jsonEncode(updatedTracker.toMap()),
-          );
-        }
-      } else {
-        await syncDao.addToQueue(
-          targetTable: 'trackers',
-          recordId: tracker.id,
-          operation: 'update',
-          payload: jsonEncode(updatedTracker.toMap()),
-        );
-      }
-
       await loadTrackers();
       return TrackerResult.success(updatedTracker);
     } catch (e) {
-      return TrackerResult.error('Failed to update tracker: $e');
+      return TrackerResult.error(_getUserFriendlyError(e, 'update'));
     }
   }
 
   /// Archive a tracker.
+  /// Online-first: Updates Supabase FIRST, then caches locally.
   Future<TrackerResult> archiveTracker(String trackerId) async {
+    // Check if online
+    if (!_isOnline) {
+      return TrackerResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     final currentState = state;
     if (currentState is! TrackersLoaded) {
       return TrackerResult.error('Trackers not loaded');
@@ -727,7 +734,15 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   }
 
   /// Restore a tracker from archive.
+  /// Online-first: Updates Supabase FIRST, then caches locally.
   Future<TrackerResult> restoreTracker(String trackerId) async {
+    // Check if online
+    if (!_isOnline) {
+      return TrackerResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     final currentState = state;
     if (currentState is! TrackersLoaded) {
       return TrackerResult.error('Trackers not loaded');
@@ -736,7 +751,8 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     // Check limit before restoring
     if (currentState.activeTrackers.length >= 20) {
       return TrackerResult.error(
-          'Cannot restore: You already have 20 active trackers');
+        "You've reached the maximum of 20 active trackers. Archive one to create a new tracker."
+      );
     }
 
     try {
@@ -749,14 +765,21 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   }
 
   /// Delete a tracker permanently.
+  /// Online-first: Deletes from Supabase FIRST, then removes from local cache.
   Future<TrackerResult> deleteTracker(String trackerId) async {
+    // 1. Check if online
+    if (!_isOnline) {
+      return TrackerResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     if (_userId == null) {
-      return TrackerResult.error('Not authenticated');
+      return TrackerResult.error('You need to sign in to delete a tracker.');
     }
 
     try {
       final trackerDao = _ref.read(trackerDaoProvider);
-      final syncDao = _ref.read(syncDaoProvider);
       final notificationService = _ref.read(notificationServiceProvider);
 
       // Cancel notification and release ID BEFORE deletion
@@ -766,97 +789,24 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
         debugPrint('Failed to cancel notification on delete: $e');
       }
 
-      // Delete locally first
-      await trackerDao.deleteTracker(trackerId);
-
-      // Sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client
-              .from('trackers')
-              .delete()
-              .eq('id', trackerId);
-        } catch (e) {
-          await syncDao.addToQueue(
-            targetTable: 'trackers',
-            recordId: trackerId,
-            operation: 'delete',
-            payload: '{}',
-          );
-        }
-      } else {
-        await syncDao.addToQueue(
-          targetTable: 'trackers',
-          recordId: trackerId,
-          operation: 'delete',
-          payload: '{}',
-        );
+      // 2. Delete from Supabase FIRST
+      try {
+        await SupabaseConfig.client
+            .from('trackers')
+            .delete()
+            .eq('id', trackerId);
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT delete locally)
+        return TrackerResult.error(_getUserFriendlyError(e, 'delete'));
       }
 
-      // Clear any pending sync items for this record
-      await syncDao.clearForRecord(trackerId);
+      // 4. If Supabase succeeds, remove from local cache
+      await trackerDao.deleteTracker(trackerId);
 
       await loadTrackers();
       return TrackerResult.success(null);
     } catch (e) {
-      return TrackerResult.error('Failed to delete tracker: $e');
-    }
-  }
-
-  /// Sync all pending changes to remote.
-  Future<void> _syncPendingChanges() async {
-    if (!_isOnline) return;
-
-    try {
-      final syncDao = _ref.read(syncDaoProvider);
-      final pendingItems = await syncDao.getPendingItems();
-
-      for (final item in pendingItems) {
-        try {
-          final payload = jsonDecode(item.payload) as Map<String, dynamic>;
-
-          switch (item.operation) {
-            case 'insert':
-              await SupabaseConfig.client
-                  .from(item.targetTable)
-                  .insert(payload);
-              break;
-            case 'update':
-              await SupabaseConfig.client
-                  .from(item.targetTable)
-                  .update(payload)
-                  .eq('id', item.recordId);
-              break;
-            case 'delete':
-              await SupabaseConfig.client
-                  .from(item.targetTable)
-                  .delete()
-                  .eq('id', item.recordId);
-              break;
-          }
-
-          // Success - remove from queue
-          await syncDao.removeFromQueue(item.id);
-        } catch (e) {
-          // Failed - mark retry
-          await syncDao.markRetry(item.id, e.toString());
-        }
-      }
-
-      // Reload to update pending count
-      await loadTrackers();
-    } catch (e) {
-      // Sync failed, will retry on next connectivity change
-    }
-  }
-
-  /// Force sync now (user initiated).
-  Future<void> syncNow() async {
-    if (_isOnline) {
-      await _syncPendingChanges();
-      if (_userId != null) {
-        await _syncFromRemote(_userId!);
-      }
+      return TrackerResult.error(_getUserFriendlyError(e, 'delete'));
     }
   }
 }

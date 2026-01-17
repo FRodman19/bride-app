@@ -157,6 +157,12 @@ class _DashboardContent extends ConsumerWidget {
         return statsB.totalProfit.compareTo(statsA.totalProfit);
       });
 
+    // Determine primary currency (use first active tracker's currency, or USD if mixed)
+    String primaryCurrency = 'USD';
+    if (activeTrackers.isNotEmpty) {
+      primaryCurrency = activeTrackers.first.currency;
+    }
+
     // Top 3 and worst 3
     final topTrackers = activeTrackers.take(3).toList();
     final worstTrackers = activeTrackers.length > 3
@@ -218,6 +224,7 @@ class _DashboardContent extends ConsumerWidget {
               totalProfit: totalProfit.toDouble(),
               totalRevenue: totalRevenue.toDouble(),
               totalSpend: totalSpend.toDouble(),
+              currencyCode: primaryCurrency,
               activeProjectsCount: activeTrackers.length,
             ),
 

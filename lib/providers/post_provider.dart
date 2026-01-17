@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -163,7 +162,14 @@ final postByIdProvider = Provider.family<PostModel?, ({String trackerId, String 
   return null;
 });
 
-/// Notifier for managing posts with offline-first support.
+/// Notifier for managing posts with online-first approach.
+///
+/// ONLINE-FIRST ARCHITECTURE:
+/// 1. Check if online → if not, return friendly error
+/// 2. Write to Supabase FIRST
+/// 3. If Supabase fails → return friendly error (DO NOT save locally)
+/// 4. If Supabase succeeds → cache locally
+/// 5. No sync queue, no syncStatus checking
 class PostsNotifier extends StateNotifier<PostsState> {
   final Ref _ref;
   final String trackerId;
@@ -176,7 +182,37 @@ class PostsNotifier extends StateNotifier<PostsState> {
 
   PostDao get _postDao => _ref.read(postDaoProvider);
 
-  /// Load all posts for this tracker.
+  /// Convert technical errors to user-friendly messages
+  String _getUserFriendlyError(dynamic error, String action) {
+    final errorStr = error.toString().toLowerCase();
+
+    // Network/connectivity errors
+    if (errorStr.contains('network') ||
+        errorStr.contains('socket') ||
+        errorStr.contains('connection') ||
+        errorStr.contains('timeout')) {
+      return "We couldn't $action your post. Please check your internet connection and try again.";
+    }
+
+    // Supabase/server errors
+    if (errorStr.contains('postgrest') ||
+        errorStr.contains('supabase') ||
+        errorStr.contains('server')) {
+      return "We're having trouble connecting to our servers. Please try again in a moment.";
+    }
+
+    // Authentication errors
+    if (errorStr.contains('auth') ||
+        errorStr.contains('token') ||
+        errorStr.contains('unauthorized')) {
+      return "Your session has expired. Please sign in again.";
+    }
+
+    // Generic fallback
+    return "We couldn't $action your post. Please try again.";
+  }
+
+  /// Load all posts for this tracker from local cache.
   Future<void> loadPosts() async {
     if (mounted) state = const PostsLoading();
 
@@ -187,56 +223,12 @@ class PostsNotifier extends StateNotifier<PostsState> {
       if (mounted) {
         state = PostsLoaded(domainPosts, trackerId: trackerId);
       }
-
-      // Sync from remote if online
-      if (_isOnline) {
-        await _syncFromRemote();
-      }
     } catch (e) {
-      if (mounted) state = PostsError('Failed to load posts: $e');
+      if (mounted) state = PostsError(_getUserFriendlyError(e, 'load'));
     }
   }
 
-  /// Sync posts from Supabase to local database.
-  Future<void> _syncFromRemote() async {
-    try {
-      final response = await SupabaseConfig.client
-          .from('posts')
-          .select('*')
-          .eq('tracker_id', trackerId)
-          .order('published_date', ascending: false);
-
-      for (final data in (response as List)) {
-        final postCompanion = PostsCompanion(
-          id: Value(data['id'] as String),
-          trackerId: Value(data['tracker_id'] as String),
-          title: Value(data['title'] as String),
-          platform: Value(data['platform'] as String),
-          url: Value(data['url'] as String?),
-          publishedDate: Value(data['published_date'] != null
-              ? DateTime.parse(data['published_date'] as String)
-              : null),
-          notes: Value(data['notes'] as String?),
-          createdAt: Value(DateTime.parse(data['created_at'] as String)),
-          updatedAt: Value(DateTime.parse(data['updated_at'] as String)),
-          syncStatus: const Value('synced'),
-        );
-        await _postDao.insertPost(postCompanion);
-      }
-
-      // Reload from local to update UI
-      final posts = await _postDao.getPostsForTracker(trackerId);
-      final domainPosts = posts.map((p) => PostModel.fromDb(p)).toList();
-
-      if (mounted) {
-        state = PostsLoaded(domainPosts, trackerId: trackerId);
-      }
-    } catch (e) {
-      // Sync failed but local data is still shown - silent fail
-    }
-  }
-
-  /// Create a new post.
+  /// Create a new post (ONLINE-FIRST).
   Future<PostResult> createPost({
     required String title,
     required String platform,
@@ -249,9 +241,14 @@ class PostsNotifier extends StateNotifier<PostsState> {
       return PostResult.error('Title must be at least 3 characters');
     }
 
-    try {
-      final syncDao = _ref.read(syncDaoProvider);
+    // 1. Check if online
+    if (!_isOnline) {
+      return PostResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
 
+    try {
       final post = PostModel.create(
         trackerId: trackerId,
         title: title.trim(),
@@ -261,7 +258,15 @@ class PostsNotifier extends StateNotifier<PostsState> {
         notes: notes?.trim(),
       );
 
-      // Save to local database
+      // 2. Write to Supabase FIRST
+      try {
+        await SupabaseConfig.client.from('posts').insert(post.toMap());
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT save locally)
+        return PostResult.error(_getUserFriendlyError(e, 'save'));
+      }
+
+      // 4. If Supabase succeeds, cache locally
       final postCompanion = PostsCompanion.insert(
         id: post.id,
         trackerId: post.trackerId,
@@ -270,51 +275,46 @@ class PostsNotifier extends StateNotifier<PostsState> {
         url: Value(post.url),
         publishedDate: Value(post.publishedDate),
         notes: Value(post.notes),
-        syncStatus: Value(_isOnline ? 'synced' : 'pending'),
+        syncStatus: const Value('synced'), // Always synced in online-first
       );
 
       await _postDao.insertPost(postCompanion);
 
-      // Sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client.from('posts').insert(post.toMap());
-          await _postDao.markAsSynced(post.id);
-        } catch (e) {
-          await syncDao.addToQueue(
-            targetTable: 'posts',
-            recordId: post.id,
-            operation: 'insert',
-            payload: jsonEncode(post.toMap()),
-          );
-        }
-      } else {
-        await syncDao.addToQueue(
-          targetTable: 'posts',
-          recordId: post.id,
-          operation: 'insert',
-          payload: jsonEncode(post.toMap()),
-        );
-      }
-
       await loadPosts();
       return PostResult.success(post);
     } catch (e) {
-      return PostResult.error('Failed to create post: $e');
+      return PostResult.error(_getUserFriendlyError(e, 'save'));
     }
   }
 
-  /// Update an existing post.
+  /// Update an existing post (ONLINE-FIRST).
   Future<PostResult> updatePost(PostModel post) async {
     if (post.title.trim().length < 3) {
       return PostResult.error('Title must be at least 3 characters');
     }
 
+    // 1. Check if online
+    if (!_isOnline) {
+      return PostResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     try {
-      final syncDao = _ref.read(syncDaoProvider);
       final updatedPost = post.copyWith(updatedAt: DateTime.now());
 
-      // Update local
+      // 2. Write to Supabase FIRST
+      try {
+        await SupabaseConfig.client
+            .from('posts')
+            .update(updatedPost.toMap())
+            .eq('id', post.id);
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT save locally)
+        return PostResult.error(_getUserFriendlyError(e, 'update'));
+      }
+
+      // 4. If Supabase succeeds, cache locally
       final postCompanion = PostsCompanion(
         id: Value(updatedPost.id),
         trackerId: Value(updatedPost.trackerId),
@@ -325,77 +325,43 @@ class PostsNotifier extends StateNotifier<PostsState> {
         notes: Value(updatedPost.notes),
         createdAt: Value(updatedPost.createdAt),
         updatedAt: Value(updatedPost.updatedAt),
-        syncStatus: Value(_isOnline ? 'synced' : 'pending'),
+        syncStatus: const Value('synced'),
       );
 
       await _postDao.updatePost(postCompanion);
 
-      // Sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client
-              .from('posts')
-              .update(updatedPost.toMap())
-              .eq('id', post.id);
-          await _postDao.markAsSynced(post.id);
-        } catch (e) {
-          await syncDao.addToQueue(
-            targetTable: 'posts',
-            recordId: post.id,
-            operation: 'update',
-            payload: jsonEncode(updatedPost.toMap()),
-          );
-        }
-      } else {
-        await syncDao.addToQueue(
-          targetTable: 'posts',
-          recordId: post.id,
-          operation: 'update',
-          payload: jsonEncode(updatedPost.toMap()),
-        );
-      }
-
       await loadPosts();
       return PostResult.success(updatedPost);
     } catch (e) {
-      return PostResult.error('Failed to update post: $e');
+      return PostResult.error(_getUserFriendlyError(e, 'update'));
     }
   }
 
-  /// Delete a post.
+  /// Delete a post (ONLINE-FIRST).
   Future<PostResult> deletePost(String postId) async {
+    // 1. Check if online
+    if (!_isOnline) {
+      return PostResult.error(
+        "You're offline. Please check your internet connection and try again."
+      );
+    }
+
     try {
-      final syncDao = _ref.read(syncDaoProvider);
-
-      // Delete locally
-      await _postDao.deletePost(postId);
-
-      // Sync to remote if online
-      if (_isOnline) {
-        try {
-          await SupabaseConfig.client.from('posts').delete().eq('id', postId);
-        } catch (e) {
-          await syncDao.addToQueue(
-            targetTable: 'posts',
-            recordId: postId,
-            operation: 'delete',
-            payload: '{}',
-          );
-        }
-      } else {
-        await syncDao.addToQueue(
-          targetTable: 'posts',
-          recordId: postId,
-          operation: 'delete',
-          payload: '{}',
-        );
+      // 2. Delete from Supabase FIRST
+      try {
+        await SupabaseConfig.client.from('posts').delete().eq('id', postId);
+      } catch (e) {
+        // 3. If Supabase fails, return friendly error (DO NOT delete locally)
+        return PostResult.error(_getUserFriendlyError(e, 'delete'));
       }
 
-      await syncDao.clearForRecord(postId);
+      // 4. If Supabase succeeds, remove from cache
+      await _postDao.deletePost(postId);
+
       await loadPosts();
       return PostResult.success(null);
     } catch (e) {
-      return PostResult.error('Failed to delete post: $e');
+      return PostResult.error(_getUserFriendlyError(e, 'delete'));
     }
   }
 }

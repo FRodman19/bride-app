@@ -13,8 +13,6 @@ import '../../../grow_out_loud/components/gol_cards.dart';
 import '../../../grow_out_loud/components/gol_overlays.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/settings_provider.dart';
-import '../../../providers/sync_provider.dart';
-import '../../../providers/connectivity_provider.dart';
 import '../../../services/notification_service.dart';
 import '../../../core/constants/currency_constants.dart';
 import '../../../routing/routes.dart';
@@ -140,7 +138,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     final colors = Theme.of(context).extension<GOLSemanticColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final user = ref.watch(currentUserProvider);
-    final pendingSyncCount = ref.watch(pendingSyncCountProvider);
     final settings = ref.watch(settingsProvider);
     final l10n = AppLocalizations.of(context)!;
 
@@ -392,22 +389,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
               const SizedBox(height: GOLSpacing.space6),
 
-              // DATA & STORAGE SECTION
-              _SectionHeader(title: l10n.dataAndStorage),
-              const SizedBox(height: GOLSpacing.space3),
-
-              _SyncStatusCard(
-                pendingCount: pendingSyncCount.when(
-                  data: (count) => count,
-                  loading: () => 0,
-                  error: (e, s) => 0,
-                ),
-                l10n: l10n,
-                onSync: () => _handleSync(),
-              ),
-
-              const SizedBox(height: GOLSpacing.space6),
-
               // ABOUT SECTION
               _SectionHeader(title: l10n.about),
               const SizedBox(height: GOLSpacing.space3),
@@ -579,33 +560,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         ],
       ),
     );
-  }
-
-  Future<void> _handleSync() async {
-    final l10n = AppLocalizations.of(context)!;
-    final isOnline = ref.read(connectivityProvider) == ConnectivityState.online;
-
-    if (!isOnline) {
-      showGOLToast(context, l10n.offlineMode, variant: GOLToastVariant.warning);
-      return;
-    }
-
-    showGOLToast(context, l10n.syncing, variant: GOLToastVariant.info);
-
-    await ref.read(syncProvider.notifier).processPendingSync();
-
-    if (!mounted) return;
-
-    final syncState = ref.read(syncProvider);
-    if (syncState.status == SyncStatus.error) {
-      showGOLToast(context, l10n.syncFailed, variant: GOLToastVariant.error);
-    } else {
-      showGOLToast(
-        context,
-        l10n.allChangesSynced,
-        variant: GOLToastVariant.success,
-      );
-    }
   }
 
   Future<void> _handleLogout() async {
@@ -914,77 +868,6 @@ class _ToggleTile extends StatelessWidget {
             value: value,
             onChanged: onChanged,
             activeTrackColor: colors.interactivePrimary,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SyncStatusCard extends StatelessWidget {
-  final int pendingCount;
-  final AppLocalizations l10n;
-  final VoidCallback onSync;
-
-  const _SyncStatusCard({
-    required this.pendingCount,
-    required this.l10n,
-    required this.onSync,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<GOLSemanticColors>()!;
-    final textTheme = Theme.of(context).textTheme;
-
-    final isSynced = pendingCount == 0;
-
-    return GOLCard(
-      variant: GOLCardVariant.standard,
-      padding: const EdgeInsets.all(GOLSpacing.cardPadding),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: isSynced
-                  ? colors.stateSuccess.withValues(alpha: 0.1)
-                  : colors.stateWarning.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              isSynced ? Iconsax.tick_circle : Iconsax.cloud,
-              size: 20,
-              color: isSynced ? colors.stateSuccess : colors.stateWarning,
-            ),
-          ),
-          const SizedBox(width: GOLSpacing.space3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isSynced
-                      ? l10n.allDataSynced
-                      : l10n.itemsPendingSync(pendingCount),
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  isSynced ? l10n.syncComplete : l10n.willSyncWhenOnline,
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: onSync,
-            icon: Icon(Iconsax.refresh, color: colors.interactivePrimary),
           ),
         ],
       ),

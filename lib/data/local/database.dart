@@ -13,7 +13,6 @@ import 'tables/spends_table.dart';
 import 'tables/platforms_table.dart';
 import 'tables/posts_table.dart';
 import 'tables/goals_table.dart';
-import 'tables/sync_queue_table.dart';
 
 part 'database.g.dart';
 
@@ -29,7 +28,6 @@ part 'database.g.dart';
     TrackerPlatforms,
     Posts,
     TrackerGoals,
-    SyncQueue,
   ],
 )
 class AppDatabase extends _$AppDatabase {

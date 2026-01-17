@@ -12,7 +12,6 @@ import 'core/config/app_config.dart';
 import 'core/config/supabase_config.dart';
 import 'grow_out_loud/foundation/gol_theme.dart';
 import 'providers/auth_provider.dart';
-import 'providers/sync_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/tracker_provider.dart';
 import 'routing/app_router.dart';
@@ -248,9 +247,6 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-
-    // Initialize sync provider to listen for connectivity changes
-    ref.watch(syncProvider);
 
     // Initialize notification service (auto-handles auth state changes)
     ref.watch(notificationServiceProvider);
