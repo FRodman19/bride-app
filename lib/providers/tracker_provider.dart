@@ -92,9 +92,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     }, fireImmediately: true);
   }
 
-  bool get _isOnline =>
-      _ref.read(connectivityProvider) == ConnectivityState.online;
-
   String? get _userId {
     final authState = _ref.read(authProvider);
     if (authState is AuthAuthenticated) {
@@ -148,17 +145,8 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     }
 
     try {
-      // Check if online
-      if (!_isOnline) {
-        if (mounted) {
-          state = const TrackersError(
-            "You're offline. Please check your internet connection and try again."
-          );
-        }
-        return;
-      }
-
       // Load ONLY from Supabase (never from local)
+      // Let the Supabase call fail naturally if offline - better error handling
       await _syncFromRemote(userId);
     } catch (e) {
       if (mounted) state = TrackersError(_getUserFriendlyError(e, 'load'));
@@ -291,13 +279,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
     String? reminderTime,
     int? reminderDayOfWeek,
   }) async {
-    // 1. Check if online
-    if (!_isOnline) {
-      return TrackerResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
-
     // Use default platforms from PlatformConstants if not provided
     final platformsToUse = platforms ??
         PlatformConstants.platforms
@@ -429,13 +410,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   /// Update an existing tracker.
   /// Online-first: Updates Supabase FIRST, then caches locally.
   Future<TrackerResult> updateTracker(domain.Tracker tracker) async {
-    // 1. Check if online
-    if (!_isOnline) {
-      return TrackerResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
-
     if (_userId == null) {
       return TrackerResult.error('You need to sign in to update a tracker.');
     }
@@ -548,12 +522,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   /// Archive a tracker.
   /// Online-first: Updates Supabase FIRST, then caches locally.
   Future<TrackerResult> archiveTracker(String trackerId) async {
-    // Check if online
-    if (!_isOnline) {
-      return TrackerResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
 
     final currentState = state;
     if (currentState is! TrackersLoaded) {
@@ -572,12 +540,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   /// Restore a tracker from archive.
   /// Online-first: Updates Supabase FIRST, then caches locally.
   Future<TrackerResult> restoreTracker(String trackerId) async {
-    // Check if online
-    if (!_isOnline) {
-      return TrackerResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
 
     final currentState = state;
     if (currentState is! TrackersLoaded) {
@@ -603,13 +565,6 @@ class TrackersNotifier extends StateNotifier<TrackersState> {
   /// Delete a tracker permanently.
   /// Online-first: Deletes from Supabase FIRST, then removes from local cache.
   Future<TrackerResult> deleteTracker(String trackerId) async {
-    // 1. Check if online
-    if (!_isOnline) {
-      return TrackerResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
-
     if (_userId == null) {
       return TrackerResult.error('You need to sign in to delete a tracker.');
     }

@@ -4,6 +4,7 @@ import 'package:iconsax/iconsax.dart';
 import '../foundation/gol_colors.dart';
 import '../foundation/gol_spacing.dart';
 import 'gol_buttons.dart';
+import 'gol_grid_loader.dart';
 
 /// Professional loading screen with optional retry button.
 ///
@@ -59,15 +60,8 @@ class GOLLoadingScreen extends StatelessWidget {
             const SizedBox(height: GOLSpacing.space5),
           ],
 
-          // Main loader - indeterminate spinner
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              valueColor: AlwaysStoppedAnimation<Color>(colors.interactivePrimary),
-            ),
-          ),
+          // Main loader - three dots animation
+          const GOLGridLoader(size: 48),
 
           // Loading message
           if (message != null) ...[
@@ -186,7 +180,7 @@ class GOLLoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: colors.backgroundPrimary.withOpacity(0.8),
+            color: colors.backgroundPrimary.withValues(alpha: 0.8),
             child: GOLLoadingScreen(message: message),
           ),
       ],

@@ -649,7 +649,7 @@ class _AccountCard extends StatelessWidget {
               child: Text(
                 initials,
                 style: textTheme.headlineMedium?.copyWith(
-                  color: colors.textInverse,
+                  color: Colors.black,
                   fontWeight: FontWeight.w900,
                   fontSize: 36,
                 ),

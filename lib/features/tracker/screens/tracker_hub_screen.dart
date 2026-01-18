@@ -172,11 +172,11 @@ class _TrackerHubScreenState extends ConsumerState<TrackerHubScreen>
           : FloatingActionButton.extended(
               onPressed: () => context.push(Routes.logEntryPath(tracker!.id)),
               backgroundColor: colors.interactivePrimary,
-              icon: Icon(Iconsax.add, color: colors.textInverse),
+              icon: const Icon(Iconsax.add, color: Colors.black),
               label: Text(
                 l10n.logEntry,
                 style: textTheme.labelLarge?.copyWith(
-                  color: colors.textInverse,
+                  color: Colors.black,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1268,36 +1268,57 @@ class _EntriesTabState extends ConsumerState<_EntriesTab> {
 
     // Loading state
     if (entriesState is EntriesLoading) {
-      return GOLLoadingScreen(
+      return const GOLLoadingScreen(
         message: 'Loading entries...',
-        icon: Iconsax.document_text,
         showRetryWhileLoading: false,
       );
     }
 
     // Error state
     if (entriesState is EntriesError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
-            const SizedBox(height: GOLSpacing.space4),
-            Text(
-              l10n.failedToLoadEntries,
-              style: textTheme.titleMedium?.copyWith(
-                color: colors.textPrimary,
+      return RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(entriesProvider(widget.tracker.id).notifier).loadEntries();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
+                    const SizedBox(height: GOLSpacing.space4),
+                    Text(
+                      l10n.failedToLoadEntries,
+                      style: textTheme.titleMedium?.copyWith(
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: GOLSpacing.space2),
+                    Text(
+                      entriesState.message,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: GOLSpacing.space4),
+                    Text(
+                      'Pull down to retry',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colors.textTertiary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: GOLSpacing.space2),
-            Text(
-              entriesState.message,
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+          ),
         ),
       );
     }
@@ -3221,13 +3242,39 @@ class _PostsSection extends ConsumerWidget {
             }).toList(),
           )
         else if (postsState is PostsError)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(GOLSpacing.space4),
-              child: Text(
-                postsState.message,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colors.stateError,
+          RefreshIndicator(
+            onRefresh: () async {
+              await ref.read(postsProvider(tracker.id).notifier).loadPosts();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: 200,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(GOLSpacing.space4),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Iconsax.warning_2, size: 32, color: colors.stateError),
+                        const SizedBox(height: GOLSpacing.space2),
+                        Text(
+                          postsState.message,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.stateError,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: GOLSpacing.space2),
+                        Text(
+                          'Pull down to retry',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

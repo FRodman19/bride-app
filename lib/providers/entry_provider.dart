@@ -197,7 +197,6 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
     loadEntries();
   }
 
-  bool get _isOnline => _ref.read(connectivityProvider) == ConnectivityState.online;
 
   /// Convert technical errors to user-friendly messages
   String _getUserFriendlyError(dynamic error, String action) {
@@ -235,16 +234,6 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
     if (mounted) state = const EntriesLoading();
 
     try {
-      // Check if online
-      if (!_isOnline) {
-        if (mounted) {
-          state = const EntriesError(
-            "You're offline. Please check your internet connection and try again."
-          );
-        }
-        return;
-      }
-
       // Load ONLY from Supabase
       final response = await SupabaseConfig.client
           .from('daily_entries')
@@ -306,11 +295,6 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
     }
 
     // 1. Check if online
-    if (!_isOnline) {
-      return EntryResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
 
     try {
       // Check for duplicate entry on same date (from Supabase, not local cache)
@@ -368,11 +352,6 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
   /// Update an existing entry (ONLINE-FIRST).
   Future<EntryResult> updateEntry(Entry entry) async {
     // 1. Check if online
-    if (!_isOnline) {
-      return EntryResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
 
     try {
       final updatedEntry = entry.copyWith(updatedAt: DateTime.now());
@@ -415,11 +394,6 @@ class EntriesNotifier extends StateNotifier<EntriesState> {
   /// Delete an entry (ONLINE-FIRST).
   Future<EntryResult> deleteEntry(String entryId) async {
     // 1. Check if online
-    if (!_isOnline) {
-      return EntryResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
 
     try {
       // 2. Delete from Supabase FIRST

@@ -492,7 +492,7 @@ class _EditEntryScreenState extends ConsumerState<EditEntryScreen> {
                 onPressed: () => setState(() => _dmsLeads++),
                 style: IconButton.styleFrom(
                   backgroundColor: colors.interactivePrimary,
-                  foregroundColor: colors.textInverse,
+                  foregroundColor: Colors.black,
                 ),
               ),
             ],

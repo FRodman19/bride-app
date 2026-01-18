@@ -528,7 +528,7 @@ class _LogEntryScreenState extends ConsumerState<LogEntryScreen> {
                 },
                 style: IconButton.styleFrom(
                   backgroundColor: colors.interactivePrimary,
-                  foregroundColor: colors.textInverse,
+                  foregroundColor: Colors.black,
                 ),
               ),
             ],

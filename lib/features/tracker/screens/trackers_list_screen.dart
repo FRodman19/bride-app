@@ -33,32 +33,53 @@ class TrackersListScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: switch (trackersState) {
-          TrackersLoading() => GOLLoadingScreen(
+          TrackersLoading() => const GOLLoadingScreen(
               message: 'Loading your projects...',
-              icon: Iconsax.folder_2,
               showRetryWhileLoading: false,
             ),
-          TrackersError(:final message) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
-                  const SizedBox(height: GOLSpacing.space4),
-                  Text(
-                    l10n.errorLoadingProjects,
-                    style: textTheme.titleMedium?.copyWith(
-                      color: colors.textPrimary,
+          TrackersError(:final message) => RefreshIndicator(
+              onRefresh: () async {
+                await ref.read(trackersProvider.notifier).loadTrackers();
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height - 100,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
+                          const SizedBox(height: GOLSpacing.space4),
+                          Text(
+                            l10n.errorLoadingProjects,
+                            style: textTheme.titleMedium?.copyWith(
+                              color: colors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: GOLSpacing.space2),
+                          Text(
+                            message,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colors.textSecondary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: GOLSpacing.space4),
+                          Text(
+                            'Pull down to retry',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colors.textTertiary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: GOLSpacing.space2),
-                  Text(
-                    message,
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colors.textSecondary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                ),
               ),
             ),
           TrackersLoaded(:final trackers) when trackers.isEmpty =>
@@ -77,7 +98,7 @@ class TrackersListScreen extends ConsumerWidget {
           ? FloatingActionButton(
               onPressed: () => context.push(Routes.createTracker),
               backgroundColor: colors.interactivePrimary,
-              child: Icon(Iconsax.add, color: colors.textInverse),
+              child: const Icon(Iconsax.add, color: Colors.black),
             )
           : null,
     );

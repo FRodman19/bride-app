@@ -178,7 +178,6 @@ class PostsNotifier extends StateNotifier<PostsState> {
     loadPosts();
   }
 
-  bool get _isOnline => _ref.read(connectivityProvider) == ConnectivityState.online;
 
   PostDao get _postDao => _ref.read(postDaoProvider);
 
@@ -218,16 +217,6 @@ class PostsNotifier extends StateNotifier<PostsState> {
     if (mounted) state = const PostsLoading();
 
     try {
-      // Check if online
-      if (!_isOnline) {
-        if (mounted) {
-          state = const PostsError(
-            "You're offline. Please check your internet connection and try again."
-          );
-        }
-        return;
-      }
-
       // Load ONLY from Supabase
       final response = await SupabaseConfig.client
           .from('posts')
@@ -274,11 +263,6 @@ class PostsNotifier extends StateNotifier<PostsState> {
     }
 
     // 1. Check if online
-    if (!_isOnline) {
-      return PostResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
 
     try {
       final post = PostModel.create(
@@ -314,11 +298,6 @@ class PostsNotifier extends StateNotifier<PostsState> {
     }
 
     // 1. Check if online
-    if (!_isOnline) {
-      return PostResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
 
     try {
       final updatedPost = post.copyWith(updatedAt: DateTime.now());
@@ -346,11 +325,6 @@ class PostsNotifier extends StateNotifier<PostsState> {
   /// Delete a post (ONLINE-FIRST).
   Future<PostResult> deletePost(String postId) async {
     // 1. Check if online
-    if (!_isOnline) {
-      return PostResult.error(
-        "You're offline. Please check your internet connection and try again."
-      );
-    }
 
     try {
       // 2. Delete from Supabase FIRST

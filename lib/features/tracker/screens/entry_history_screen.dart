@@ -135,17 +135,45 @@ class _EntryHistoryScreenState extends ConsumerState<EntryHistoryScreen> {
     }
 
     if (entriesState is EntriesError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
-            const SizedBox(height: GOLSpacing.space4),
-            Text(
-              l10n.failedToLoadEntries,
-              style: textTheme.titleMedium?.copyWith(color: colors.textPrimary),
+      return RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(entriesProvider(tracker.id).notifier).loadEntries();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Iconsax.warning_2, size: 48, color: colors.stateError),
+                    const SizedBox(height: GOLSpacing.space4),
+                    Text(
+                      l10n.failedToLoadEntries,
+                      style: textTheme.titleMedium?.copyWith(color: colors.textPrimary),
+                    ),
+                    const SizedBox(height: GOLSpacing.space2),
+                    Text(
+                      (entriesState as EntriesError).message,
+                      style: textTheme.bodySmall?.copyWith(color: colors.textSecondary),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: GOLSpacing.space4),
+                    Text(
+                      'Pull down to retry',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colors.textTertiary,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       );
     }

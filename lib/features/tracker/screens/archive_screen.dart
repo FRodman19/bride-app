@@ -74,19 +74,34 @@ class ArchiveScreen extends ConsumerWidget {
     }
 
     if (state is TrackersError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Iconsax.warning_2, size: 48),
-            const SizedBox(height: GOLSpacing.space4),
-            Text('${l10n.error}: ${state.message}'),
-            const SizedBox(height: GOLSpacing.space4),
-            GOLButton(
-              label: l10n.retry,
-              onPressed: () => ref.read(trackersProvider.notifier).loadTrackers(),
+      return RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(trackersProvider.notifier).loadTrackers();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(GOLSpacing.screenPaddingHorizontal),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Iconsax.warning_2, size: 48),
+                    const SizedBox(height: GOLSpacing.space4),
+                    Text('${l10n.error}: ${state.message}'),
+                    const SizedBox(height: GOLSpacing.space4),
+                    Text(
+                      'Pull down to retry',
+                      style: Theme.of(context).textTheme.bodySmall,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       );
     }
